@@ -1,3 +1,38 @@
+Everything in this first section of the README contains changes, additions, and notes for this modified version of the project. Below this section is hegyak's original README.
+
+## Resources and Information Useful for Development
+
+https://github.com/Texthead1/Riches  
+https://github.com/NefariousTechSupport/Runes  
+https://github.com/xMcacutt/SkanderNET  
+https://xmcacutt.github.io/SkanderNET/docs/introduction.html  
+https://github.com/hegyak/SkyEditGUI/tree/master  
+https://github.com/skylandersNFC/Skylanders-GUI-Tool  
+https://www.pyrofersprojects.com/blog/skylanders-gui-tool/
+
+## Current Working Modifications to the Original Codebase
+
+- Vehicle Gearbits Modifier
+  - After connecting the portal and configuring the correct driver so the application can detect it, place a vehicle on the Portal of Power and read the first figure.
+  - Once the vehicle has been read successfully and the relevant checksum/status boxes are green, open the Vehicles editor.
+  - You can then modify the Gearbits value to any amount from 0 to 33,000.
+  - After making your change, close the vehicle editor and choose Yes when prompted to apply the changes.
+  - Finally, use the main form's write option to write the first figure back to the portal. If the write succeeds, the vehicle should now contain the new Gearbits amount.
+
+- Portal Connection Debug Log
+  - A debug log was added to help diagnose portal detection and connection issues.
+  - When connecting the portal, you may see a popup mentioning the debug log. This popup is only informational.
+  - The log records details about HID/device detection, portal connection attempts, and how Windows is identifying the device.
+
+## Notes
+
+- The current vehicle-related work is focused specifically on Gearbits editing.
+- The vehicle editor changes are intended for vehicles that use the standard SuperChargers vehicle data layout.
+- Saving changes in the vehicle editor updates the figure data in memory first. You must still use the main form write option to send the modified data back to the figure on the portal.
+- hegyak's original README has been left unchanged, including the TODO list.
+
+---
+
 # SkyEditGUI
 GUI Editor for MiFare based figures
 
