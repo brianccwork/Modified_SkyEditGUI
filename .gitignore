@@ -1,0 +1,37 @@
+# Visual Studio workspace files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+bin/
+obj/
+
+# Project-specific build folders
+SkyReader-GUI/bin/
+SkyReader-GUI/obj/
+
+# Debug / logs
+*.log
+*.pdb
+*.cache
+*.sqlite
+*.vsidx
+
+# Generated XML docs / temp files
+*.xml
+project_tree.txt
+
+# Visual Studio generated metadata
+DocumentLayout.json
+DocumentLayout.backup.json
+attribcache*.bin
+
+# TempPE
+TempPE/
+
+# OS junk
+Thumbs.db
+.DS_Store
