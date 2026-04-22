@@ -1,0 +1,64 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+SkyReader-GUI
+</name>
+</assembly>
+<members>
+<member name="T:SkyReader_GUI.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:SkyReader_GUI.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:SkyReader_GUI.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+<member name="T:SkyReader_GUI.DeviceManagement">
+ <summary>
+ For detecting devices and receiving device notifications.
+ </summary>
+</member>
+<member name="M:SkyReader_GUI.DeviceManagement.DeviceNameMatch(System.Windows.Forms.Message,System.String)">
+ <summary>
+ Compares two device path names.
+ </summary>
+</member>
+<member name="M:SkyReader_GUI.DeviceManagement.FindDeviceFromGuid(System.Guid,System.String[]@)">
+ <summary>
+ Use SetupDi API functions to retrieve the device path name of an
+ attached device that belongs to a device interface class.
+ </summary>
+</member>
+<member name="M:SkyReader_GUI.DeviceManagement.RegisterForDeviceNotifications(System.String,System.IntPtr,System.Guid,System.IntPtr@)">
+ <summary>
+ Requests to receive a notification when a device is attached or removed.
+ </summary>
+</member>
+<member name="M:SkyReader_GUI.DeviceManagement.StopReceivingDeviceNotifications(System.IntPtr)">
+ <summary>
+ Requests to stop receiving notification messages.
+ </summary>
+</member>
+<member name="F:SkyReader_GUI.DeviceManagement.DBT_DEVICEARRIVAL">
+<remarks>
+ API declarations relating to device management (SetupDixxx and 
+ RegisterDeviceNotification functions).
+ Constants are from dbt.h and setupapi.h.
+</remarks>
+</member>
+<member name="T:SkyReader_GUI.FileIO">
+ <summary>
+ API declarations relating to file I/O.
+ </summary>
+</member>
+</members>
+</doc>

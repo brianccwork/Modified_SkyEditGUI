@@ -1,0 +1,92 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\brian\\Downloads\\SkyEditOverhaulTryTwo\\SkyEditGUI-master\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{95230997-C373-44C4-8051-359832004472}|SkyReader-GUI\\SkyReader-GUI.vbproj|c:\\users\\brian\\downloads\\skyeditoverhaultrytwo\\skyeditgui-master\\skyreader-gui\\devicemanagement.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{95230997-C373-44C4-8051-359832004472}|SkyReader-GUI\\SkyReader-GUI.vbproj|solutionrelative:skyreader-gui\\devicemanagement.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{95230997-C373-44C4-8051-359832004472}|SkyReader-GUI\\SkyReader-GUI.vbproj|c:\\users\\brian\\downloads\\skyeditoverhaultrytwo\\skyeditgui-master\\skyreader-gui\\frmvehicles.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{95230997-C373-44C4-8051-359832004472}|SkyReader-GUI\\SkyReader-GUI.vbproj|solutionrelative:skyreader-gui\\frmvehicles.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{95230997-C373-44C4-8051-359832004472}|SkyReader-GUI\\SkyReader-GUI.vbproj|c:\\users\\brian\\downloads\\skyeditoverhaultrytwo\\skyeditgui-master\\skyreader-gui\\hidcontrol.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{95230997-C373-44C4-8051-359832004472}|SkyReader-GUI\\SkyReader-GUI.vbproj|solutionrelative:skyreader-gui\\hidcontrol.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{95230997-C373-44C4-8051-359832004472}|SkyReader-GUI\\SkyReader-GUI.vbproj|c:\\users\\brian\\downloads\\skyeditoverhaultrytwo\\skyeditgui-master\\skyreader-gui\\frmmain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{95230997-C373-44C4-8051-359832004472}|SkyReader-GUI\\SkyReader-GUI.vbproj|solutionrelative:skyreader-gui\\frmmain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "frmMain.vb",
+              "DocumentMoniker": "C:\\Users\\brian\\Downloads\\SkyEditOverhaulTryTwo\\SkyEditGUI-master\\SkyReader-GUI\\frmMain.vb",
+              "RelativeDocumentMoniker": "SkyReader-GUI\\frmMain.vb",
+              "ToolTip": "C:\\Users\\brian\\Downloads\\SkyEditOverhaulTryTwo\\SkyEditGUI-master\\SkyReader-GUI\\frmMain.vb",
+              "RelativeToolTip": "SkyReader-GUI\\frmMain.vb",
+              "ViewState": "AgIAALABAAAAAAAAAADwvwAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-04-22T18:49:06.657Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "hidControl.vb",
+              "DocumentMoniker": "C:\\Users\\brian\\Downloads\\SkyEditOverhaulTryTwo\\SkyEditGUI-master\\SkyReader-GUI\\hidControl.vb",
+              "RelativeDocumentMoniker": "SkyReader-GUI\\hidControl.vb",
+              "ToolTip": "C:\\Users\\brian\\Downloads\\SkyEditOverhaulTryTwo\\SkyEditGUI-master\\SkyReader-GUI\\hidControl.vb",
+              "RelativeToolTip": "SkyReader-GUI\\hidControl.vb",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-04-22T18:48:48.692Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DeviceManagement.vb",
+              "DocumentMoniker": "C:\\Users\\brian\\Downloads\\SkyEditOverhaulTryTwo\\SkyEditGUI-master\\SkyReader-GUI\\DeviceManagement.vb",
+              "RelativeDocumentMoniker": "SkyReader-GUI\\DeviceManagement.vb",
+              "ToolTip": "C:\\Users\\brian\\Downloads\\SkyEditOverhaulTryTwo\\SkyEditGUI-master\\SkyReader-GUI\\DeviceManagement.vb",
+              "RelativeToolTip": "SkyReader-GUI\\DeviceManagement.vb",
+              "ViewState": "AgIAADYAAAAAAAAAAAAYwDkAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-04-22T18:48:40.694Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "frmVehicles.vb",
+              "DocumentMoniker": "C:\\Users\\brian\\Downloads\\SkyEditOverhaulTryTwo\\SkyEditGUI-master\\SkyReader-GUI\\frmVehicles.vb",
+              "RelativeDocumentMoniker": "SkyReader-GUI\\frmVehicles.vb",
+              "ToolTip": "C:\\Users\\brian\\Downloads\\SkyEditOverhaulTryTwo\\SkyEditGUI-master\\SkyReader-GUI\\frmVehicles.vb",
+              "RelativeToolTip": "SkyReader-GUI\\frmVehicles.vb",
+              "ViewState": "AgIAAN4AAAAAAAAAAAAAANwAAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-04-22T15:31:42.452Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
