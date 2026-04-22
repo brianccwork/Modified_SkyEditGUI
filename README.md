@@ -1,3 +1,5 @@
+#Modified SkyEditGUI
+
 Everything in this first section of the README contains changes, additions, and notes for this modified version of the project. Below this section is hegyak's original README.
 
 ## Resources and Information Useful for Development
