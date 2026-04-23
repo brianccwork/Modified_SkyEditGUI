@@ -16,6 +16,9 @@ Module hidControl
 
     Const reportSize = 33
 
+    'Find and connect to a Skylanders portal through the Windows HID stack.
+    'The function scans HID devices, looks for the Skylanders VID/PID,
+    'opens the matching device, and stores the handle for later portal I/O.
     Public Function FindThePortal() As SafeFileHandle
 
         Dim deviceFound As Boolean
@@ -48,11 +51,10 @@ Module hidControl
                     Dim upperPath As String = devicePathName(memberIndex).ToUpperInvariant()
                     DeviceManagement.DebugWrite("Candidate HID Path: " & upperPath)
 
+                    'Match the standard non-Xbox portal VID/PID.
                     If upperPath.Contains("VID_1430") AndAlso upperPath.Contains("PID_0150") Then
 
-                        ' IMPORTANT:
-                        ' Some systems fail when opening the HID path with zero desired access.
-                        ' Open it directly with read/write sharing.
+                        'Open the device once so we can query its attributes.
                         hidHandle = CreateFile(
                             devicePathName(memberIndex),
                             GENERIC_READ Or GENERIC_WRITE,
@@ -73,6 +75,7 @@ Module hidControl
                                     "Attributes VID=" & MyHid.DeviceAttributes.VendorID.ToString() &
                                     " PID=" & MyHid.DeviceAttributes.ProductID.ToString())
 
+                                'Confirm the device really is the expected Skylanders portal.
                                 If MyHid.DeviceAttributes.VendorID = 5168 AndAlso MyHid.DeviceAttributes.ProductID = 336 Then
                                     myDeviceDetected = True
                                     myDevicePathName = devicePathName(memberIndex)
@@ -99,6 +102,7 @@ Module hidControl
             End If
 
             If myDeviceDetected Then
+                'Register for device notifications so the UI can react if the portal is unplugged.
                 MyDeviceManagement.RegisterForDeviceNotifications(
                     myDevicePathName,
                     frmMain.Handle,
@@ -116,6 +120,7 @@ Module hidControl
                     hidHandle.Close()
                 End If
 
+                'Re-open the portal with the handle that will actually be used for reads and writes.
                 DeviceManagement.DebugWrite("Re-opening portal with read/write access: " & myDevicePathName)
 
                 hidHandle = CreateFile(
@@ -139,6 +144,7 @@ Module hidControl
 
                 deviceStream = New FileStream(hidHandle, FileAccess.ReadWrite, reportSize, False)
 
+                'Flush any pending HID packets so future portal communication starts clean.
                 HidD_FlushQueue(hidHandle)
 
                 frmMain.unlockPortalControls()
@@ -164,21 +170,25 @@ Module hidControl
         End Try
     End Function
 
+    'Send a 33-byte output report to the connected portal.
     Public Sub outputReport(ByVal hidHandle As SafeFileHandle, ByRef outReport As Byte())
         DeviceManagement.DebugWrite("outputReport() called")
         HidD_SetOutputReport(hidHandle, outReport(0), reportSize)
     End Sub
 
+    'Read a 33-byte input report from the connected portal.
     Public Sub inputReport(ByVal hidHandle As SafeFileHandle, ByRef inReport As Byte())
         If Not (deviceStream Is Nothing) AndAlso deviceStream.CanRead Then
             deviceStream.Read(inReport, 0, reportSize)
         End If
     End Sub
 
+    'Clear any queued HID reports from the portal.
     Public Sub flushHid(ByVal hidHandle As SafeFileHandle)
         HidD_FlushQueue(hidHandle)
     End Sub
 
+    'Check whether a Windows device-change message belongs to the currently connected portal.
     Public Function checkDevice(ByRef m As Message) As Boolean
         Try
             If String.IsNullOrEmpty(myDevicePathName) Then
@@ -193,6 +203,7 @@ Module hidControl
         End Try
     End Function
 
+    'Close the stream and HID handle used for portal communication.
     Public Sub CloseCommunications(ByRef hidHandle As SafeFileHandle)
 
         Try

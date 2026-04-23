@@ -285,11 +285,17 @@ Public Class frmMain
         bgWritePortalDuo.RunWorkerAsync()
     End Sub
 
+    'Connect to the portal and show the user whether the connection worked.
+    'This also writes extra debugging information to portal_debug.log.
     Private Sub ConnectToPortalToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConnectToPortalToolStripMenuItem.Click
         Try
+            'Log that the menu item was clicked so we can trace the portal connection attempt.
             DeviceManagement.DebugWrite("ConnectToPortalToolStripMenuItem_Click() fired")
+
+            'Attempt to find and connect to the portal.
             Portal.portalHandle = FindThePortal()
 
+            'Tell the user whether the portal connection succeeded.
             If Portal.blnPortal Then
                 MessageBox.Show("Portal connected. Check portal_debug.log if you want the full trace.")
             Else
@@ -297,6 +303,7 @@ Public Class frmMain
             End If
 
         Catch ex As Exception
+            'Log the exception so portal connection issues can be traced later. SOOO helpful for me
             DeviceManagement.DebugWrite("ConnectToPortalToolStripMenuItem_Click() exception: " & ex.ToString())
             MessageBox.Show("Connect to Portal failed: " & ex.Message & vbCrLf & "Check portal_debug.log in the EXE folder.")
         End Try

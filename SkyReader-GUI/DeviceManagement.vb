@@ -9,6 +9,9 @@ Partial Friend NotInheritable Class DeviceManagement
 
     Const MODULE_NAME As String = "DeviceManagement"
 
+    'Write a line to portal_debug.log.
+    'This is used by the portal connection code so I can see exactly
+    'what Windows is returning during HID device enumeration.
     Public Shared Sub DebugWrite(ByVal msg As String)
         Try
             Dim debugPath As String = IO.Path.Combine(Application.StartupPath, "portal_debug.log")
@@ -16,6 +19,7 @@ Partial Friend NotInheritable Class DeviceManagement
                 debugPath,
                 DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") & " | " & msg & Environment.NewLine)
         Catch
+            'ignore logging failures so it doesnt stop program
         End Try
     End Sub
 
@@ -63,11 +67,12 @@ Partial Friend NotInheritable Class DeviceManagement
     ''' <summary>
     ''' Use SetupDi API functions to retrieve the device path name of an
     ''' attached device that belongs to a device interface class.
+    ''' Also added a bunch of logging to help debug portal connection issues
     ''' </summary>
     Friend Function FindDeviceFromGuid _
- (ByVal myGuid As Guid,
- ByRef devicePathName() As String) _
- As Boolean
+     (ByVal myGuid As Guid,
+     ByRef devicePathName() As String) _
+     As Boolean
 
         Dim bufferSize As Int32 = 0
         Dim detailDataBuffer As IntPtr = IntPtr.Zero
@@ -80,13 +85,14 @@ Partial Friend NotInheritable Class DeviceManagement
         Dim success As Boolean
 
         Try
+            'Log the start of HID enumeration.
             DebugWrite("FindDeviceFromGuid() started")
 
             deviceInfoSet = SetupDiGetClassDevs(
-            myGuid,
-            IntPtr.Zero,
-            IntPtr.Zero,
-            DIGCF_PRESENT Or DIGCF_DEVICEINTERFACE)
+                myGuid,
+                IntPtr.Zero,
+                IntPtr.Zero,
+                DIGCF_PRESENT Or DIGCF_DEVICEINTERFACE)
 
             If deviceInfoSet = IntPtr.Zero OrElse deviceInfoSet.ToInt64 = -1 Then
                 DebugWrite("SetupDiGetClassDevs failed or returned invalid handle")
@@ -97,43 +103,44 @@ Partial Friend NotInheritable Class DeviceManagement
 
             Do
                 success = SetupDiEnumDeviceInterfaces(
-                deviceInfoSet,
-                IntPtr.Zero,
-                myGuid,
-                memberIndex,
-                myDeviceInterfaceData)
+                    deviceInfoSet,
+                    IntPtr.Zero,
+                    myGuid,
+                    memberIndex,
+                    myDeviceInterfaceData)
 
                 If Not success Then
+                    'No more matching HID devices were found.
                     lastDevice = True
                     DebugWrite("SetupDiEnumDeviceInterfaces finished at memberIndex=" & memberIndex.ToString())
                 Else
                     bufferSize = 0
 
                     SetupDiGetDeviceInterfaceDetail(
-                    deviceInfoSet,
-                    myDeviceInterfaceData,
-                    IntPtr.Zero,
-                    0,
-                    bufferSize,
-                    IntPtr.Zero)
+                        deviceInfoSet,
+                        myDeviceInterfaceData,
+                        IntPtr.Zero,
+                        0,
+                        bufferSize,
+                        IntPtr.Zero)
 
+                    'Allocate the buffer that will hold SP_DEVICE_INTERFACE_DETAIL_DATA.
                     detailDataBuffer = Marshal.AllocHGlobal(bufferSize)
 
-                    ' Keep cbSize architecture-safe.
+                    'Write the cbSize value in a way that works for the current process architecture.
                     Marshal.WriteInt32(detailDataBuffer, If(IntPtr.Size = 8, 8, 6))
 
                     success = SetupDiGetDeviceInterfaceDetail(
-                    deviceInfoSet,
-                    myDeviceInterfaceData,
-                    detailDataBuffer,
-                    bufferSize,
-                    bufferSize,
-                    IntPtr.Zero)
+                        deviceInfoSet,
+                        myDeviceInterfaceData,
+                        detailDataBuffer,
+                        bufferSize,
+                        bufferSize,
+                        IntPtr.Zero)
 
                     If success Then
-                        ' IMPORTANT:
-                        ' The device path string starts immediately after the DWORD cbSize field.
-                        ' Use +4 for the path pointer, not the cbSize value above.
+                        'The first 4 bytes are the cbSize field.
+                        'The device path string begins immediately after that.
                         pdevicePathName = IntPtr.Add(detailDataBuffer, 4)
 
                         If devicePathName Is Nothing Then
@@ -145,6 +152,8 @@ Partial Friend NotInheritable Class DeviceManagement
                         devicePathName(memberIndex) = Marshal.PtrToStringAuto(pdevicePathName)
 
                         If Not String.IsNullOrEmpty(devicePathName(memberIndex)) Then
+                            'Log every HID path that Windows returns so we can see
+                            'whether the portal is being exposed as a HID device.
                             DebugWrite("HID ENUM: " & devicePathName(memberIndex))
                             deviceFound = True
                         Else
