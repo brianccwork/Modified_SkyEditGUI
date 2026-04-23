@@ -224,6 +224,8 @@ Partial Friend NotInheritable Class DeviceManagement
 
             Marshal.PtrToStructure(devBroadcastDeviceInterfaceBuffer, devBroadcastDeviceInterface)
 
+            'NOTE Maybe use this to not have an error (if an error shows up in future)
+            'If deviceNotificationHandle = IntPtr.Zero Then
             If (deviceNotificationHandle.ToInt32 = IntPtr.Zero.ToInt32) Then
                 Return False
             Else
