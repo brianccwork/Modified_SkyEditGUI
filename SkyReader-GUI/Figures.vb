@@ -68,6 +68,11 @@ Public Class Figures
     End Sub
 #Region " Write Methods "
     Shared Sub EditCharacterIDVariant()
+        'Senseis must never have Character ID / Variant ID rewritten (or corruption)
+        If blnSensei = True Then
+            Exit Sub
+        End If
+
         'MessageBox.Show("CharID0: " & CharacterID(0))
         'MessageBox.Show("CharID1: " & CharacterID(1))
         'MessageBox.Show("CharVar0: " & CharacterVariant(0))
@@ -81,6 +86,11 @@ Public Class Figures
         WholeFile(&H1D) = CharacterVariant(1)
     End Sub
     Shared Sub Fixing_Bytes()
+        'NEW: Senseis must keep their current signature/access bytes exactly as they were read.
+        If blnSensei = True Then
+            Exit Sub
+        End If
+
         'This is Special Byte Writing Stuff.
         Dim Counter As Integer = 0
 
