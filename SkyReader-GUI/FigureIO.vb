@@ -15,6 +15,7 @@ Public Class FigureIO
     Public Shared blnTrap As Boolean = False
     Public Shared BlnVehicle As Boolean = False
     Public Shared blnCrystal As Boolean = False
+    Public Shared blnSensei As Boolean = False
 
     'Call all the Functions for the Figure, when relevant.
     'TODO:
@@ -71,6 +72,8 @@ Public Class FigureIO
         BlnVehicle = False
         blnTrap = False
         blnCrystal = False
+        blnCrystal = False
+        blnSensei = False
         'We Reset WebCode here and early.
         frmMain.lblWebCode.Text = ""
         'We can get the Figure's ID and Variant ID without Needing Encryption/Decryption
@@ -158,23 +161,45 @@ Public Class FigureIO
         'btnWrite.Enabled = True
 
         System_ID.ReadSystem_ID()
+        blnSensei = IsSenseiFigure()
+        frmMain.ApplySenseiUi()
     End Sub
+
+    Public Shared Function IsSenseiFigure() As Boolean
+        If blnTrap = True OrElse BlnVehicle = True OrElse blnCrystal = True Then
+            Return False
+        End If
+
+        If frmMain.cmbGame.SelectedItem IsNot Nothing AndAlso frmMain.cmbGame.SelectedItem.ToString() = "Imaginators" Then
+            Return True
+        End If
+
+        Return False
+    End Function
 
     'Write_Data write's Data to the Figures.
     'Note that Traps, Vehicles and Crystals do NOT use this because they have their own Editor that is used.
     Public Shared Sub Write_Data()
         If BlnVehicle = False And blnTrap = False And blnCrystal = False Then
-            'Set Data that changed.
-            Challenges.WriteChallenges()
-            Exp.WriteEXP()
-            Gold.WriteGold()
-            Hero.WriteHero()
-            Nickname.SetNickname()
-            Hats.WriteHats()
-            If frmMain.numLevel.Value >= 10 Then
-                Skills.WriteSkillPath()
+            If blnSensei = True Then
+                'Senseis only write the safe payload fields required for this feature.
+                'Do not update nickname, hats, skills, hero, challenges, serial-adjacent data, or system ownership fields. (This change has been added to frmMain file)
+                Exp.WriteEXP()
+                Gold.WriteGold()
+            Else
+                'Set Data that changed.
+                Challenges.WriteChallenges()
+                Exp.WriteEXP()
+                Gold.WriteGold()
+                Hero.WriteHero()
+                Nickname.SetNickname()
+                Hats.WriteHats()
+                If frmMain.numLevel.Value >= 10 Then
+                    Skills.WriteSkillPath()
+                End If
             End If
         End If
+
         If blnTrap = True Then
             'Special Byte Data Writes
             Dim ZeroTrap As Integer = 0
@@ -226,6 +251,14 @@ Public Class FigureIO
             'Special Byte Data Writes
             'Not Implimented, Yet.
         End If
+
+        If blnSensei = True Then
+            'Senseis must keep their signature/access blocks and identity-related data untouched.
+            Figures.SetArea0AndArea1()
+            CRC16CCITT.WriteCheckSums()
+            Exit Sub
+        End If
+
         'All Figures need these Functions still.
         'Write the System ID
         System_ID.WriteSystem()
@@ -248,7 +281,7 @@ Public Class FigureIO
         If (dialog.ShowDialog = DialogResult.OK) Then
             Dim NewFile As String = dialog.FileName
 
-            If frmMain.chkSerial.Checked = True Then
+            If frmMain.chkSerial.Checked = True AndAlso blnSensei = False Then
                 CRC16CCITT.GenerateNewSerial()
             End If
             Figures.EditCharacterIDVariant()
@@ -273,7 +306,7 @@ Public Class FigureIO
         If (dialog.ShowDialog = DialogResult.OK) Then
             Dim NewFile As String = dialog.FileName
 
-            If frmMain.chkSerial.Checked = True Then
+            If frmMain.chkSerial.Checked = True AndAlso blnSensei = False Then
                 CRC16CCITT.GenerateNewSerial()
             End If
             Figures.EditCharacterIDVariant()

@@ -193,6 +193,17 @@ Public Class frmMain
         cmbHat.Enabled = True
         txtName.Enabled = True
     End Sub
+    Public Sub ApplySenseiUi()
+        'Senseis only expose the controls that are safe for Sensei gold and level edits prevents unwanted corruption bbfore I can get some UI changes done.
+        If FigureIO.blnSensei = True Then
+            Disable_Controls()
+            numGold.Enabled = True
+            numLevel.Enabled = True
+            chkSerial.Checked = False
+            chkSerial.Enabled = False
+            SaldeStatus.Text = "Sensei detected. Safe mode only writes Gold and Level."
+        End If
+    End Sub
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SaldeStatus.Text = "Ready"
         cmbGame.SelectedIndex = 0
