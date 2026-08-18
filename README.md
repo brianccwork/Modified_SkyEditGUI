@@ -14,10 +14,6 @@ https://www.pyrofersprojects.com/blog/skylanders-gui-tool/
 
 ## Current New Working Modifications to the Original Codebase
 
-NOTE: This Sensei Gold and Level Modifier will be the last update to this project. I will migrating my efforts to further develop the Runes Program from now on. Feel free the check it out here!
-
-https://github.com/NefariousTechSupport/Runes
-
 - Sensei Gold and Level Modifier
   - Senseis can now be safely detected, read, modified, and written back through the Portal of Power.
   - The editor currently supports modifying Sensei Gold and Level/EXP values.
