@@ -12,6 +12,9 @@ https://github.com/hegyak/SkyEditGUI/tree/master
 https://github.com/skylandersNFC/Skylanders-GUI-Tool  
 https://www.pyrofersprojects.com/blog/skylanders-gui-tool/
 
+## Small Update 8/18/2026
+- Sensei Gold and Level modifier now accepts Heartbreaker Buckshot
+
 ## Current New Working Modifications to the Original Codebase
 
 - Sensei Gold and Level Modifier

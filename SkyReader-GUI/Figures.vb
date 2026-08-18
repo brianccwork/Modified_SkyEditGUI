@@ -2772,7 +2772,9 @@ Public Class Figures
                     CharacterID(0) = &H6C
                     CharacterID(1) = &H2
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Heartbreaker Buckshot" Then
-                    CharacterVariant(0) = &HD
+                    '6A02 / 0C54
+                    'Heartbreaker Buckshot
+                    CharacterVariant(0) = &HC
                     CharacterVariant(1) = &H54
                     CharacterID(0) = &H6A
                     CharacterID(1) = &H2
@@ -5571,6 +5573,12 @@ Public Class Figures
                     frmMain.lstCharacters.SelectedItem = "Steel Plated Hood Sickle"
                 Case "6602"
                     frmMain.lstCharacters.SelectedItem = "WolfGang Dark"
+            End Select
+        ElseIf Var = "0C54" Then
+            frmMain.cmbGame.SelectedItem = "Imaginators"
+            Select Case Fig
+                Case "6A02"
+                    frmMain.lstCharacters.SelectedItem = "Heartbreaker Buckshot"
             End Select
         ElseIf Var = "0D54" Then
             frmMain.cmbGame.SelectedItem = "Imaginators"

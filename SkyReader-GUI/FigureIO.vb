@@ -80,6 +80,10 @@ Public Class FigureIO
         'Get Figure ID and Alter Ego/Variant
         Figures.GetFigureID_AlterEgo_Variant()
 
+        'FigureItOut() has now identified the game/type, so determine Sensei status
+        'before EXP/Gold parsing. Exp.GetEXP() needs this flag to use the Sensei layout.
+        blnSensei = IsSenseiFigure()
+
         'Because Traps, Vehciles and Crystals are writing bytes to where the Nickname would normally show up, we Do NOT attempt to Decrypt here.
         'Though, Crystals may write here?
         If blnTrap = False And blnCrystal = False And BlnVehicle = False Then
@@ -161,7 +165,7 @@ Public Class FigureIO
         'btnWrite.Enabled = True
 
         System_ID.ReadSystem_ID()
-        blnSensei = IsSenseiFigure()
+        'blnSensei = IsSenseiFigure()
         frmMain.ApplySenseiUi()
     End Sub
 
