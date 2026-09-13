@@ -68,8 +68,9 @@ Public Class Figures
     End Sub
 #Region " Write Methods "
     Shared Sub EditCharacterIDVariant()
-        'Senseis must never have Character ID / Variant ID rewritten (or corruption)
-        If blnSensei = True Then
+        'Senseis and special Gold/XP-only figures must never have
+        'Character ID / Variant ID rewritten.
+        If blnSensei = True OrElse blnGoldXpOnlyFigure = True Then
             Exit Sub
         End If
 
@@ -1511,6 +1512,13 @@ Public Class Figures
                     CharacterID(1) = &HB
                     CharacterVariant(0) = &H0
                     CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "VVind-Up" Then
+                    'C30B
+                    '0424
+                    CharacterID(0) = &HC3
+                    CharacterID(1) = &HB
+                    CharacterVariant(0) = &H4
+                    CharacterVariant(1) = &H24
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Zoo Lou" Then
                     'BF0B
                     '0020
@@ -2357,23 +2365,47 @@ Public Class Figures
                     CharacterVariant(0) = &H0
                     CharacterVariant(1) = &H41
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Instant Dive Bomber" Then
-
-                    blnNoCode = True
+                    '9F0C
+                    '0F45
+                    CharacterID(0) = &H9F
+                    CharacterID(1) = &HC
+                    CharacterVariant(0) = &HF
+                    CharacterVariant(1) = &H45
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Instant Dive-Clops" Then
-
-                    blnNoCode = True
+                    '610D
+                    '0F45
+                    CharacterID(0) = &H61
+                    CharacterID(1) = &HD
+                    CharacterVariant(0) = &HF
+                    CharacterVariant(1) = &H45
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Instant Hot Streak" Then
-
-                    blnNoCode = True
+                    '980C
+                    '0F45
+                    CharacterID(0) = &H98
+                    CharacterID(1) = &HC
+                    CharacterVariant(0) = &HF
+                    CharacterVariant(1) = &H45
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Instant Spitfire" Then
-
-                    blnNoCode = True
+                    '540D
+                    '0F45
+                    CharacterID(0) = &H54
+                    CharacterID(1) = &HD
+                    CharacterVariant(0) = &HF
+                    CharacterVariant(1) = &H45
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Instant Stealth Stinger" Then
-
-                    blnNoCode = True
+                    '9C0C
+                    '0F45
+                    CharacterID(0) = &H9C
+                    CharacterID(1) = &HC
+                    CharacterVariant(0) = &HF
+                    CharacterVariant(1) = &H45
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Instant Super Shot Stealth Elf" Then
-
-                    blnNoCode = True
+                    '570D
+                    '0F45
+                    CharacterID(0) = &H57
+                    CharacterID(1) = &HD
+                    CharacterVariant(0) = &HF
+                    CharacterVariant(1) = &H45
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Jet Stream" Then
                     '940C
                     '0040
@@ -4404,6 +4436,12 @@ Public Class Figures
                     'Legendary Grim Creeper
                     frmMain.lstCharacters.SelectedItem = "Legendary Grim Creeper"
             End Select
+        ElseIf Var = "0424" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "C30B"
+                    frmMain.lstCharacters.SelectedItem = "VVind-Up"
+            End Select
         ElseIf Var = "0528" Then
             frmMain.cmbGame.SelectedItem = "Swap Force"
             Select Case Fig
@@ -4958,6 +4996,45 @@ Public Class Figures
             Select Case Fig
                 Case "640D"
                     frmMain.lstCharacters.SelectedItem = "Eggcited Thrillipede"
+            End Select
+        ElseIf Var = "0F45" Then
+            'Instant character variants use 0F45.
+            'The uploaded Instant vehicle dumps also use 0F45, so route those
+            'vehicle Character IDs through the vehicle editor instead of Gold/XP.
+            Select Case Fig
+                Case "610D"
+                    frmMain.cmbGame.SelectedItem = "SuperChargers"
+                    frmMain.lstCharacters.SelectedItem = "Instant Dive-Clops"
+                Case "540D"
+                    frmMain.cmbGame.SelectedItem = "SuperChargers"
+                    frmMain.lstCharacters.SelectedItem = "Instant Spitfire"
+                Case "570D"
+                    frmMain.cmbGame.SelectedItem = "SuperChargers"
+                    frmMain.lstCharacters.SelectedItem = "Instant Super Shot Stealth Elf"
+                Case "9F0C"
+                    BlnVehicle = True
+                    frmMain.cmbGame.SelectedItem = "Vehicles"
+                    frmMain.lstCharacters.SelectedItem = "Instant Dive Bomber"
+                Case "980C"
+                    BlnVehicle = True
+                    frmMain.cmbGame.SelectedItem = "Vehicles"
+                    frmMain.lstCharacters.SelectedItem = "Instant Hot Streak"
+                Case "9C0C"
+                    BlnVehicle = True
+                    frmMain.cmbGame.SelectedItem = "Vehicles"
+                    frmMain.lstCharacters.SelectedItem = "Instant Stealth Stinger"
+            End Select
+        ElseIf Var = "0F44" Then
+            'Published Instant vehicle variant.
+            BlnVehicle = True
+            frmMain.cmbGame.SelectedItem = "Vehicles"
+            Select Case Fig
+                Case "9F0C"
+                    frmMain.lstCharacters.SelectedItem = "Instant Dive Bomber"
+                Case "980C"
+                    frmMain.lstCharacters.SelectedItem = "Instant Hot Streak"
+                Case "9C0C"
+                    frmMain.lstCharacters.SelectedItem = "Instant Stealth Stinger"
             End Select
         ElseIf Var = "1048" Then
             frmMain.cmbGame.SelectedItem = "SuperChargers"
@@ -5817,6 +5894,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Wash Buckler (Bottom)")
         frmMain.lstCharacters.Items.Add("Wash Buckler (Top)")
         frmMain.lstCharacters.Items.Add("Wind-Up")
+        frmMain.lstCharacters.Items.Add("VVind-Up")
         frmMain.lstCharacters.Items.Add("Zoo Lou")
     End Sub
     Shared Sub TrapTeam()
@@ -5929,6 +6007,9 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Hammer Slam Bowser")
         frmMain.lstCharacters.Items.Add("High Volt")
         frmMain.lstCharacters.Items.Add("Hurricane Jet-Vac")
+        frmMain.lstCharacters.Items.Add("Instant Dive-Clops")
+        frmMain.lstCharacters.Items.Add("Instant Spitfire")
+        frmMain.lstCharacters.Items.Add("Instant Super Shot Stealth Elf")
         frmMain.lstCharacters.Items.Add("Lava Lance Eruptor")
         frmMain.lstCharacters.Items.Add("Legendary Astroblast")
         frmMain.lstCharacters.Items.Add("Legendary Bone Bash Roller Brawl")
@@ -6093,6 +6174,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Gold Rusher")
         frmMain.lstCharacters.Items.Add("Golden Hot Streak")
         frmMain.lstCharacters.Items.Add("Hot Streak")
+        frmMain.lstCharacters.Items.Add("Instant Hot Streak")
         frmMain.lstCharacters.Items.Add("Power Blue Gold Rusher")
         frmMain.lstCharacters.Items.Add("Shark Tank")
         frmMain.lstCharacters.Items.Add("Shield Striker")
@@ -6102,6 +6184,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("--Sea Vehicles--")
         frmMain.lstCharacters.Items.Add("Dark Sea Shadow")
         frmMain.lstCharacters.Items.Add("Dive Bomber")
+        frmMain.lstCharacters.Items.Add("Instant Dive Bomber")
         frmMain.lstCharacters.Items.Add("Nitro Soda Skimmer")
         frmMain.lstCharacters.Items.Add("Power Blue Splatter Splasher")
         frmMain.lstCharacters.Items.Add("Reef Ripper")
@@ -6118,6 +6201,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Nitro Stealth Stinger")
         frmMain.lstCharacters.Items.Add("Sky Slicer")
         frmMain.lstCharacters.Items.Add("Stealth Stinger")
+        frmMain.lstCharacters.Items.Add("Instant Stealth Stinger")
         frmMain.lstCharacters.Items.Add("Sun Runner")
     End Sub
     Shared Sub Crystals()

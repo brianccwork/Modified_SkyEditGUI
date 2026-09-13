@@ -194,7 +194,7 @@ Public Class frmMain
         txtName.Enabled = True
     End Sub
     Public Sub ApplySenseiUi()
-        'Senseis only expose the controls that are safe for Sensei gold and level edits prevents unwanted corruption bbfore I can get some UI changes done.
+        'Senseis only expose the controls that are safe for Sensei gold and level edits.
         If FigureIO.blnSensei = True Then
             Disable_Controls()
             numGold.Enabled = True
@@ -202,6 +202,15 @@ Public Class frmMain
             chkSerial.Checked = False
             chkSerial.Enabled = False
             SaldeStatus.Text = "Sensei detected. Safe mode only writes Gold and Level."
+        ElseIf FigureIO.blnGoldXpOnlyFigure = True Then
+            'Special NFC figures supplied for this editor only expose Gold and Level.
+            'This avoids unrelated writes to blank or special-purpose save fields.
+            Disable_Controls()
+            numGold.Enabled = True
+            numLevel.Enabled = True
+            chkSerial.Checked = False
+            chkSerial.Enabled = False
+            SaldeStatus.Text = "Special NFC figure detected. Safe mode only writes Gold and Level."
         End If
     End Sub
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load

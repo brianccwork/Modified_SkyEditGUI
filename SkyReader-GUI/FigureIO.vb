@@ -16,6 +16,8 @@ Public Class FigureIO
     Public Shared BlnVehicle As Boolean = False
     Public Shared blnCrystal As Boolean = False
     Public Shared blnSensei As Boolean = False
+    'Special character dumps that should only expose Gold/XP editing.
+    Public Shared blnGoldXpOnlyFigure As Boolean = False
 
     'Call all the Functions for the Figure, when relevant.
     'TODO:
@@ -74,14 +76,20 @@ Public Class FigureIO
         blnCrystal = False
         blnCrystal = False
         blnSensei = False
+        blnGoldXpOnlyFigure = False
         'We Reset WebCode here and early.
         frmMain.lblWebCode.Text = ""
         'We can get the Figure's ID and Variant ID without Needing Encryption/Decryption
         'Get Figure ID and Alter Ego/Variant
         Figures.GetFigureID_AlterEgo_Variant()
 
-        'FigureItOut() has now identified the game/type, so determine Sensei status
-        'before EXP/Gold parsing. Exp.GetEXP() needs this flag to use the Sensei layout.
+        'FigureItOut() has now identified the game/type.
+        'These special character variants use the normal Gold/EXP layout, but should not
+        'receive unrelated nickname/hat/ownership/identity writes.
+        blnGoldXpOnlyFigure = IsGoldXpOnlyFigure()
+
+        'Determine Sensei status before EXP/Gold parsing.
+        'Exp.GetEXP() needs this flag to use the Sensei layout.
         blnSensei = IsSenseiFigure()
 
         'Because Traps, Vehciles and Crystals are writing bytes to where the Nickname would normally show up, we Do NOT attempt to Decrypt here.
@@ -181,13 +189,36 @@ Public Class FigureIO
         Return False
     End Function
 
+    Public Shared Function IsGoldXpOnlyFigure() As Boolean
+        'VVind-Up
+        If Figures.Var = "0424" AndAlso Figures.Fig = "C30B" Then
+            Return True
+        End If
+
+        'SuperChargers Instant character variants.
+        'Instant Hot Streak, Stealth Stinger, and Dive Bomber are vehicles
+        'and must use the vehicle editor instead of Gold/EXP.
+        If Figures.Var = "0F45" Then
+            Select Case Figures.Fig
+                Case "610D", "540D", "570D"
+                    Return True
+            End Select
+        End If
+
+        Return False
+    End Function
+
     'Write_Data write's Data to the Figures.
     'Note that Traps, Vehicles and Crystals do NOT use this because they have their own Editor that is used.
     Public Shared Sub Write_Data()
         If BlnVehicle = False And blnTrap = False And blnCrystal = False Then
-            If blnSensei = True Then
+            If blnGoldXpOnlyFigure = True Then
+                'Special NFC character variants: only Gold and EXP are intentionally editable.
+                Exp.WriteEXP()
+                Gold.WriteGold()
+            ElseIf blnSensei = True Then
                 'Senseis only write the safe payload fields required for this feature.
-                'Do not update nickname, hats, skills, hero, challenges, serial-adjacent data, or system ownership fields. (This change has been added to frmMain file)
+                'Do not update nickname, hats, skills, hero, challenges, serial-adjacent data, or system ownership fields.
                 Exp.WriteEXP()
                 Gold.WriteGold()
             Else
@@ -256,6 +287,15 @@ Public Class FigureIO
             'Not Implimented, Yet.
         End If
 
+        If blnGoldXpOnlyFigure = True Then
+            'Keep UID/variant, access-control bytes, system ownership, nickname,
+            'hats, skills, and other unrelated fields untouched.
+            'Only advance the mirrored save markers and rebuild the checksums.
+            Figures.SetArea0AndArea1()
+            CRC16CCITT.WriteCheckSums()
+            Exit Sub
+        End If
+
         If blnSensei = True Then
             'Senseis must keep their signature/access blocks and identity-related data untouched.
             Figures.SetArea0AndArea1()
@@ -285,7 +325,7 @@ Public Class FigureIO
         If (dialog.ShowDialog = DialogResult.OK) Then
             Dim NewFile As String = dialog.FileName
 
-            If frmMain.chkSerial.Checked = True AndAlso blnSensei = False Then
+            If frmMain.chkSerial.Checked = True AndAlso blnSensei = False AndAlso blnGoldXpOnlyFigure = False Then
                 CRC16CCITT.GenerateNewSerial()
             End If
             Figures.EditCharacterIDVariant()
@@ -310,7 +350,7 @@ Public Class FigureIO
         If (dialog.ShowDialog = DialogResult.OK) Then
             Dim NewFile As String = dialog.FileName
 
-            If frmMain.chkSerial.Checked = True AndAlso blnSensei = False Then
+            If frmMain.chkSerial.Checked = True AndAlso blnSensei = False AndAlso blnGoldXpOnlyFigure = False Then
                 CRC16CCITT.GenerateNewSerial()
             End If
             Figures.EditCharacterIDVariant()
