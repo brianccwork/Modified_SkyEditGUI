@@ -12,18 +12,22 @@ https://github.com/hegyak/SkyEditGUI/tree/master
 https://github.com/skylandersNFC/Skylanders-GUI-Tool  
 https://www.pyrofersprojects.com/blog/skylanders-gui-tool/
 
+## Small Update 9/13/2026
+- Added Instant Super Shot Stealth Elf, Instant Dive Clops, Instant Spitfire, Instant Dive Clops, Instant Stealth Stinger, Instant Hot Streak, and VVindup Gold and Level modifications.
+
 ## Small Update 8/18/2026
 - Sensei Gold and Level modifier now accepts Heartbreaker Buckshot
 
-## Current New Working Modifications to the Original Codebase
+## Current New Working Modifications to the Original Codebase Explanations
+Gold and Level modifiers for Instant Super Shot Stealth Elf, Instant Dive Clops, Instant Spitfire, Instant Dive Clops, Instant Stealth Stinger, Instant Hot Streak, and VVindup.
+  - After scanning in these Skylanders, once the Header and Serial areas are both green, both Gold and Level may be edited.
 
+### Older Changes
 - Sensei Gold and Level Modifier
   - Senseis can now be safely detected, read, modified, and written back through the Portal of Power.
   - The editor currently supports modifying Sensei Gold and Level/EXP values.
   - READ THIS: Senseis must first be initialized in-game before editing. Place the Sensei in Skylanders Imaginators, walk around, and collect at least 1 gold so the game saves valid Sensei data to the NFC tag.
   - After the Sensei has been initialized in-game, read it in the editor again. Once the checksum/status boxes are green, Gold and Level can be modified and written successfully.
-
-### Older Changes
 
 - Vehicle Gearbits Modifier
   - After connecting the portal and configuring the correct driver so the application can detect it, place a vehicle on the Portal of Power and read the first figure.
