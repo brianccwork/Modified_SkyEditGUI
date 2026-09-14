@@ -212,49 +212,53 @@ Public Class Figures
                 CharacterVariant(0) = &H0
                 CharacterVariant(1) = &H0
                 CharacterID(1) = &H0
-                If frmMain.lstCharacters.SelectedItem Is "Bash" Then
+                If frmMain.lstCharacters.SelectedItem Is "Bash" OrElse frmMain.lstCharacters.SelectedItem Is "Blue Bash" Then
                     '0400
                     CharacterID(0) = &H4
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Boomer" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Boomer" OrElse frmMain.lstCharacters.SelectedItem Is "Silver Boomer" Then
                     '1600
                     CharacterID(0) = &H16
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Camo" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Camo" OrElse frmMain.lstCharacters.SelectedItem Is "Red Camo" Then
                     '1800
                     CharacterID(0) = &H18
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Chop Chop" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Chop Chop" OrElse frmMain.lstCharacters.SelectedItem Is "Gold Chop Chop" Then
                     '1E00
                     CharacterID(0) = &H1E
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Cynder" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Cynder" OrElse
+                       frmMain.lstCharacters.SelectedItem Is "Crystal Clear Cynder" OrElse
+                       frmMain.lstCharacters.SelectedItem Is "Metallic Purple Cynder" Then
                     '2000
                     CharacterID(0) = &H20
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Dark Spyro" Then
                     '1C00
                     CharacterID(0) = &H1C
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Dino-Rang" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Dino-Rang" OrElse frmMain.lstCharacters.SelectedItem Is "Silver Dino-Rang" Then
                     '0600
                     CharacterID(0) = &H6
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Double Trouble" Then
                     '1200
                     CharacterID(0) = &H12
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Drill Sergeant" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Drill Sergeant" OrElse
+                       frmMain.lstCharacters.SelectedItem Is "Gold Drill Sergeant" OrElse
+                       frmMain.lstCharacters.SelectedItem Is "Red Drill Sergeant" Then
                     '1500
                     CharacterID(0) = &H15
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Drobot" Then
                     '1400
                     CharacterID(0) = &H14
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Eruptor" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Eruptor" OrElse frmMain.lstCharacters.SelectedItem Is "Silver Eruptor" Then
                     '0900
                     CharacterID(0) = &H9
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Flameslinger" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Flameslinger" OrElse frmMain.lstCharacters.SelectedItem Is "Gold Flameslinger" Then
                     '0B00
                     CharacterID(0) = &HB
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Ghost Roaster" Then
                     '1F00
                     CharacterID(0) = &H1F
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Gill Grunt" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Gill Grunt" OrElse frmMain.lstCharacters.SelectedItem Is "Green Gill Grunt" Then
                     '0E00
                     CharacterID(0) = &HE
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Hex" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Hex" OrElse frmMain.lstCharacters.SelectedItem Is "Pearl Hex" Then
                     '1D00
                     CharacterID(0) = &H1D
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Ignitor" Then
@@ -288,13 +292,13 @@ Public Class Figures
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Sonic Boom" Then
                     '0100
                     CharacterID(0) = &H1
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Spyro" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Spyro" OrElse frmMain.lstCharacters.SelectedItem Is "Chrome Spyro" Then
                     '1000
                     CharacterID(0) = &H10
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Stealth Elf" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Stealth Elf" OrElse frmMain.lstCharacters.SelectedItem Is "Crystal Clear Stealth Elf" Then
                     '1A00
                     CharacterID(0) = &H1A
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Stump Smash" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Stump Smash" OrElse frmMain.lstCharacters.SelectedItem Is "Flocked Stump Smash" Then
                     '1B00
                     CharacterID(0) = &H1B
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Sunburn" Then
@@ -309,19 +313,19 @@ Public Class Figures
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Voodood" Then
                     '1100
                     CharacterID(0) = &H11
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Warnado" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Warnado" OrElse frmMain.lstCharacters.SelectedItem Is "Glow-in-the-Dark Warnado" Then
                     '0200
                     CharacterID(0) = &H2
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Wham-Shell" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Wham-Shell" OrElse frmMain.lstCharacters.SelectedItem Is "Crystal Clear Wham-Shell" Then
                     '0D00
                     CharacterID(0) = &HD
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Whirlwind" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Whirlwind" OrElse frmMain.lstCharacters.SelectedItem Is "Crystal Clear Whirlwind" Then
                     '0000
                     CharacterID(0) = &H0
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Wrecking Ball" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Wrecking Ball" OrElse frmMain.lstCharacters.SelectedItem Is "Glow-in-the-Dark Wrecking Ball" Then
                     '1700
                     CharacterID(0) = &H17
-                ElseIf frmMain.lstCharacters.SelectedItem Is "Zap" Then
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Zap" OrElse frmMain.lstCharacters.SelectedItem Is "Glow-in-the-Dark Zap" Then
                     '0C00
                     CharacterID(0) = &HC
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Zook" Then
@@ -764,6 +768,174 @@ Public Class Figures
                     CharacterID(1) = &H0
                     CharacterVariant(0) = &H6
                     CharacterVariant(1) = &H12
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Stone Whirlwind" Then
+                    '0000
+                    '1218
+                    CharacterID(0) = &H0
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H12
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Bronze Hot Dog" Then
+                    '6900
+                    '1510
+                    CharacterID(0) = &H69
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H15
+                    CharacterVariant(1) = &H10
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Double Trouble 1.5" Then
+                    '1200
+                    '0118 - same identity as Series 2 Double Trouble
+                    CharacterID(0) = &H12
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H1
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Employee Edition LightCore Prism Break" Then
+                    '0700
+                    '0612 - same identity as LightCore Prism Break
+                    CharacterID(0) = &H7
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H6
+                    CharacterVariant(1) = &H12
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Glow-in-the-Dark Cynder" Then
+                    '2000
+                    '1118
+                    CharacterID(0) = &H20
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H11
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Glow-in-the-Dark Fright Rider" Then
+                    '7300
+                    '1110
+                    CharacterID(0) = &H73
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H11
+                    CharacterVariant(1) = &H10
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Glow-in-the-Dark Sonic Boom" Then
+                    '0100
+                    '1118
+                    CharacterID(0) = &H1
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H11
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Golden Flameslinger" Then
+                    '0B00
+                    '0218
+                    CharacterID(0) = &HB
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H2
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Halloween Fright Rider" Then
+                    '7300
+                    '1510
+                    CharacterID(0) = &H73
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H15
+                    CharacterVariant(1) = &H10
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Metallic Blue Chop Chop" Then
+                    '1E00
+                    '0418
+                    CharacterID(0) = &H1E
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H4
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Metallic Gill Grunt" Then
+                    '0E00
+                    '1718
+                    CharacterID(0) = &HE
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H17
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Metallic Green Shroomboom" Then
+                    '7100
+                    '1710
+                    CharacterID(0) = &H71
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H17
+                    CharacterVariant(1) = &H10
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Metallic Purple Eye-Brawl" Then
+                    '7200
+                    '1412
+                    CharacterID(0) = &H72
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H14
+                    CharacterVariant(1) = &H12
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Metallic Purple Lightning Rod" Then
+                    '0300
+                    '1418
+                    CharacterID(0) = &H3
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H14
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Metallic Purple Wrecking Ball" Then
+                    '1700
+                    '1418
+                    CharacterID(0) = &H17
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H14
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Pearl Sprocket" Then
+                    '6F00
+                    '1310
+                    CharacterID(0) = &H6F
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H13
+                    CharacterVariant(1) = &H10
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Pumpkin Eye-Brawl" Then
+                    '7200
+                    '1512
+                    CharacterID(0) = &H72
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H15
+                    CharacterVariant(1) = &H12
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Sparkle Hot Head" Then
+                    '6800
+                    '1312
+                    CharacterID(0) = &H68
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H13
+                    CharacterVariant(1) = &H12
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Sparkle Sonic Boom" Then
+                    '0100
+                    '1318
+                    CharacterID(0) = &H1
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H13
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Stone Zook" Then
+                    '1900
+                    '1218
+                    CharacterID(0) = &H19
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H12
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "White Flocked Eruptor" Then
+                    '0900
+                    '1418
+                    CharacterID(0) = &H9
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H14
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "White Flocked LightCore Prism Break" Then
+                    '0700
+                    '1412
+                    CharacterID(0) = &H7
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H14
+                    CharacterVariant(1) = &H12
+                ElseIf frmMain.lstCharacters.SelectedItem Is "White Flocked Stump Smash" Then
+                    '1B00
+                    '1418
+                    CharacterID(0) = &H1B
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H14
+                    CharacterVariant(1) = &H18
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Debug Minion" Then
+                    'E703 (Character ID 999)
+                    '0010
+                    CharacterID(0) = &HE7
+                    CharacterID(1) = &H3
+                    CharacterVariant(0) = &H0
+                    CharacterVariant(1) = &H10
                 End If
             Case 2
                 'Swap Force
@@ -1335,9 +1507,9 @@ Public Class Figures
                     CharacterVariant(0) = &H0
                     CharacterVariant(1) = &H20
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Rip Tide" Then
-                    '6C0B
+                    'C60B
                     '0020
-                    CharacterID(0) = &H6C
+                    CharacterID(0) = &HC6
                     CharacterID(1) = &HB
                     CharacterVariant(0) = &H0
                     CharacterVariant(1) = &H20
@@ -1526,6 +1698,167 @@ Public Class Figures
                     CharacterID(1) = &HB
                     CharacterVariant(0) = &H0
                     CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Red Flame Frito-Lay Fire Bone Hot Dog" Then
+                    '6900
+                    '1A28
+                    CharacterID(0) = &H69
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H1A
+                    CharacterVariant(1) = &H28
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Employee Edition LightCore Smolderdash" Then
+                    'BD0B
+                    '1922
+                    CharacterID(0) = &HBD
+                    CharacterID(1) = &HB
+                    CharacterVariant(0) = &H19
+                    CharacterVariant(1) = &H22
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Flocked Springtime Trigger Happy" Then
+                    '1300
+                    '022C - same identity as Springtime Trigger Happy
+                    CharacterID(0) = &H13
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H2
+                    CharacterVariant(1) = &H2C
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Green Chop Chop" Then
+                    '1E00
+                    '1628
+                    CharacterID(0) = &H1E
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H16
+                    CharacterVariant(1) = &H28
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Green Flame Frito-Lay Fire Bone Hot Dog" Then
+                    '6900
+                    '1B28
+                    CharacterID(0) = &H69
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H1B
+                    CharacterVariant(1) = &H28
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Green Rip Tide" Then
+                    'C60B
+                    '1620
+                    CharacterID(0) = &HC6
+                    CharacterID(1) = &HB
+                    CharacterVariant(0) = &H16
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Green Scorp" Then
+                    'BB0B
+                    '1620
+                    CharacterID(0) = &HBB
+                    CharacterID(1) = &HB
+                    CharacterVariant(0) = &H16
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Heavy Metal Sprocket" Then
+                    '6F00
+                    '1928
+                    CharacterID(0) = &H6F
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H19
+                    CharacterVariant(1) = &H28
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Metallic Red Dune Bug" Then
+                    'C00B
+                    '0420
+                    CharacterID(0) = &HC0
+                    CharacterID(1) = &HB
+                    CharacterVariant(0) = &H4
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Purple Flame Frito-Lay Fire Bone Hot Dog" Then
+                    '6900
+                    '1C28
+                    CharacterID(0) = &H69
+                    CharacterID(1) = &H0
+                    CharacterVariant(0) = &H1C
+                    CharacterVariant(1) = &H28
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Gold & Bronze Doom Stone Bottom" Then
+                    'EB03
+                    '1620
+                    CharacterID(0) = &HEB
+                    CharacterID(1) = &H3
+                    CharacterVariant(0) = &H16
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Gold & Bronze Doom Stone Top" Then
+                    'D307
+                    '1620
+                    CharacterID(0) = &HD3
+                    CharacterID(1) = &H7
+                    CharacterVariant(0) = &H16
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Gold Fire Kraken Bottom" Then
+                    'ED03
+                    '0420
+                    CharacterID(0) = &HED
+                    CharacterID(1) = &H3
+                    CharacterVariant(0) = &H4
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Gold Fire Kraken Top" Then
+                    'D507
+                    '0420
+                    CharacterID(0) = &HD5
+                    CharacterID(1) = &H7
+                    CharacterVariant(0) = &H4
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Gold Wash Buckler Bottom" Then
+                    'F703
+                    '1820
+                    CharacterID(0) = &HF7
+                    CharacterID(1) = &H3
+                    CharacterVariant(0) = &H18
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Gold Wash Buckler Top" Then
+                    'DF07
+                    '1820
+                    CharacterID(0) = &HDF
+                    CharacterID(1) = &H7
+                    CharacterVariant(0) = &H18
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Silver & Gold Stink Bomb Bottom" Then
+                    'EE03
+                    '1620
+                    CharacterID(0) = &HEE
+                    CharacterID(1) = &H3
+                    CharacterVariant(0) = &H16
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Silver & Gold Stink Bomb Top" Then
+                    'D607
+                    '1620
+                    CharacterID(0) = &HD6
+                    CharacterID(1) = &H7
+                    CharacterVariant(0) = &H16
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Bronze & Silver Trap Shadow Bottom" Then
+                    'F103
+                    '1620
+                    CharacterID(0) = &HF1
+                    CharacterID(1) = &H3
+                    CharacterVariant(0) = &H16
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Bronze & Silver Trap Shadow Top" Then
+                    'D907
+                    '1620
+                    CharacterID(0) = &HD9
+                    CharacterID(1) = &H7
+                    CharacterVariant(0) = &H16
+                    CharacterVariant(1) = &H20
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Template Legacy" Then
+                    '9F0F
+                    '0000 - preserve the uploaded development-template identity
+                    CharacterID(0) = &H9F
+                    CharacterID(1) = &HF
+                    CharacterVariant(0) = &H0
+                    CharacterVariant(1) = &H0
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Template Template Top" Then
+                    'B70B
+                    '0000 - preserve the uploaded development-template identity
+                    CharacterID(0) = &HB7
+                    CharacterID(1) = &HB
+                    CharacterVariant(0) = &H0
+                    CharacterVariant(1) = &H0
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Template Template Bottom" Then
+                    'CF07
+                    '0000 - preserve the uploaded development-template identity
+                    CharacterID(0) = &HCF
+                    CharacterID(1) = &H7
+                    CharacterVariant(0) = &H0
+                    CharacterVariant(1) = &H0
                 End If
             Case 3
                 'Trap Team
@@ -1596,6 +1929,20 @@ Public Class Figures
                     'C301
                     '1D30
                     CharacterID(0) = &HC3
+                    CharacterID(1) = &H1
+                    CharacterVariant(0) = &H1D
+                    CharacterVariant(1) = &H30
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Clear Short Cut" Then
+                    'DF01
+                    '1D30
+                    CharacterID(0) = &HDF
+                    CharacterID(1) = &H1
+                    CharacterVariant(0) = &H1D
+                    CharacterVariant(1) = &H30
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Clear Tuff Luck" Then
+                    'DB01
+                    '1D30
+                    CharacterID(0) = &HDB
                     CharacterID(1) = &H1
                     CharacterVariant(0) = &H1D
                     CharacterVariant(1) = &H30
@@ -1831,11 +2178,19 @@ Public Class Figures
                     CharacterVariant(0) = &H1
                     CharacterVariant(1) = &H38
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Instant Food Fight" Then
-
-                    blnNoCode = True
+                    'DC01
+                    '0F45
+                    CharacterID(0) = &HDC
+                    CharacterID(1) = &H1
+                    CharacterVariant(0) = &HF
+                    CharacterVariant(1) = &H45
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Instant Snap Shot" Then
-
-                    blnNoCode = True
+                    'CE01
+                    '0F45
+                    CharacterID(0) = &HCE
+                    CharacterID(1) = &H1
+                    CharacterVariant(0) = &HF
+                    CharacterVariant(1) = &H45
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Jawbreaker" Then
                     'D601
                     '0030
@@ -2140,6 +2495,20 @@ Public Class Figures
                     CharacterID(1) = &HD
                     CharacterVariant(0) = &H0
                     CharacterVariant(1) = &H41
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Bronze Bone Bash Roller Brawl" Then
+                    '590D
+                    '1E41
+                    CharacterID(0) = &H59
+                    CharacterID(1) = &HD
+                    CharacterVariant(0) = &H1E
+                    CharacterVariant(1) = &H41
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Bronze Tomb Buggy" Then
+                    '950C
+                    '1E40
+                    CharacterID(0) = &H95
+                    CharacterID(1) = &HC
+                    CharacterVariant(0) = &H1E
+                    CharacterVariant(1) = &H40
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Burn-Cycle" Then
                     '970C
                     '0040
@@ -2350,6 +2719,13 @@ Public Class Figures
                     CharacterID(1) = &HD
                     CharacterVariant(0) = &H0
                     CharacterVariant(1) = &H41
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Patina High Volt" Then
+                    '490D
+                    '1E41
+                    CharacterID(0) = &H49
+                    CharacterID(1) = &HD
+                    CharacterVariant(0) = &H1E
+                    CharacterVariant(1) = &H41
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Hot Streak" Then
                     '980C
                     '0440
@@ -2434,6 +2810,27 @@ Public Class Figures
                     CharacterID(1) = &HD
                     CharacterVariant(0) = &H0
                     CharacterVariant(1) = &H41
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Patina Lava Lance Eruptor" Then
+                    '5D0D
+                    '1E41
+                    CharacterID(0) = &H5D
+                    CharacterID(1) = &HD
+                    CharacterVariant(0) = &H1E
+                    CharacterVariant(1) = &H41
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Patina Burn-Cycle" Then
+                    '970C
+                    '1E40
+                    CharacterID(0) = &H97
+                    CharacterID(1) = &HC
+                    CharacterVariant(0) = &H1E
+                    CharacterVariant(1) = &H40
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Patina Shield Striker" Then
+                    'A30C
+                    '1E40
+                    CharacterID(0) = &HA3
+                    CharacterID(1) = &HC
+                    CharacterVariant(0) = &H1E
+                    CharacterVariant(1) = &H40
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Legendary Astroblast" Then
                     '620D
                     '0345
@@ -2637,6 +3034,13 @@ Public Class Figures
                     CharacterID(1) = &HD
                     CharacterVariant(0) = &H0
                     CharacterVariant(1) = &H41
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Snow-Brite Stormblade (Employee Edition)" Then
+                    '4E0D
+                    '0E41
+                    CharacterID(0) = &H4E
+                    CharacterID(1) = &HD
+                    CharacterVariant(0) = &HE
+                    CharacterVariant(1) = &H41
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Sun Runner" Then
                     'A40C
                     '0040
@@ -2743,6 +3147,14 @@ Public Class Figures
                     'Chopscotch
                     CharacterID(0) = &H5B
                     CharacterID(1) = &H2
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Clear Starcast" OrElse
+                       frmMain.lstCharacters.SelectedItem Is "Happy Birthday Ben Starcast" Then
+                    '6902
+                    '2150 - Both physical releases use the same NFC identity.
+                    CharacterVariant(0) = &H21
+                    CharacterVariant(1) = &H50
+                    CharacterID(0) = &H69
+                    CharacterID(1) = &H2
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Crash Bandicoot" Then
                     '7602
                     'Crash Bandicoot
@@ -2762,6 +3174,13 @@ Public Class Figures
                     CharacterVariant(0) = &H2
                     CharacterVariant(1) = &H54
                     CharacterID(0) = &H66
+                    CharacterID(1) = &H2
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Dec-Ember (Employee Edition)" Then
+                    '6002
+                    '0450
+                    CharacterVariant(0) = &H4
+                    CharacterVariant(1) = &H50
+                    CharacterID(0) = &H60
                     CharacterID(1) = &H2
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Dr. Krankcase" Then
                     '6202
@@ -2856,10 +3275,24 @@ Public Class Figures
                     'Mysticat
                     CharacterID(0) = &H68
                     CharacterID(1) = &H2
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Orange Chain Reaction" Then
+                    '7202
+                    '2150
+                    CharacterVariant(0) = &H21
+                    CharacterVariant(1) = &H50
+                    CharacterID(0) = &H72
+                    CharacterID(1) = &H2
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Pain-Yatta" Then
                     '6702
                     'Pain-Yatta
                     CharacterID(0) = &H67
+                    CharacterID(1) = &H2
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Pink Barbella" Then
+                    '5E02
+                    '2150
+                    CharacterVariant(0) = &H21
+                    CharacterVariant(1) = &H50
+                    CharacterID(0) = &H5E
                     CharacterID(1) = &H2
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Pit Boss" Then
                     '0D25
@@ -2870,6 +3303,13 @@ Public Class Figures
                     '7102
                     'Ro-Bow
                     CharacterID(0) = &H71
+                    CharacterID(1) = &H2
+                ElseIf frmMain.lstCharacters.SelectedItem Is "Rock Candy Pain-Yatta" Then
+                    '6702
+                    '2150
+                    CharacterVariant(0) = &H21
+                    CharacterVariant(1) = &H50
+                    CharacterID(0) = &H67
                     CharacterID(1) = &H2
                 ElseIf frmMain.lstCharacters.SelectedItem Is "Solar Flare Aurora" Then
                     CharacterVariant(0) = &H2
@@ -3879,6 +4319,18 @@ Public Class Figures
                     'Time Twister
                     frmMain.cmbGame.SelectedItem = "Items"
                     frmMain.lstCharacters.SelectedItem = "Time Twister Hourglass"
+                Case "9F0F"
+                    'Template Legacy development identity
+                    frmMain.cmbGame.SelectedItem = "Swap Force"
+                    frmMain.lstCharacters.SelectedItem = "Template Legacy"
+                Case "B70B"
+                    'Template Top development identity
+                    frmMain.cmbGame.SelectedItem = "Swap Force"
+                    frmMain.lstCharacters.SelectedItem = "Template Template Top"
+                Case "CF07"
+                    'Template Bottom development identity
+                    frmMain.cmbGame.SelectedItem = "Swap Force"
+                    frmMain.lstCharacters.SelectedItem = "Template Template Bottom"
             End Select
         ElseIf Var = "0010" Then
             frmMain.cmbGame.SelectedItem = "Giants"
@@ -3911,6 +4363,9 @@ Public Class Figures
                 Case "6F00"
                     'Sprocket
                     frmMain.lstCharacters.SelectedItem = "Sprocket"
+                Case "E703"
+                    'Debug Minion (prototype/test character, ID 999)
+                    frmMain.lstCharacters.SelectedItem = "Debug Minion"
             End Select
         ElseIf Var = "0118" Then
             frmMain.cmbGame.SelectedItem = "Giants"
@@ -3987,6 +4442,104 @@ Public Class Figures
                 Case "1900"
                     'Series 2 Zook
                     frmMain.lstCharacters.SelectedItem = "Series 2 Zook"
+            End Select
+        ElseIf Var = "1218" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "0000"
+                    frmMain.lstCharacters.SelectedItem = "Stone Whirlwind"
+                Case "1900"
+                    frmMain.lstCharacters.SelectedItem = "Stone Zook"
+            End Select
+        ElseIf Var = "1510" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "6900"
+                    frmMain.lstCharacters.SelectedItem = "Bronze Hot Dog"
+                Case "7300"
+                    frmMain.lstCharacters.SelectedItem = "Halloween Fright Rider"
+            End Select
+        ElseIf Var = "1118" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "2000"
+                    frmMain.lstCharacters.SelectedItem = "Glow-in-the-Dark Cynder"
+                Case "0100"
+                    frmMain.lstCharacters.SelectedItem = "Glow-in-the-Dark Sonic Boom"
+            End Select
+        ElseIf Var = "1110" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "7300"
+                    frmMain.lstCharacters.SelectedItem = "Glow-in-the-Dark Fright Rider"
+            End Select
+        ElseIf Var = "0218" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "0B00"
+                    frmMain.lstCharacters.SelectedItem = "Golden Flameslinger"
+            End Select
+        ElseIf Var = "0418" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "1E00"
+                    frmMain.lstCharacters.SelectedItem = "Metallic Blue Chop Chop"
+            End Select
+        ElseIf Var = "1718" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "0E00"
+                    frmMain.lstCharacters.SelectedItem = "Metallic Gill Grunt"
+            End Select
+        ElseIf Var = "1710" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "7100"
+                    frmMain.lstCharacters.SelectedItem = "Metallic Green Shroomboom"
+            End Select
+        ElseIf Var = "1412" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "7200"
+                    frmMain.lstCharacters.SelectedItem = "Metallic Purple Eye-Brawl"
+                Case "0700"
+                    frmMain.lstCharacters.SelectedItem = "White Flocked LightCore Prism Break"
+            End Select
+        ElseIf Var = "1418" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "0300"
+                    frmMain.lstCharacters.SelectedItem = "Metallic Purple Lightning Rod"
+                Case "1700"
+                    frmMain.lstCharacters.SelectedItem = "Metallic Purple Wrecking Ball"
+                Case "0900"
+                    frmMain.lstCharacters.SelectedItem = "White Flocked Eruptor"
+                Case "1B00"
+                    frmMain.lstCharacters.SelectedItem = "White Flocked Stump Smash"
+            End Select
+        ElseIf Var = "1310" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "6F00"
+                    frmMain.lstCharacters.SelectedItem = "Pearl Sprocket"
+            End Select
+        ElseIf Var = "1512" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "7200"
+                    frmMain.lstCharacters.SelectedItem = "Pumpkin Eye-Brawl"
+            End Select
+        ElseIf Var = "1312" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "6800"
+                    frmMain.lstCharacters.SelectedItem = "Sparkle Hot Head"
+            End Select
+        ElseIf Var = "1318" Then
+            frmMain.cmbGame.SelectedItem = "Giants"
+            Select Case Fig
+                Case "0100"
+                    frmMain.lstCharacters.SelectedItem = "Sparkle Sonic Boom"
             End Select
         ElseIf Var = "021C" Then
             frmMain.cmbGame.SelectedItem = "Giants"
@@ -4245,7 +4798,7 @@ Public Class Figures
                 Case "DD07"
                     'Rattle Shake (Top)
                     frmMain.lstCharacters.SelectedItem = "Rattle Shake (Top)"
-                Case "6C0B"
+                Case "C60B"
                     'Rip Tide
                     frmMain.lstCharacters.SelectedItem = "Rip Tide"
                 Case "C40B"
@@ -4347,6 +4900,80 @@ Public Class Figures
                 Case "0900"
                     'Volcanic Eruptor
                     frmMain.lstCharacters.SelectedItem = "Volcanic Eruptor"
+            End Select
+        ElseIf Var = "1A28" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "6900"
+                    frmMain.lstCharacters.SelectedItem = "Red Flame Frito-Lay Fire Bone Hot Dog"
+            End Select
+        ElseIf Var = "1922" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "BD0B"
+                    frmMain.lstCharacters.SelectedItem = "Employee Edition LightCore Smolderdash"
+            End Select
+        ElseIf Var = "1628" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "1E00"
+                    frmMain.lstCharacters.SelectedItem = "Green Chop Chop"
+            End Select
+        ElseIf Var = "1B28" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "6900"
+                    frmMain.lstCharacters.SelectedItem = "Green Flame Frito-Lay Fire Bone Hot Dog"
+            End Select
+        ElseIf Var = "1620" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "C60B"
+                    frmMain.lstCharacters.SelectedItem = "Green Rip Tide"
+                Case "BB0B"
+                    frmMain.lstCharacters.SelectedItem = "Green Scorp"
+                Case "EB03"
+                    frmMain.lstCharacters.SelectedItem = "Gold & Bronze Doom Stone Bottom"
+                Case "D307"
+                    frmMain.lstCharacters.SelectedItem = "Gold & Bronze Doom Stone Top"
+                Case "EE03"
+                    frmMain.lstCharacters.SelectedItem = "Silver & Gold Stink Bomb Bottom"
+                Case "D607"
+                    frmMain.lstCharacters.SelectedItem = "Silver & Gold Stink Bomb Top"
+                Case "F103"
+                    frmMain.lstCharacters.SelectedItem = "Bronze & Silver Trap Shadow Bottom"
+                Case "D907"
+                    frmMain.lstCharacters.SelectedItem = "Bronze & Silver Trap Shadow Top"
+            End Select
+        ElseIf Var = "1928" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "6F00"
+                    frmMain.lstCharacters.SelectedItem = "Heavy Metal Sprocket"
+            End Select
+        ElseIf Var = "0420" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "C00B"
+                    frmMain.lstCharacters.SelectedItem = "Metallic Red Dune Bug"
+                Case "ED03"
+                    frmMain.lstCharacters.SelectedItem = "Gold Fire Kraken Bottom"
+                Case "D507"
+                    frmMain.lstCharacters.SelectedItem = "Gold Fire Kraken Top"
+            End Select
+        ElseIf Var = "1820" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "F703"
+                    frmMain.lstCharacters.SelectedItem = "Gold Wash Buckler Bottom"
+                Case "DF07"
+                    frmMain.lstCharacters.SelectedItem = "Gold Wash Buckler Top"
+            End Select
+        ElseIf Var = "1C28" Then
+            frmMain.cmbGame.SelectedItem = "Swap Force"
+            Select Case Fig
+                Case "6900"
+                    frmMain.lstCharacters.SelectedItem = "Purple Flame Frito-Lay Fire Bone Hot Dog"
             End Select
         ElseIf Var = "0224" Then
             frmMain.cmbGame.SelectedItem = "Swap Force"
@@ -4703,10 +5330,17 @@ Public Class Figures
                     frmMain.lstCharacters.SelectedItem = "Nightmare Express"
             End Select
         ElseIf Var = "1D30" Then
+            frmMain.cmbGame.SelectedItem = "Trap Team"
             Select Case Fig
                 Case "C301"
                     'Clear Thunderbolt
                     frmMain.lstCharacters.SelectedItem = "Clear Thunderbolt"
+                Case "DF01"
+                    'Clear Short Cut
+                    frmMain.lstCharacters.SelectedItem = "Clear Short Cut"
+                Case "DB01"
+                    'Clear Tuff Luck
+                    frmMain.lstCharacters.SelectedItem = "Clear Tuff Luck"
             End Select
         ElseIf Var = "0138" Then
             frmMain.cmbGame.SelectedItem = "Trap Team"
@@ -4941,6 +5575,33 @@ Public Class Figures
                 Case "610D"
                     frmMain.lstCharacters.SelectedItem = "Missile-Tow Dive-Clops"
             End Select
+        ElseIf Var = "0E41" Then
+            frmMain.cmbGame.SelectedItem = "SuperChargers"
+            Select Case Fig
+                Case "4E0D"
+                    frmMain.lstCharacters.SelectedItem = "Snow-Brite Stormblade (Employee Edition)"
+            End Select
+        ElseIf Var = "1E41" Then
+            frmMain.cmbGame.SelectedItem = "SuperChargers"
+            Select Case Fig
+                Case "590D"
+                    frmMain.lstCharacters.SelectedItem = "Bronze Bone Bash Roller Brawl"
+                Case "490D"
+                    frmMain.lstCharacters.SelectedItem = "Patina High Volt"
+                Case "5D0D"
+                    frmMain.lstCharacters.SelectedItem = "Patina Lava Lance Eruptor"
+            End Select
+        ElseIf Var = "1E40" Then
+            frmMain.cmbGame.SelectedItem = "Vehicles"
+            BlnVehicle = True
+            Select Case Fig
+                Case "950C"
+                    frmMain.lstCharacters.SelectedItem = "Bronze Tomb Buggy"
+                Case "970C"
+                    frmMain.lstCharacters.SelectedItem = "Patina Burn-Cycle"
+                Case "A30C"
+                    frmMain.lstCharacters.SelectedItem = "Patina Shield Striker"
+            End Select
         ElseIf Var = "0244" Then
             frmMain.cmbGame.SelectedItem = "SuperChargers"
             BlnVehicle = True
@@ -5011,6 +5672,12 @@ Public Class Figures
                 Case "570D"
                     frmMain.cmbGame.SelectedItem = "SuperChargers"
                     frmMain.lstCharacters.SelectedItem = "Instant Super Shot Stealth Elf"
+                Case "DC01"
+                    frmMain.cmbGame.SelectedItem = "Trap Team"
+                    frmMain.lstCharacters.SelectedItem = "Instant Food Fight"
+                Case "CE01"
+                    frmMain.cmbGame.SelectedItem = "Trap Team"
+                    frmMain.lstCharacters.SelectedItem = "Instant Snap Shot"
                 Case "9F0C"
                     BlnVehicle = True
                     frmMain.cmbGame.SelectedItem = "Vehicles"
@@ -5114,8 +5781,6 @@ Public Class Figures
                     frmMain.lstCharacters.SelectedItem = "Chompy Mage"
                 Case "5B02"
                     frmMain.lstCharacters.SelectedItem = "Chopscotch"
-                    'Case ""
-                    'frmMain.lstCharacters.SelectedItem = "Clear Starcast"
                 Case "7602"
                     frmMain.lstCharacters.SelectedItem = "Crash Bandicoot"
                     'Case ""
@@ -5124,8 +5789,6 @@ Public Class Figures
                     'frmMain.lstCharacters.SelectedItem = "Dark King Pen"
                     'Case ""
                     'frmMain.lstCharacters.SelectedItem = "Dark Wolfgang"
-                    'Case ""
-                    'frmMain.lstCharacters.SelectedItem = "Dec-Ember"
                 Case "6202"
                     frmMain.lstCharacters.SelectedItem = "Dr. Krankcase"
                 Case "7702"
@@ -5158,18 +5821,12 @@ Public Class Figures
                     'frmMain.lstCharacters.SelectedItem = "Mystical Tae Kwon Crow"
                 Case "6802"
                     frmMain.lstCharacters.SelectedItem = "Mysticat"
-                    'Case ""
-                    'frmMain.lstCharacters.SelectedItem = "Orange Chain Reaction"
                 Case "6702"
                     frmMain.lstCharacters.SelectedItem = "Pain-Yatta"
-                    'Case ""
-                    'frmMain.lstCharacters.SelectedItem = "Pink Barbella"
                 Case "5D02"
                     frmMain.lstCharacters.SelectedItem = "Pit Boss"
                 Case "7102"
                     frmMain.lstCharacters.SelectedItem = "Ro-Bow"
-                    'Case ""
-                    'frmMain.lstCharacters.SelectedItem = "Rock Candy Pain-Yatta"
                     'Case ""
                     'frmMain.lstCharacters.SelectedItem = "Solar Flare Aurora"
                 Case "6902"
@@ -5555,6 +6212,54 @@ Public Class Figures
                 Case "EB00"
                     frmMain.lstCharacters.SelectedItem = "Platnium Mystery Chest"
             End Select
+        ElseIf Var = "0450" Then
+            frmMain.cmbGame.SelectedItem = "Imaginators"
+            Select Case Fig
+                Case "6002"
+                    frmMain.lstCharacters.SelectedItem = "Dec-Ember (Employee Edition)"
+            End Select
+        ElseIf Var = "2150" Then
+            frmMain.cmbGame.SelectedItem = "Imaginators"
+            Select Case Fig
+                Case "6902"
+                    'Clear Starcast and Happy Birthday Ben Starcast are byte-for-byte
+                    'identical dumps, so automatic detection uses Clear Starcast.
+                    frmMain.lstCharacters.SelectedItem = "Clear Starcast"
+                Case "7202"
+                    frmMain.lstCharacters.SelectedItem = "Orange Chain Reaction"
+                Case "5E02"
+                    frmMain.lstCharacters.SelectedItem = "Pink Barbella"
+                Case "6702"
+                    frmMain.lstCharacters.SelectedItem = "Rock Candy Pain-Yatta"
+            End Select
+        ElseIf Var = "1252" Then
+            frmMain.cmbGame.SelectedItem = "Imaginators Crystals"
+            blnCrystal = True
+            Select Case Fig
+                Case "AA02"
+                    frmMain.lstCharacters.SelectedItem = "Air Acorn 1 (Unreleased)"
+            End Select
+        ElseIf Var = "0152" Then
+            frmMain.cmbGame.SelectedItem = "Imaginators Crystals"
+            blnCrystal = True
+            Select Case Fig
+                Case "AD02"
+                    frmMain.lstCharacters.SelectedItem = "Fire Angel 1 (Unreleased)"
+            End Select
+        ElseIf Var = "0352" Then
+            frmMain.cmbGame.SelectedItem = "Imaginators Crystals"
+            blnCrystal = True
+            Select Case Fig
+                Case "B102"
+                    frmMain.lstCharacters.SelectedItem = "Light Angel 1 (Unreleased)"
+            End Select
+        ElseIf Var = "0552" Then
+            frmMain.cmbGame.SelectedItem = "Imaginators Crystals"
+            blnCrystal = True
+            Select Case Fig
+                Case "AC02"
+                    frmMain.lstCharacters.SelectedItem = "Tech Pyramid 1 (Unreleased)"
+            End Select
         ElseIf Var = "0752" Then
             frmMain.cmbGame.SelectedItem = "Imaginators"
             blnCrystal = True
@@ -5603,6 +6308,15 @@ Public Class Figures
             Select Case Fig
                 Case "A802"
                     frmMain.lstCharacters.SelectedItem = "Magic Crystal"
+                Case "BB02"
+                    frmMain.lstCharacters.SelectedItem = "Goldie"
+            End Select
+        ElseIf Var = "0C52" Then
+            frmMain.cmbGame.SelectedItem = "Imaginators Crystals"
+            blnCrystal = True
+            Select Case Fig
+                Case "AE02"
+                    frmMain.lstCharacters.SelectedItem = "Earth Rune 1 (Unreleased)"
             End Select
         ElseIf Var = "1552" Then
             frmMain.cmbGame.SelectedItem = "Imaginators Crystals"
@@ -5729,6 +6443,31 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Wrecking Ball")
         frmMain.lstCharacters.Items.Add("Zap")
         frmMain.lstCharacters.Items.Add("Zook")
+
+        'SSA chase variants use the same NFC Character ID and 0000 Variant ID
+        'as their standard retail counterparts. Keep these aliases at the end
+        'so the legacy FigureItOut() SelectedIndex mappings above remain stable.
+        frmMain.lstCharacters.Items.Add("Blue Bash")
+        frmMain.lstCharacters.Items.Add("Chrome Spyro")
+        frmMain.lstCharacters.Items.Add("Crystal Clear Cynder")
+        frmMain.lstCharacters.Items.Add("Crystal Clear Stealth Elf")
+        frmMain.lstCharacters.Items.Add("Crystal Clear Wham-Shell")
+        frmMain.lstCharacters.Items.Add("Crystal Clear Whirlwind")
+        frmMain.lstCharacters.Items.Add("Flocked Stump Smash")
+        frmMain.lstCharacters.Items.Add("Glow-in-the-Dark Warnado")
+        frmMain.lstCharacters.Items.Add("Glow-in-the-Dark Wrecking Ball")
+        frmMain.lstCharacters.Items.Add("Glow-in-the-Dark Zap")
+        frmMain.lstCharacters.Items.Add("Gold Chop Chop")
+        frmMain.lstCharacters.Items.Add("Gold Drill Sergeant")
+        frmMain.lstCharacters.Items.Add("Gold Flameslinger")
+        frmMain.lstCharacters.Items.Add("Green Gill Grunt")
+        frmMain.lstCharacters.Items.Add("Metallic Purple Cynder")
+        frmMain.lstCharacters.Items.Add("Pearl Hex")
+        frmMain.lstCharacters.Items.Add("Red Camo")
+        frmMain.lstCharacters.Items.Add("Red Drill Sergeant")
+        frmMain.lstCharacters.Items.Add("Silver Boomer")
+        frmMain.lstCharacters.Items.Add("Silver Dino-Rang")
+        frmMain.lstCharacters.Items.Add("Silver Eruptor")
     End Sub
     Shared Sub Giants()
         frmMain.lstCharacters.Items.Add("Bouncer")
@@ -5793,6 +6532,35 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Swarm")
         frmMain.lstCharacters.Items.Add("Thumpback")
         frmMain.lstCharacters.Items.Add("Tree Rex")
+
+        'Giants chase variants. These are appended so existing list ordering
+        'and any legacy index-based assumptions remain unchanged.
+        frmMain.lstCharacters.Items.Add("Stone Whirlwind")
+        frmMain.lstCharacters.Items.Add("Bronze Hot Dog")
+        frmMain.lstCharacters.Items.Add("Double Trouble 1.5")
+        frmMain.lstCharacters.Items.Add("Employee Edition LightCore Prism Break")
+        frmMain.lstCharacters.Items.Add("Glow-in-the-Dark Cynder")
+        frmMain.lstCharacters.Items.Add("Glow-in-the-Dark Fright Rider")
+        frmMain.lstCharacters.Items.Add("Glow-in-the-Dark Sonic Boom")
+        frmMain.lstCharacters.Items.Add("Golden Flameslinger")
+        frmMain.lstCharacters.Items.Add("Halloween Fright Rider")
+        frmMain.lstCharacters.Items.Add("Metallic Blue Chop Chop")
+        frmMain.lstCharacters.Items.Add("Metallic Gill Grunt")
+        frmMain.lstCharacters.Items.Add("Metallic Green Shroomboom")
+        frmMain.lstCharacters.Items.Add("Metallic Purple Eye-Brawl")
+        frmMain.lstCharacters.Items.Add("Metallic Purple Lightning Rod")
+        frmMain.lstCharacters.Items.Add("Metallic Purple Wrecking Ball")
+        frmMain.lstCharacters.Items.Add("Pearl Sprocket")
+        frmMain.lstCharacters.Items.Add("Pumpkin Eye-Brawl")
+        frmMain.lstCharacters.Items.Add("Sparkle Hot Head")
+        frmMain.lstCharacters.Items.Add("Sparkle Sonic Boom")
+        frmMain.lstCharacters.Items.Add("Stone Zook")
+        frmMain.lstCharacters.Items.Add("White Flocked Eruptor")
+        frmMain.lstCharacters.Items.Add("White Flocked LightCore Prism Break")
+        frmMain.lstCharacters.Items.Add("White Flocked Stump Smash")
+
+        'Prototype/test character included with this Giants dump batch.
+        frmMain.lstCharacters.Items.Add("Debug Minion")
     End Sub
     Shared Sub SwapForce()
         frmMain.lstCharacters.Items.Add("Anchors Away Gill Grunt")
@@ -5896,6 +6664,31 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Wind-Up")
         frmMain.lstCharacters.Items.Add("VVind-Up")
         frmMain.lstCharacters.Items.Add("Zoo Lou")
+
+        'Swap Force chase variants. Appended to preserve existing list order.
+        frmMain.lstCharacters.Items.Add("Red Flame Frito-Lay Fire Bone Hot Dog")
+        frmMain.lstCharacters.Items.Add("Employee Edition LightCore Smolderdash")
+        frmMain.lstCharacters.Items.Add("Flocked Springtime Trigger Happy")
+        frmMain.lstCharacters.Items.Add("Green Chop Chop")
+        frmMain.lstCharacters.Items.Add("Green Flame Frito-Lay Fire Bone Hot Dog")
+        frmMain.lstCharacters.Items.Add("Green Rip Tide")
+        frmMain.lstCharacters.Items.Add("Green Scorp")
+        frmMain.lstCharacters.Items.Add("Heavy Metal Sprocket")
+        frmMain.lstCharacters.Items.Add("Metallic Red Dune Bug")
+        frmMain.lstCharacters.Items.Add("Purple Flame Frito-Lay Fire Bone Hot Dog")
+        frmMain.lstCharacters.Items.Add("Gold & Bronze Doom Stone Bottom")
+        frmMain.lstCharacters.Items.Add("Gold & Bronze Doom Stone Top")
+        frmMain.lstCharacters.Items.Add("Gold Fire Kraken Bottom")
+        frmMain.lstCharacters.Items.Add("Gold Fire Kraken Top")
+        frmMain.lstCharacters.Items.Add("Gold Wash Buckler Bottom")
+        frmMain.lstCharacters.Items.Add("Gold Wash Buckler Top")
+        frmMain.lstCharacters.Items.Add("Silver & Gold Stink Bomb Bottom")
+        frmMain.lstCharacters.Items.Add("Silver & Gold Stink Bomb Top")
+        frmMain.lstCharacters.Items.Add("Bronze & Silver Trap Shadow Bottom")
+        frmMain.lstCharacters.Items.Add("Bronze & Silver Trap Shadow Top")
+        frmMain.lstCharacters.Items.Add("Template Legacy")
+        frmMain.lstCharacters.Items.Add("Template Template Top")
+        frmMain.lstCharacters.Items.Add("Template Template Bottom")
     End Sub
     Shared Sub TrapTeam()
         frmMain.lstCharacters.Items.Add("Barkley")
@@ -5981,6 +6774,10 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Whisper Elf")
         frmMain.lstCharacters.Items.Add("Wildfire")
         frmMain.lstCharacters.Items.Add("Winterfest Lob-Star")
+
+        'Trap Team chase variants. Clear Thunderbolt is already listed above.
+        frmMain.lstCharacters.Items.Add("Clear Short Cut")
+        frmMain.lstCharacters.Items.Add("Clear Tuff Luck")
     End Sub
     Shared Sub SuperChargers()
         frmMain.lstCharacters.Items.Add("--Characters--")
@@ -5988,6 +6785,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Big Bubble Pop Fizz")
         frmMain.lstCharacters.Items.Add("Birthday Bash Big Bubble Pop Fizz")
         frmMain.lstCharacters.Items.Add("Bone Bash Roller Brawl")
+        frmMain.lstCharacters.Items.Add("Bronze Bone Bash Roller Brawl")
         frmMain.lstCharacters.Items.Add("Dark Hammer Slam Bowser")
         frmMain.lstCharacters.Items.Add("Dark Spitfire")
         frmMain.lstCharacters.Items.Add("Dark Super Shot Stealth Elf")
@@ -6011,6 +6809,8 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Instant Spitfire")
         frmMain.lstCharacters.Items.Add("Instant Super Shot Stealth Elf")
         frmMain.lstCharacters.Items.Add("Lava Lance Eruptor")
+        frmMain.lstCharacters.Items.Add("Patina High Volt")
+        frmMain.lstCharacters.Items.Add("Patina Lava Lance Eruptor")
         frmMain.lstCharacters.Items.Add("Legendary Astroblast")
         frmMain.lstCharacters.Items.Add("Legendary Bone Bash Roller Brawl")
         frmMain.lstCharacters.Items.Add("Legendary Hurricane Jet-Vac")
@@ -6024,6 +6824,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Spitfire")
         frmMain.lstCharacters.Items.Add("Splat")
         frmMain.lstCharacters.Items.Add("Steel Plated Smash Hit")
+        frmMain.lstCharacters.Items.Add("Snow-Brite Stormblade (Employee Edition)")
         frmMain.lstCharacters.Items.Add("Stormblade")
         frmMain.lstCharacters.Items.Add("Super Shot Stealth Elf")
         frmMain.lstCharacters.Items.Add("Thrillipede")
@@ -6056,7 +6857,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Dark Golden Queen")
         frmMain.lstCharacters.Items.Add("Dark King Pen")
         frmMain.lstCharacters.Items.Add("Dark Wolfgang")
-        frmMain.lstCharacters.Items.Add("Dec-Ember")
+        frmMain.lstCharacters.Items.Add("Dec-Ember (Employee Edition)")
         frmMain.lstCharacters.Items.Add("Dr. Krankcase")
         frmMain.lstCharacters.Items.Add("Dr. Neo Cortex")
         frmMain.lstCharacters.Items.Add("Egg Bomber Air Strike")
@@ -6065,6 +6866,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Golden Queen")
         frmMain.lstCharacters.Items.Add("Grave Clobber")
         frmMain.lstCharacters.Items.Add("Hard-Boiled Flarewolf")
+        frmMain.lstCharacters.Items.Add("Happy Birthday Ben Starcast")
         frmMain.lstCharacters.Items.Add("Heartbreaker Buckshot")
         frmMain.lstCharacters.Items.Add("Hood Sickle")
         frmMain.lstCharacters.Items.Add("Jingle Bell Chompy Mage")
@@ -6166,6 +6968,7 @@ Public Class Figures
     Shared Sub Vehicles()
         frmMain.lstCharacters.Items.Add("--Land Vehicles--")
         frmMain.lstCharacters.Items.Add("Barrel Blaster")
+        frmMain.lstCharacters.Items.Add("Bronze Tomb Buggy")
         frmMain.lstCharacters.Items.Add("Burn-Cycle")
         frmMain.lstCharacters.Items.Add("Crypt Crusher")
         frmMain.lstCharacters.Items.Add("Dark Barrel Blaster")
@@ -6176,6 +6979,8 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Hot Streak")
         frmMain.lstCharacters.Items.Add("Instant Hot Streak")
         frmMain.lstCharacters.Items.Add("Power Blue Gold Rusher")
+        frmMain.lstCharacters.Items.Add("Patina Burn-Cycle")
+        frmMain.lstCharacters.Items.Add("Patina Shield Striker")
         frmMain.lstCharacters.Items.Add("Shark Tank")
         frmMain.lstCharacters.Items.Add("Shield Striker")
         frmMain.lstCharacters.Items.Add("Thump Truck")
@@ -6205,9 +7010,9 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Sun Runner")
     End Sub
     Shared Sub Crystals()
-        'Apparently these Figures ARE Unique Variant but I have NO information on them.  :(
+        'Creation Crystal shapes use distinct variant IDs within each element.
         frmMain.lstCharacters.Items.Add("Air Crystal")
-        'frmMain.lstCharacters.Items.Add("Air Acorn")
+        frmMain.lstCharacters.Items.Add("Air Acorn 1 (Unreleased)")
         'frmMain.lstCharacters.Items.Add("Air Angel")
         'frmMain.lstCharacters.Items.Add("Air Lantern")
         frmMain.lstCharacters.Items.Add("Dark Crystal")
@@ -6215,12 +7020,13 @@ Public Class Figures
         'frmMain.lstCharacters.Items.Add("Dark Reactor")
         'frmMain.lstCharacters.Items.Add("Dark Rune")
         frmMain.lstCharacters.Items.Add("Earth Crystal")
+        frmMain.lstCharacters.Items.Add("Earth Rune 1 (Unreleased)")
         'frmMain.lstCharacters.Items.Add("Earth Armor")
         'frmMain.lstCharacters.Items.Add("Earth Rocket")
         'frmMain.lstCharacters.Items.Add("Earth Rune")
         frmMain.lstCharacters.Items.Add("Fire Crystal")
         'frmMain.lstCharacters.Items.Add("Fire Acorn")
-        'frmMain.lstCharacters.Items.Add("Fire Angel")
+        frmMain.lstCharacters.Items.Add("Fire Angel 1 (Unreleased)")
         'frmMain.lstCharacters.Items.Add("Fire Reactor")
         frmMain.lstCharacters.Items.Add("Life Crystal")
         'frmMain.lstCharacters.Items.Add("Life Acorn")
@@ -6228,16 +7034,17 @@ Public Class Figures
         'frmMain.lstCharacters.Items.Add("Life Rocket")
         'frmMain.lstCharacters.Items.Add("Life Rune")
         frmMain.lstCharacters.Items.Add("Light Crystal")
-        'frmMain.lstCharacters.Items.Add("Light Angel")
+        frmMain.lstCharacters.Items.Add("Light Angel 1 (Unreleased)")
         'frmMain.lstCharacters.Items.Add("Light Fanged")
         'frmMain.lstCharacters.Items.Add("Light Rune")
         frmMain.lstCharacters.Items.Add("Magic Crystal")
+        frmMain.lstCharacters.Items.Add("Goldie")
         'frmMain.lstCharacters.Items.Add("Magic Claw")
         'frmMain.lstCharacters.Items.Add("Magic Lantern")
         'frmMain.lstCharacters.Items.Add("Magic Pyramid")
         frmMain.lstCharacters.Items.Add("Tech Crystal")
         'frmMain.lstCharacters.Items.Add("Tech Armor")
-        'frmMain.lstCharacters.Items.Add("Tech Pyramid")
+        frmMain.lstCharacters.Items.Add("Tech Pyramid 1 (Unreleased)")
         'frmMain.lstCharacters.Items.Add("Tech Reactor")
         frmMain.lstCharacters.Items.Add("Undead Crystal")
         'frmMain.lstCharacters.Items.Add("Undead Claw")

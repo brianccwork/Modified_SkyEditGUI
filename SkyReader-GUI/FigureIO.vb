@@ -195,12 +195,12 @@ Public Class FigureIO
             Return True
         End If
 
-        'SuperChargers Instant character variants.
+        'Trap Team and SuperChargers Instant character variants.
         'Instant Hot Streak, Stealth Stinger, and Dive Bomber are vehicles
         'and must use the vehicle editor instead of Gold/EXP.
         If Figures.Var = "0F45" Then
             Select Case Figures.Fig
-                Case "610D", "540D", "570D"
+                Case "DC01", "CE01", "610D", "540D", "570D"
                     Return True
             End Select
         End If
