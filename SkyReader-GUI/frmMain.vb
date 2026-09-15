@@ -71,6 +71,7 @@ Public Class frmMain
             blnClear = False
             Exit Sub
         End If
+        If lstCharacters.SelectedItem Is Nothing Then Return
         If lstCharacters.SelectedItem.ToString.StartsWith("--") Then
             lstCharacters.SelectedIndex += 1
             Exit Sub

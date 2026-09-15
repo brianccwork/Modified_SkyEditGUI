@@ -19,7 +19,7 @@ Module hidControl
     'Find and connect to a Skylanders portal through the Windows HID stack.
     'The function scans HID devices, looks for the Skylanders VID/PID,
     'opens the matching device, and stores the handle for later portal I/O.
-    Public Function FindThePortal() As SafeFileHandle
+    Public Function FindThePortal(Optional asynchronous As Boolean = False) As SafeFileHandle
 
         Dim deviceFound As Boolean
         Dim devicePathName(127) As String
@@ -129,7 +129,7 @@ Module hidControl
                     FILE_SHARE_READ Or FILE_SHARE_WRITE,
                     IntPtr.Zero,
                     OPEN_EXISTING,
-                    0,
+                    If(asynchronous, &H40000000, 0),
                     IntPtr.Zero)
 
                 If hidHandle Is Nothing OrElse hidHandle.IsInvalid Then
@@ -142,7 +142,7 @@ Module hidControl
 
                 DeviceManagement.DebugWrite("CreateFile (read/write handle) succeeded")
 
-                deviceStream = New FileStream(hidHandle, FileAccess.ReadWrite, reportSize, False)
+                deviceStream = New FileStream(hidHandle, FileAccess.ReadWrite, reportSize, asynchronous)
 
                 'Flush any pending HID packets so future portal communication starts clean.
                 HidD_FlushQueue(hidHandle)
@@ -223,4 +223,18 @@ Module hidControl
         End Try
     End Sub
 
+    'Only the simplified editor opts into the cancellable asynchronous stream.
+    Public Async Function ReadReportAsync(token As System.Threading.CancellationToken) As System.Threading.Tasks.Task(Of Byte())
+        If deviceStream Is Nothing OrElse Not deviceStream.IsAsync Then
+            Throw New IOException("Connect the portal again before reading.")
+        End If
+        Dim report(reportSize - 1) As Byte
+        Dim offset As Integer = 0
+        Do While offset < report.Length
+            Dim received As Integer = Await deviceStream.ReadAsync(report, offset, report.Length - offset, token)
+            If received = 0 Then Throw New IOException("The portal was disconnected.")
+            offset += received
+        Loop
+        Return report
+    End Function
 End Module

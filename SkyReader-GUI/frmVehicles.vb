@@ -100,6 +100,34 @@ Public Class frmVehicles
         Dispose()
     End Sub
 
+    Friend Function ReadGearbitsForSimpleEditor() As Decimal
+        Return CDec(ReadUInt16LE(SelectActiveSlot().GearBitsOffset))
+    End Function
+
+    Friend Function IsSafeForSimpleEditor() As Boolean
+        Dim original As Byte() = DirectCast(WholeFile.Clone(), Byte())
+        Dim slot As VehicleSlot = SelectActiveSlot()
+        Try
+            If Not HasLikelyVehicleData(slot) OrElse ReadUInt16LE(slot.GearBitsOffset) > MaxGearBits Then Return False
+            RewriteVehicleChecksums(slot)
+            For Each offset As Integer In New Integer() {slot.HeaderBase + &HA, slot.HeaderBase + &HB,
+                slot.HeaderBase + &HC, slot.HeaderBase + &HD, slot.HeaderBase + &HE, slot.HeaderBase + &HF,
+                slot.ExtendedBase, slot.ExtendedBase + 1}
+                If WholeFile(offset) <> original(offset) Then Return False
+            Next
+            Return True
+        Finally
+            WholeFile = original
+        End Try
+    End Function
+
+    Friend Sub ApplyGearbitsForSimpleEditor(value As Decimal)
+        If value < 0D OrElse value > MaxGearBits Then Throw New ArgumentOutOfRangeException(NameOf(value))
+        If Not IsSafeForSimpleEditor() Then Throw New IO.InvalidDataException("Vehicle data is unsafe to write.")
+        numGearbits.Value = value
+        SaveVehicleGearBits()
+    End Sub
+
     'Apply the current Gearbits value to the in-memory vehicle data.
     'This does not write to the portal by itself. The main form write step still does that later.
     Private Sub SaveVehicleGearBits()

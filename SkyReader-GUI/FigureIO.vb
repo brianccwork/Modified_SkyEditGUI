@@ -67,7 +67,7 @@ Public Class FigureIO
 
         Parse_Figure()
     End Sub
-    Public Shared Sub Parse_Figure()
+    Public Shared Sub Parse_Figure(Optional openEditors As Boolean = True)
         'We set the Decrypted Flag here
         blnEncrypted = False
         'We set the Unique Trio Booleans to False.
@@ -113,6 +113,9 @@ Public Class FigureIO
         'Determine if we are going to use Area 0 or Area 1
         Figures.Area0orArea1()
         frmArea.Area0_1()
+
+        'The simple modifier identifies these figures without opening another editor.
+        If Not openEditors AndAlso (BlnVehicle OrElse blnTrap OrElse blnCrystal) Then Return
 
         'We break here if Vehicle, Crystal, Item or Trap
         If BlnVehicle = True Then
@@ -175,6 +178,12 @@ Public Class FigureIO
         System_ID.ReadSystem_ID()
         'blnSensei = IsSenseiFigure()
         frmMain.ApplySenseiUi()
+        If openEditors Then
+            If blnSensei Then FigureWarnings.ShowWarning(frmMain, "Sensei initialization", FigureWarnings.SenseiText)
+            If FigureWarnings.HasUnsafeCharacterData() Then
+                FigureWarnings.ShowWarning(frmMain, "Skylander corrupted or unsafe to write", FigureWarnings.UnsafeText)
+            End If
+        End If
     End Sub
 
     Public Shared Function IsSenseiFigure() As Boolean
@@ -722,7 +731,7 @@ Public Class FigureIO
         Do Until ZeroVehicle = 14
             'WholeFile(640 + ZeroVehicle) = &H0
             If WholeFile(640 + ZeroVehicle) <> &H0 Then
-                blnEncrypted = True
+                Return True
             Else
                 ZeroVehicle += 1
             End If

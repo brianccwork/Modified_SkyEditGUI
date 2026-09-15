@@ -107,13 +107,18 @@
     <Compile Include="DeviceManagement.vb" />
     <Compile Include="DeviceManagementDeclarations.vb" />
     <Compile Include="Exp.vb" />
+    <Compile Include="FigureArtwork.vb" />
     <Compile Include="FigureIO.vb" />
     <Compile Include="Figures.vb" />
+    <Compile Include="FigureWarnings.vb" />
     <Compile Include="FileIODeclarations.vb" />
     <Compile Include="frmCrystals.Designer.vb">
       <DependentUpon>frmCrystals.vb</DependentUpon>
     </Compile>
     <Compile Include="frmCrystals.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmHome.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmLog.Designer.vb">
@@ -122,11 +127,17 @@
     <Compile Include="frmLog.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmMain.Navigation.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMain.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmMain.Designer.vb">
       <DependentUpon>frmMain.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmModifier.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmTraps.Designer.vb">
@@ -159,7 +170,14 @@
     </Compile>
     <Compile Include="Nickname.vb" />
     <Compile Include="Portal.vb" />
+    <Compile Include="SimpleFigureSession.vb" />
+    <Compile Include="SimplePortal.vb" />
+    <Compile Include="SimpleUi.vb" />
     <Compile Include="Skills.vb" />
+    <Compile Include="SkyTheme.Forms.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SkyTheme.vb" />
     <Compile Include="System_ID.vb" />
     <Compile Include="Test.vb" />
     <Compile Include="frmVehicles.Designer.vb">
