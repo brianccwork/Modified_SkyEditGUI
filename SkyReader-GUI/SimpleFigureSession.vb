@@ -66,7 +66,7 @@ Friend NotInheritable Class SimpleFigureSession
             CanEdit = vehicleMode AndAlso Not IsUnsafe AndAlso FigureName <> "Unknown figure"
         Else
             IsUnsafe = Not FigureIO.blnTrap AndAlso Not FigureIO.blnCrystal AndAlso
-                supportedGames.Contains(GameName) AndAlso FigureWarnings.HasUnsafeCharacterData()
+                supportedGames.Contains(GameName) AndAlso FigureWarnings.HasUnsafeCharacterData(SimplePortal.IsSwapTop(Original))
             CanEdit = CanEdit AndAlso Not vehicleMode AndAlso Not IsUnsafe
         End If
         If Not CanEdit Then

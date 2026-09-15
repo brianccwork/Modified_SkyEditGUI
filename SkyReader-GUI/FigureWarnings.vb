@@ -8,10 +8,11 @@ Friend NotInheritable Class FigureWarnings
     Private Sub New()
     End Sub
 
-    'Use the existing parser's checksum results; do not attempt automatic repair.
-    Friend Shared Function HasUnsafeCharacterData() As Boolean
+    'The simplified top-half editor may bypass payload checks only; identity checks remain mandatory.
+    Friend Shared Function HasUnsafeCharacterData(Optional swapTopGoldXpOnly As Boolean = False) As Boolean
+        If frmMain.picSerial.BackColor <> Color.Green OrElse frmMain.picHeader.BackColor <> Color.Green Then Return True
+        If swapTopGoldXpOnly Then Return False
         For Each indicator As PictureBox In New PictureBox() {
-            frmMain.picSerial, frmMain.picHeader,
             frmMain.picArea0Type1, frmMain.picArea0Type2, frmMain.picArea0Type3, frmMain.picArea0Type4,
             frmMain.picArea1Type1, frmMain.picArea1Type2, frmMain.picArea1Type3, frmMain.picArea1Type4}
             If indicator.BackColor <> Color.Green Then Return True

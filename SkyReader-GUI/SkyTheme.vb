@@ -251,7 +251,7 @@ Friend NotInheritable Class SkyTheme
         Select Case window.Name
             Case "frmMain"
                 title = "SkyGUI"
-                subtitle = "Your gateway to Skylands"
+                subtitle = String.Empty
             Case "frmTraps"
                 title = "Trap Editor"
                 subtitle = "Captured villains and customizations"
@@ -274,7 +274,7 @@ Friend NotInheritable Class SkyTheme
         TextRenderer.DrawText(e.Graphics, subtitle, BodyFont,
                               New Point(Pixels(window, 20), top + Pixels(window, 58)), SkyAssets.Ink, TextFormatFlags.NoPadding)
 
-        If bounds.Width >= Pixels(window, 400) Then
+        If window.Name <> "frmMain" AndAlso bounds.Width >= Pixels(window, 400) Then
             Dim ring As New Rectangle(bounds.Right - Pixels(window, 76), top + Pixels(window, 13), Pixels(window, 44), Pixels(window, 44))
             Using outer As New Pen(Cyan, Pixels(window, 2)), inner As New Pen(Color.FromArgb(140, Cyan), Pixels(window, 1))
                 e.Graphics.DrawEllipse(outer, ring)

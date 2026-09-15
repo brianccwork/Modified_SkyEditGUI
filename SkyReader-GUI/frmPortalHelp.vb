@@ -11,6 +11,8 @@ Public Class frmPortalHelp
         Name = "frmPortalHelp"
         Font = SimpleUi.Body
         BackColor = SkyAssets.Panel
+        BackgroundImage = SkyDecor.Asset("Shattered_Background.png")
+        BackgroundImageLayout = ImageLayout.Stretch
         ForeColor = SkyAssets.Ink
         AutoScaleDimensions = New SizeF(96, 96)
         AutoScaleMode = AutoScaleMode.Dpi
@@ -22,7 +24,7 @@ Public Class frmPortalHelp
         Dim work As Rectangle = Screen.FromControl(Me).WorkingArea
         ClientSize = New Size(Math.Min(ClientSize.Width, work.Width - 48), Math.Min(ClientSize.Height, work.Height - 80))
 
-        Dim page As New SkyLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = 3, .Padding = New Padding(16)}
+        Dim page As New SkyLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = 3, .Padding = New Padding(16), .BackColor = Color.Transparent}
         page.RowStyles.Add(New RowStyle(SizeType.Absolute, 88))
         page.RowStyles.Add(New RowStyle(SizeType.Percent, 100))
         page.RowStyles.Add(New RowStyle(SizeType.Absolute, 80))
@@ -31,9 +33,9 @@ Public Class frmPortalHelp
         title.AutoSize = False
         page.Controls.Add(title, 0, 0)
 
-        Dim viewport As New Panel With {.Dock = DockStyle.Fill, .AutoScroll = True, .BackColor = SkyAssets.White}
+        Dim viewport As New Panel With {.Dock = DockStyle.Fill, .AutoScroll = True, .BackColor = Color.Transparent}
         Dim guide As New SkyLayoutPanel With {.Dock = DockStyle.Top, .ColumnCount = 1, .RowCount = 0,
-            .AutoSize = True, .AutoSizeMode = AutoSizeMode.GrowAndShrink, .Padding = New Padding(12)}
+            .AutoSize = True, .AutoSizeMode = AutoSizeMode.GrowAndShrink, .Padding = New Padding(12), .BackColor = Color.Transparent}
         guide.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100))
         AddCard(guide, "Before you begin", "Use a compatible non-Xbox portal. If it already connects, no driver changes are needed. " &
             "This program uses USB Input Device (HID). In the troubleshooting sequence below, WinUSB is an intermediate step; finish by selecting USB Input Device before trying SkyGUI again.")
@@ -50,7 +52,7 @@ Public Class frmPortalHelp
         viewport.Controls.Add(guide)
         page.Controls.Add(viewport, 0, 1)
 
-        Dim actions As New SkyLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 2, .RowCount = 1}
+        Dim actions As New SkyLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 2, .RowCount = 1, .BackColor = Color.Transparent}
         actions.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 62))
         actions.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 38))
         Dim download As Button = SimpleUi.Action("Open Zadig Website")

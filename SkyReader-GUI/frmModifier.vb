@@ -195,7 +195,7 @@ Public Class frmModifier
         busy = True
         ClearSession()
         loadedName.Text = "Reading figure..."
-        status.Text = "Keep one figure on the portal while it is read."
+        status.Text = "Keep one figure on the portal. Swap Force: leave both halves assembled; the top is selected automatically."
         RefreshActions()
         Try
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(30))
@@ -240,7 +240,7 @@ Public Class frmModifier
 
     Private Sub DisplaySession(value As SimpleFigureSession)
         session = value
-        loadedName.Text = "Loaded: " & value.FigureName
+        loadedName.Text = "Loaded: " & value.FigureName & If(SimplePortal.IsSwapTop(value.Original), " (top half)", "")
         goldInput.Maximum = value.GoldMaximum
         levelInput.Maximum = value.LevelMaximum
         goldInput.Value = Math.Min(value.GoldValue, goldInput.Maximum)
@@ -248,6 +248,9 @@ Public Class frmModifier
         ShowPreview(Me, EventArgs.Empty)
         status.Text = If(value.CanEdit, If(vehicleMode, "Vehicle loaded. Change Gearbits, then save.", "Figure loaded. Change Gold or Level, then save."),
             If(value.IsUnsafe, "Unsafe figure data. Saving is disabled.", If(vehicleMode, "Read a supported vehicle to edit Gearbits.", "This figure is preview-only here. Use its matching editor.")))
+        If value.CanEdit AndAlso SimplePortal.IsSwapTop(value.Original) Then
+            status.Text = "Swap Force top half loaded. Gold, XP and Level changes save to the top; the bottom stays unchanged."
+        End If
     End Sub
 
     Private Sub ShowFigureWarnings()
