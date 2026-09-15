@@ -2,13 +2,13 @@ Option Strict On
 Option Explicit On
 
 Friend NotInheritable Class SimpleUi
-    Friend Shared ReadOnly Sky As Color = Color.FromArgb(193, 229, 249)
-    Friend Shared ReadOnly Blue As Color = Color.FromArgb(35, 117, 175)
-    Friend Shared ReadOnly Navy As Color = Color.FromArgb(20, 47, 79)
-    Friend Shared ReadOnly Body As New Font("Segoe UI", 10.0F)
-    Friend Shared ReadOnly Heading As New Font("Segoe UI", 25.0F, FontStyle.Bold)
-    Friend Shared ReadOnly ActionFont As New Font("Segoe UI", 13.0F, FontStyle.Bold)
-    Friend Shared ReadOnly NumberFont As New Font("Segoe UI", 20.0F)
+    Friend Shared ReadOnly Sky As Color = SkyAssets.Panel
+    Friend Shared ReadOnly Blue As Color = SkyAssets.Bright
+    Friend Shared ReadOnly Navy As Color = SkyAssets.Ink
+    Friend Shared ReadOnly Body As Font = SkyAssets.UiFont(10.0F)
+    Friend Shared ReadOnly Heading As Font = SkyAssets.UiFont(25.0F)
+    Friend Shared ReadOnly ActionFont As Font = SkyAssets.UiFont(13.0F)
+    Friend Shared ReadOnly NumberFont As Font = SkyAssets.UiFont(20.0F)
 
     Private Sub New()
     End Sub
@@ -29,9 +29,7 @@ Friend NotInheritable Class SimpleUi
         For Each control As Control In parent.Controls
             Dim button As Button = TryCast(control, Button)
             If button IsNot Nothing Then
-                button.FlatAppearance.BorderSize = 0
-                button.FlatAppearance.MouseOverBackColor = Color.FromArgb(53, 143, 204)
-                button.FlatAppearance.MouseDownBackColor = Navy
+                SkyPresentation.StyleButton(button)
             End If
             If control.HasChildren Then StyleButtons(control)
         Next

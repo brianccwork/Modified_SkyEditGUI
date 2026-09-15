@@ -22,9 +22,10 @@ Friend NotInheritable Class FigureWarnings
     Friend Shared Sub ShowWarning(owner As IWin32Window, heading As String, message As String)
         Using popup As New Form()
             popup.Text = heading
+            SkyAssets.ApplyWindowIcon(popup)
             popup.Font = SimpleUi.Body
             popup.BackColor = SimpleUi.Sky
-            popup.ClientSize = New Size(570, 340)
+            popup.ClientSize = New Size(760, 420)
             popup.AutoScaleDimensions = New SizeF(96, 96)
             popup.AutoScaleMode = AutoScaleMode.Dpi
             popup.FormBorderStyle = FormBorderStyle.FixedDialog
@@ -33,24 +34,25 @@ Friend NotInheritable Class FigureWarnings
             popup.MaximizeBox = False
             popup.ShowInTaskbar = False
             Dim layout As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = 3, .Padding = New Padding(20)}
-            layout.RowStyles.Add(New RowStyle(SizeType.Absolute, 58))
+            layout.RowStyles.Add(New RowStyle(SizeType.Absolute, 90))
             layout.RowStyles.Add(New RowStyle(SizeType.Percent, 100))
-            layout.RowStyles.Add(New RowStyle(SizeType.Absolute, 64))
+            layout.RowStyles.Add(New RowStyle(SizeType.Absolute, 84))
             Dim title As Label = SimpleUi.Caption(heading)
             title.AutoSize = False
             title.Font = SimpleUi.ActionFont
-            Dim body As New TextBox With {.Text = message, .Multiline = True, .ReadOnly = True,
-                .BorderStyle = BorderStyle.None, .BackColor = SimpleUi.Sky, .ForeColor = SimpleUi.Navy,
-                .Dock = DockStyle.Fill, .ScrollBars = ScrollBars.Vertical, .Margin = New Padding(8)}
+            Dim body As New Label With {.Text = message, .AutoSize = False, .TabStop = False,
+                .UseMnemonic = False, .BackColor = SimpleUi.Sky, .ForeColor = SimpleUi.Navy,
+                .Dock = DockStyle.Fill, .Margin = New Padding(8), .TextAlign = ContentAlignment.MiddleLeft}
             Dim confirm As Button = SimpleUi.Action("I understand")
             confirm.DialogResult = DialogResult.OK
-            layout.Controls.Add(title, 0, 0)
+            layout.Controls.Add(SkyDecor.WithBadge(title, "Warning.ico", True), 0, 0)
             layout.Controls.Add(body, 0, 1)
             layout.Controls.Add(confirm, 0, 2)
             popup.Controls.Add(layout)
             popup.AcceptButton = confirm
             popup.CancelButton = confirm
             SimpleUi.StyleButtons(popup)
+            SkyPolish.FitDialog(popup, title, body)
             popup.ShowDialog(owner)
         End Using
     End Sub

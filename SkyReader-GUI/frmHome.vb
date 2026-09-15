@@ -2,69 +2,104 @@ Option Strict On
 Option Explicit On
 
 Public Class frmHome
-    Inherits Form
+    Inherits SkyCloudForm
 
-    Private ReadOnly buttons As New TableLayoutPanel()
-    Private ReadOnly title As New Label()
     Private closingApplication As Boolean
 
     Public Sub New()
-        Text = "SkyGUI"
+        Text = "Skylander Editor"
         Name = "frmHome"
+        SkyAssets.ApplyWindowIcon(Me)
         Font = SimpleUi.Body
-        BackColor = SimpleUi.Sky
-        ClientSize = New Size(1000, 660)
-        MinimumSize = New Size(700, 560)
+        BackColor = SkyAssets.Panel
+        ClientSize = New Size(1000, 720)
+        MinimumSize = New Size(740, 580)
         StartPosition = FormStartPosition.CenterScreen
         AutoScaleDimensions = New SizeF(96, 96)
         AutoScaleMode = AutoScaleMode.Dpi
-        BackgroundImageLayout = ImageLayout.Stretch
         DoubleBuffered = True
+        AutoScroll = True
 
-        title.Text = "SkyGUI"
-        title.Font = SimpleUi.Heading
-        title.ForeColor = SimpleUi.Navy
-        title.TextAlign = ContentAlignment.MiddleCenter
-        title.BackColor = Color.Transparent
-        buttons.ColumnCount = 2
-        buttons.RowCount = 3
-        buttons.BackColor = Color.Transparent
+        Dim page As New SkyLayoutPanel With {.Dock = DockStyle.Top, .AutoSize = True, .AutoSizeMode = AutoSizeMode.GrowAndShrink, .RowCount = 4,
+            .ColumnCount = 1, .Padding = New Padding(24, 12, 24, 16), .BackColor = Color.Transparent}
+        page.RowStyles.Add(New RowStyle(SizeType.Absolute, 140))
+        page.RowStyles.Add(New RowStyle(SizeType.Absolute, 62))
+        page.RowStyles.Add(New RowStyle(SizeType.Absolute, 290))
+        page.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+        Dim header As New SkyLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 3, .RowCount = 1,
+            .BackColor = Color.Transparent, .Margin = New Padding(0)}
+        header.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 152))
+        header.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100))
+        header.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 152))
+        Dim help As New SkyHelpShortcut With {.Size = New Size(116, 76), .Anchor = AnchorStyles.Top Or AnchorStyles.Left, .Margin = New Padding(4, 4, 8, 10)}
+        header.Controls.Add(help, 0, 0)
+        AddHandler help.Click, AddressOf OpenPortalHelp
+        page.Controls.Add(header, 0, 0)
+        Dim logo As New PictureBox With {.Dock = DockStyle.Fill, .Image = SkyAssets.Logo,
+            .SizeMode = PictureBoxSizeMode.Zoom, .BackColor = Color.Transparent, .Margin = New Padding(20, 0, 20, 0)}
+        If SkyAssets.Logo Is Nothing Then
+            Dim fallback As Label = SimpleUi.Caption("Skylanders")
+            fallback.Font = SimpleUi.Heading
+            fallback.AutoSize = False
+            fallback.TextAlign = ContentAlignment.MiddleCenter
+            header.Controls.Add(fallback, 1, 0)
+        Else
+            header.Controls.Add(logo, 1, 0)
+        End If
+        Dim subtitle As Label = SimpleUi.Caption("Skylander Editor")
+        subtitle.AutoSize = False
+        subtitle.TextAlign = ContentAlignment.MiddleCenter
+        subtitle.Font = SkyAssets.UiFont(23.0F)
+        subtitle.ForeColor = Color.Black
+        subtitle.BackColor = Color.Transparent
+        page.Controls.Add(subtitle, 0, 1)
+
+        Dim buttons As New SkyLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 2, .RowCount = 3,
+            .BackColor = Color.Transparent, .Margin = New Padding(65, 8, 65, 8)}
         buttons.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 50))
         buttons.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 50))
         For index As Integer = 0 To 2
             buttons.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / 3.0F))
         Next
-        Dim modifier As Button = SimpleUi.Action("XP / Level Modifier")
+        Dim modifier As Button = SimpleUi.Action("Skylanders XP / Level Modifier")
         Dim traps As Button = SimpleUi.Action("Traps")
         Dim vehicles As Button = SimpleUi.Action("Vehicles")
         Dim developer As Button = SimpleUi.Action("Developer")
         Dim imaginators As Button = SimpleUi.Action("Imaginators")
-        developer.BackColor = SimpleUi.Navy
-        For Each placeholder As Button In New Button() {traps, imaginators}
-            placeholder.Enabled = False
-            placeholder.BackColor = Color.FromArgb(162, 208, 237)
-        Next
+        traps.Enabled = False
+        imaginators.Enabled = False
         buttons.Controls.Add(modifier, 0, 0)
         buttons.SetColumnSpan(modifier, 2)
-        buttons.Controls.Add(traps, 0, 1)
+        buttons.Controls.Add(SkyDecor.Development(traps), 0, 1)
         buttons.Controls.Add(vehicles, 1, 1)
         buttons.Controls.Add(developer, 0, 2)
-        buttons.Controls.Add(imaginators, 1, 2)
-        Controls.Add(title)
-        Controls.Add(buttons)
+        buttons.Controls.Add(SkyDecor.Development(imaginators), 1, 2)
+        page.Controls.Add(buttons, 0, 2)
+
+        Dim disclaimer As New SkyTextCard With {.Dock = DockStyle.Top,
+            .BackColor = SkyAssets.Panel, .ForeColor = SkyAssets.Ink,
+            .Font = SkyAssets.UiFont(8.5F), .TextAlign = ContentAlignment.MiddleCenter,
+            .Margin = New Padding(12, 6, 12, 6), .Padding = New Padding(14, 10, 14, 10), .TabStop = False}
+        disclaimer.Text = "Third-Party Images Disclaimer:" & vbCrLf &
+            "This spreadsheet includes images of Skylanders figures sourced from third-party websites and creators." & vbCrLf &
+            "These images are not licensed under (CC BY-NC-ND 4.0) and are used here only for informational or reference purposes." & vbCrLf & vbCrLf &
+            "Skylanders is a trademark of Activision." & vbCrLf &
+            "This project is not affiliated with or endorsed by Activision." & vbCrLf &
+            "All character designs are © Activision and respective rights holders."
+        SkyDecor.WarningOnCard(disclaimer)
+        page.Controls.Add(disclaimer, 0, 3)
+        Controls.Add(page)
         AddHandler modifier.Click, AddressOf OpenModifier
         AddHandler vehicles.Click, AddressOf OpenVehicles
         AddHandler developer.Click, AddressOf OpenDeveloper
-        AddHandler Resize, AddressOf PositionContent
         SimpleUi.StyleButtons(Me)
-        PositionContent(Me, EventArgs.Empty)
     End Sub
 
-    Private Sub PositionContent(sender As Object, e As EventArgs)
-        Dim scale As Single = DeviceDpi / 96.0F
-        buttons.Size = New Size(Math.Min(CInt(660 * scale), ClientSize.Width - CInt(40 * scale)), CInt(342 * scale))
-        buttons.Location = New Point((ClientSize.Width - buttons.Width) \ 2, Math.Max(CInt(120 * scale), (ClientSize.Height - buttons.Height) \ 2))
-        title.SetBounds(0, buttons.Top - CInt(85 * scale), ClientSize.Width, CInt(60 * scale))
+    Private Sub OpenPortalHelp(sender As Object, e As EventArgs)
+        Dim help As New frmPortalHelp()
+        AddHandler help.FormClosed, AddressOf ReturnHome
+        help.Show()
+        Hide()
     End Sub
 
     Private Sub OpenDeveloper(sender As Object, e As EventArgs)

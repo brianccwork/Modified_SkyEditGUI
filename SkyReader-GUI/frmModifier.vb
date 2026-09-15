@@ -15,9 +15,14 @@ Public Class frmModifier
     Private ReadOnly levelInput As New NumericUpDown()
     Private ReadOnly loadedName As Label = SimpleUi.Caption("No figure read yet")
     Private ReadOnly status As Label = SimpleUi.Caption("Connect your portal, then read a figure.")
-    Private ReadOnly previewName As Label = SimpleUi.Caption("Figures")
-    Private ReadOnly imageBox As New PictureBox()
-    Private ReadOnly gallery As New ListBox()
+    Private ReadOnly previewName As Label = SimpleUi.Caption("Current Scanned Figure on Portal of Power")
+    Private ReadOnly imageBox As New SkyPortalPreview()
+    Private ReadOnly gallery As New TreeView()
+    Private ReadOnly waiting As PictureBox = SkyDecor.Badge("Waiting.ico")
+    Private ReadOnly connectionHelp As Label = SimpleUi.Caption("Only Non-Xbox Portals are Compatible with the Program." & vbCrLf &
+        "If you are struggling connecting please follow the Zadig process in the Main Menu.")
+    Private saving As Boolean
+    Private connectionFailed As Boolean
     Private ReadOnly artwork As New FigureArtwork()
     Private ReadOnly vehicleMode As Boolean
     Private session As SimpleFigureSession
@@ -28,29 +33,39 @@ Public Class frmModifier
         SimplePortal.Disconnect()
         Text = If(vehicleMode, "SkyGUI - Vehicle Gearbits", "SkyGUI - XP / Level Modifier")
         Name = "frmModifier"
+        SkyAssets.ApplyWindowIcon(Me)
         Font = SimpleUi.Body
         BackColor = SimpleUi.Sky
-        ClientSize = New Size(1040, 680)
+        ClientSize = New Size(1160, 880)
         MinimumSize = New Size(850, 620)
         StartPosition = FormStartPosition.CenterScreen
         AutoScaleDimensions = New SizeF(96, 96)
         AutoScaleMode = AutoScaleMode.Dpi
         DoubleBuffered = True
+        BackgroundImage = SkyDecor.Asset("Shattered_Background.png")
+        BackgroundImageLayout = ImageLayout.Stretch
+        AutoScroll = True
+        AutoScrollMinSize = New Size(1100, 956)
+        Dim work As Rectangle = Screen.FromControl(Me).WorkingArea
+        ClientSize = New Size(Math.Min(ClientSize.Width, work.Width - 48), Math.Min(ClientSize.Height, work.Height - 80))
 
-        Dim page As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 2, .RowCount = 3, .Padding = New Padding(20)}
+        Dim page As New SkyLayoutPanel With {.BackColor = Color.Transparent, .Dock = DockStyle.Fill, .ColumnCount = 2, .RowCount = 4, .Padding = New Padding(20)}
         page.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 43))
         page.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 57))
-        page.RowStyles.Add(New RowStyle(SizeType.Absolute, 76))
+        page.RowStyles.Add(New RowStyle(SizeType.AutoSize))
         page.RowStyles.Add(New RowStyle(SizeType.Percent, 100))
-        page.RowStyles.Add(New RowStyle(SizeType.Absolute, 64))
+        page.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+        page.RowStyles.Add(New RowStyle(SizeType.Absolute, 116))
         Dim heading As Label = SimpleUi.Caption(If(vehicleMode, "Vehicle Gearbits", "XP / Level Modifier"))
         heading.Font = SimpleUi.Heading
         heading.AutoSize = False
+        heading.BackColor = SkyAssets.Panel
+        SkyElevation.CompactTitle(heading)
         page.Controls.Add(heading, 0, 0)
         page.SetColumnSpan(heading, 2)
 
-        Dim editor As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = 8, .BackColor = Color.White, .Margin = New Padding(8), .Padding = New Padding(12)}
-        For Each height As Integer In New Integer() {58, 58, 68, 28, 54, 28, 54, 58}
+        Dim editor As New SkyCardLayout With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = 8, .BackColor = SkyAssets.Panel, .Margin = New Padding(8), .Padding = New Padding(12)}
+        For Each height As Integer In New Integer() {70, 70, 82, 54, 70, 54, 70, 74}
             editor.RowStyles.Add(New RowStyle(SizeType.Absolute, height))
         Next
         editor.AutoScroll = True
@@ -59,19 +74,21 @@ Public Class frmModifier
         loadedName.Font = SimpleUi.ActionFont
         loadedName.AutoSize = False
         editor.Controls.Add(loadedName, 0, 2)
-        editor.Controls.Add(SimpleUi.Caption(If(vehicleMode, "Gearbits", "Gold")), 0, 3)
+        editor.Controls.Add(SkyDecor.FieldLabel(If(vehicleMode, "Gearbits", "Gold"), If(vehicleMode, "Gearbit.ico", "Gold.ico")), 0, 3)
         goldInput.Maximum = 65000
         goldInput.ThousandsSeparator = True
         levelInput.Minimum = 1
         levelInput.Maximum = 20
         For Each input As NumericUpDown In New NumericUpDown() {goldInput, levelInput}
             input.Font = SimpleUi.NumberFont
+            input.BackColor = SkyAssets.Panel
+            input.ForeColor = SkyAssets.Ink
             input.Dock = DockStyle.Fill
-            input.Margin = New Padding(8, 2, 8, 4)
+            input.Margin = New Padding(8, 4, 8, 8)
         Next
         editor.Controls.Add(goldInput, 0, 4)
         If Not vehicleMode Then
-            editor.Controls.Add(SimpleUi.Caption("XP / Level"), 0, 5)
+            editor.Controls.Add(SkyDecor.FieldLabel("XP / Level", "XP.ico"), 0, 5)
             editor.Controls.Add(levelInput, 0, 6)
         Else
             Dim hint As Label = SimpleUi.Caption("Gearbits range: 0 - 33,000")
@@ -81,50 +98,60 @@ Public Class frmModifier
         End If
         editor.Controls.Add(saveButton, 0, 7)
 
-        Dim browser As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = 4, .BackColor = Color.White, .Padding = New Padding(12), .Margin = New Padding(8)}
-        browser.RowStyles.Add(New RowStyle(SizeType.Absolute, 42))
+        Dim browser As New SkyCardLayout With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = 3,
+            .BackColor = SkyAssets.Panel, .Padding = New Padding(12), .Margin = New Padding(8)}
+        browser.RowStyles.Add(New RowStyle(SizeType.Absolute, 126))
         browser.RowStyles.Add(New RowStyle(SizeType.Percent, 60))
         browser.RowStyles.Add(New RowStyle(SizeType.Percent, 40))
-        browser.RowStyles.Add(New RowStyle(SizeType.Absolute, 46))
         previewName.AutoSize = False
         previewName.Font = SimpleUi.ActionFont
         imageBox.Dock = DockStyle.Fill
-        imageBox.SizeMode = PictureBoxSizeMode.Zoom
-        imageBox.BackColor = Color.FromArgb(239, 248, 254)
+        imageBox.BackColor = SkyAssets.Panel
         gallery.Dock = DockStyle.Fill
         gallery.Font = SimpleUi.Body
+        gallery.BackColor = SkyAssets.Panel
+        gallery.ForeColor = SkyAssets.Ink
         gallery.BorderStyle = BorderStyle.None
-        gallery.IntegralHeight = False
-        Dim arrows As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 2}
-        arrows.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 50))
-        arrows.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 50))
-        Dim previous As Button = SimpleUi.Action("Previous")
-        Dim following As Button = SimpleUi.Action("Next")
-        arrows.Controls.Add(previous, 0, 0)
-        arrows.Controls.Add(following, 1, 0)
+        gallery.HideSelection = False
+        gallery.ShowNodeToolTips = True
         browser.Controls.Add(previewName, 0, 0)
         browser.Controls.Add(imageBox, 0, 1)
         browser.Controls.Add(gallery, 0, 2)
-        browser.Controls.Add(arrows, 0, 3)
         page.Controls.Add(editor, 0, 1)
         page.Controls.Add(browser, 1, 1)
         page.Controls.Add(backButton, 0, 2)
-        status.AutoSize = False
-        page.Controls.Add(status, 1, 2)
+        status.AutoSize = True
+        status.Dock = DockStyle.Fill
+        status.MaximumSize = New Size(470, 0)
+        status.Padding = New Padding(8)
+        status.Margin = New Padding(0)
+        Dim statusCard As New SkyCardLayout With {.Dock = DockStyle.None, .Anchor = AnchorStyles.Top Or AnchorStyles.Left,
+            .AutoSize = True, .AutoSizeMode = AutoSizeMode.GrowAndShrink, .ColumnCount = 2, .RowCount = 1,
+            .Padding = New Padding(8), .Margin = New Padding(8, 8, 8, 12), .BackColor = SkyAssets.Panel}
+        statusCard.ColumnStyles.Add(New ColumnStyle(SizeType.AutoSize))
+        statusCard.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 44))
+        statusCard.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+        statusCard.Controls.Add(status, 0, 0)
+        statusCard.Controls.Add(waiting, 1, 0)
+        waiting.Visible = False
+        page.Controls.Add(statusCard, 1, 2)
+        SkyElevation.CompactTitle(connectionHelp)
+        connectionHelp.AutoSize = True
+        connectionHelp.MaximumSize = New Size(1000, 0)
+        connectionHelp.BackColor = SkyAssets.Panel
+        connectionHelp.Visible = False
+        page.Controls.Add(connectionHelp, 0, 3)
+        page.SetColumnSpan(connectionHelp, 2)
         Controls.Add(page)
 
         AddHandler connectButton.Click, AddressOf ConnectPortal
         AddHandler readButton.Click, AddressOf ReadFigure
         AddHandler saveButton.Click, AddressOf SaveFigure
         AddHandler backButton.Click, Sub(sender, e) Close()
-        AddHandler gallery.SelectedIndexChanged, AddressOf ShowPreview
-        AddHandler previous.Click, Sub(sender, e) MovePreview(-1)
-        AddHandler following.Click, Sub(sender, e) MovePreview(1)
-        AddHandler imageBox.MouseEnter, Sub(sender, e) gallery.Focus()
-        AddHandler imageBox.MouseWheel, AddressOf BrowseWithWheel
-        AddHandler gallery.MouseWheel, AddressOf BrowseWithWheel
-        AddHandler imageBox.Paint, AddressOf PaintMissingImage
+        AddHandler gallery.AfterSelect, Sub(sender, e) ShowPreview(Me, EventArgs.Empty)
+        AddHandler gallery.NodeMouseHover, AddressOf HoverFigure
         SimpleUi.StyleButtons(Me)
+        LoadGallery(Me, EventArgs.Empty)
         RefreshActions()
     End Sub
 
@@ -135,6 +162,9 @@ Public Class frmModifier
         goldInput.Enabled = saveButton.Enabled
         levelInput.Enabled = saveButton.Enabled
         backButton.Enabled = Not busy
+        waiting.Visible = saving
+        connectionHelp.Visible = connectionFailed
+        gallery.Enabled = Not busy
     End Sub
 
     Private Sub ConnectPortal(sender As Object, e As EventArgs)
@@ -144,8 +174,11 @@ Public Class frmModifier
         RefreshActions()
         Try
             If SimplePortal.Connect() Then
+                connectionFailed = False
                 status.Text = "Portal connected. Place one figure on it, then select Read figure."
             Else
+                connectionFailed = True
+                connectionHelp.Visible = True
                 status.Text = "Portal not found."
                 MessageBox.Show(Me, "No portal was found. Connect your portal and try again.", "Connect portal", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
@@ -185,6 +218,7 @@ Public Class frmModifier
             Return
         End If
         busy = True
+        saving = True
         RefreshActions()
         status.Text = "Saving to " & session.FigureName & ". Keep the figure on the portal."
         Try
@@ -198,6 +232,7 @@ Public Class frmModifier
         Catch ex As Exception
             FailOperation(ex)
         Finally
+            saving = False
             busy = False
             RefreshActions()
         End Try
@@ -210,13 +245,7 @@ Public Class frmModifier
         levelInput.Maximum = value.LevelMaximum
         goldInput.Value = Math.Min(value.GoldValue, goldInput.Maximum)
         levelInput.Value = Math.Max(levelInput.Minimum, Math.Min(value.LevelValue, levelInput.Maximum))
-        gallery.BeginUpdate()
-        gallery.Items.Clear()
-        For Each caption As String In value.Catalog
-            gallery.Items.Add(caption)
-        Next
-        gallery.SelectedItem = value.FigureName
-        gallery.EndUpdate()
+        ShowPreview(Me, EventArgs.Empty)
         status.Text = If(value.CanEdit, If(vehicleMode, "Vehicle loaded. Change Gearbits, then save.", "Figure loaded. Change Gold or Level, then save."),
             If(value.IsUnsafe, "Unsafe figure data. Saving is disabled.", If(vehicleMode, "Read a supported vehicle to edit Gearbits.", "This figure is preview-only here. Use its matching editor.")))
     End Sub
@@ -232,37 +261,51 @@ Public Class frmModifier
         End If
     End Sub
 
+    Private Sub LoadGallery(sender As Object, e As EventArgs)
+        gallery.BeginUpdate()
+        Try
+            gallery.Nodes.Clear()
+            Dim root As TreeNode = gallery.Nodes.Add("Browse possible figures (expand)")
+            For Each game As String In FigureGallery.Games.Concat(New String() {"Vehicles"})
+                Dim group As TreeNode = root.Nodes.Add(game)
+                For Each caption As String In FigureGallery.Names(game)
+                    Dim figure As TreeNode = group.Nodes.Add(caption)
+                    figure.Tag = game
+                    figure.ToolTipText = "Hover to preview before scanning a figure."
+                Next
+            Next
+            root.Expand()
+        Finally
+            gallery.EndUpdate()
+        End Try
+        ShowPreview(Me, EventArgs.Empty)
+    End Sub
+
+    Private Sub HoverFigure(sender As Object, e As TreeNodeMouseHoverEventArgs)
+        If busy OrElse session IsNot Nothing OrElse e.Node.Tag Is Nothing Then Return
+        gallery.SelectedNode = e.Node
+    End Sub
+
     Private Sub ShowPreview(sender As Object, e As EventArgs)
-        If session Is Nothing OrElse gallery.SelectedItem Is Nothing Then Return
-        Dim name As String = Convert.ToString(gallery.SelectedItem)
-        previewName.Text = If(name = session.FigureName, "Loaded: ", "Preview: ") & name
         Dim old As Image = imageBox.Image
-        imageBox.Image = artwork.Load(session.GameName, name)
+        If session IsNot Nothing Then
+            previewName.Text = "Current Scanned Figure on Portal of Power" & vbCrLf & session.FigureName
+            imageBox.Image = artwork.Load(If(session.IsVehicle, "Vehicles", session.GameName), session.FigureName)
+        ElseIf gallery.SelectedNode IsNot Nothing AndAlso gallery.SelectedNode.Tag IsNot Nothing Then
+            previewName.Text = "Preview: " & gallery.SelectedNode.Text & vbCrLf & "No scanned figure. Hover the list to preview artwork."
+            imageBox.Image = artwork.Load(CStr(gallery.SelectedNode.Tag), gallery.SelectedNode.Text)
+        Else
+            previewName.Text = "Current Scanned Figure on Portal of Power" & vbCrLf & "No scanned figure. Expand the list and hover a name to preview."
+            imageBox.Image = Nothing
+        End If
         If old IsNot Nothing Then old.Dispose()
         imageBox.Invalidate()
     End Sub
 
-    Private Sub MovePreview(direction As Integer)
-        If gallery.Items.Count = 0 Then Return
-        gallery.SelectedIndex = (Math.Max(0, gallery.SelectedIndex) + direction + gallery.Items.Count) Mod gallery.Items.Count
-    End Sub
-
-    Private Sub BrowseWithWheel(sender As Object, e As MouseEventArgs)
-        If e.Delta = 0 Then Return
-        MovePreview(If(e.Delta > 0, -1, 1))
-        Dim handled As HandledMouseEventArgs = TryCast(e, HandledMouseEventArgs)
-        If handled IsNot Nothing Then handled.Handled = True
-    End Sub
-
-    Private Sub PaintMissingImage(sender As Object, e As PaintEventArgs)
-        If imageBox.Image IsNot Nothing Then Return
-        TextRenderer.DrawText(e.Graphics, If(session Is Nothing, "Read a figure to see its icon", "Figure image unavailable"),
-            SimpleUi.Body, imageBox.ClientRectangle, SimpleUi.Navy,
-            TextFormatFlags.HorizontalCenter Or TextFormatFlags.VerticalCenter Or TextFormatFlags.WordBreak)
-    End Sub
-
     Private Sub FailOperation(ex As Exception)
         SimplePortal.Disconnect()
+        connectionFailed = True
+        connectionHelp.Visible = True
         ClearSession()
         loadedName.Text = "Read a figure to continue"
         status.Text = If(TypeOf ex Is OperationCanceledException, "The portal did not respond in time. Reconnect and read the figure again.", ex.Message)
@@ -273,12 +316,8 @@ Public Class frmModifier
     Private Sub ClearSession()
         session = Nothing
         loadedName.Text = "No figure read yet"
-        previewName.Text = "Figures"
-        gallery.Items.Clear()
-        Dim previous As Image = imageBox.Image
-        imageBox.Image = Nothing
-        If previous IsNot Nothing Then previous.Dispose()
-        imageBox.Invalidate()
+        'The artwork browser remains populated after a disconnect or failed read.
+        ShowPreview(Me, EventArgs.Empty)
     End Sub
 
     Protected Overrides Sub OnFormClosing(e As FormClosingEventArgs)

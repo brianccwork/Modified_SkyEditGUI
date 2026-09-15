@@ -8,30 +8,31 @@ Imports System.Windows.Forms
 'Presentation only. Existing controls, their parents and their data are retained.
 'Change this palette to update every editor together.
 Friend NotInheritable Class SkyTheme
-    Friend Shared ReadOnly Navy As Color = Color.FromArgb(20, 47, 79)
-    Friend Shared ReadOnly Ocean As Color = Color.FromArgb(24, 104, 158)
-    Friend Shared ReadOnly Cyan As Color = Color.FromArgb(89, 209, 245)
-    Friend Shared ReadOnly Gold As Color = Color.FromArgb(246, 194, 75)
-    Friend Shared ReadOnly Canvas As Color = Color.FromArgb(234, 242, 249)
-    Friend Shared ReadOnly Surface As Color = Color.White
-    Friend Shared ReadOnly Ink As Color = Color.FromArgb(29, 52, 75)
-    Friend Shared ReadOnly Muted As Color = Color.FromArgb(83, 107, 130)
-    Friend Shared ReadOnly Border As Color = Color.FromArgb(195, 214, 230)
-    Friend Shared ReadOnly Selection As Color = Color.FromArgb(215, 240, 252)
+    Friend Shared ReadOnly Navy As Color = SkyAssets.Panel
+    Friend Shared ReadOnly Ocean As Color = SkyAssets.Panel
+    Friend Shared ReadOnly Cyan As Color = SkyAssets.Bright
+    Friend Shared ReadOnly Gold As Color = SkyAssets.Glow
+    Friend Shared ReadOnly Canvas As Color = SkyAssets.Panel
+    Friend Shared ReadOnly Surface As Color = SkyAssets.Panel
+    Friend Shared ReadOnly Ink As Color = SkyAssets.Ink
+    Friend Shared ReadOnly Muted As Color = SkyAssets.Ink
+    Friend Shared ReadOnly Border As Color = SkyAssets.Sand
+    Friend Shared ReadOnly Selection As Color = SkyAssets.Sand
 
-    Private Shared ReadOnly BodyFont As New Font("Segoe UI", 9.5F)
-    Private Shared ReadOnly StrongFont As New Font("Segoe UI", 9.5F, FontStyle.Bold)
-    Private Shared ReadOnly TitleFont As New Font("Segoe UI", 22.0F, FontStyle.Bold)
-    Private Shared ReadOnly CodeFont As New Font("Consolas", 10.0F)
+    Private Shared ReadOnly BodyFont As Font = SkyAssets.UiFont(9.5F)
+    Private Shared ReadOnly StrongFont As Font = SkyAssets.UiFont(9.5F)
+    Private Shared ReadOnly TitleFont As Font = SkyAssets.UiFont(22.0F)
+    Private Shared ReadOnly CodeFont As Font = SkyAssets.UiFont(10.0F)
 
-    Private Const WidthScale As Single = 1.4F
-    Private Const HeightScale As Single = 1.16F
-    Private Const HeaderHeight As Integer = 74
+    Private Const WidthScale As Single = 1.8F
+    Private Const HeightScale As Single = 1.6F
+    Private Const HeaderHeight As Integer = 98
 
     Private Sub New()
     End Sub
 
     Friend Shared Sub Apply(window As Form)
+        SkyAssets.ApplyWindowIcon(window)
         window.SuspendLayout()
         Try
             Dim originalSize As Size = window.ClientSize
@@ -119,7 +120,7 @@ Friend NotInheritable Class SkyTheme
             ElseIf TypeOf child Is RichTextBox Then
                 Dim log As RichTextBox = DirectCast(child, RichTextBox)
                 log.BackColor = Navy
-                log.ForeColor = Color.FromArgb(221, 240, 250)
+                log.ForeColor = SkyAssets.Ink
                 log.Font = CodeFont
                 log.BorderStyle = BorderStyle.None
             ElseIf TypeOf child Is TextBox Then
@@ -132,14 +133,14 @@ Friend NotInheritable Class SkyTheme
                 list.BorderStyle = BorderStyle.FixedSingle
                 list.IntegralHeight = False
                 list.DrawMode = DrawMode.OwnerDrawFixed
-                list.ItemHeight = Pixels(list, 25)
+                list.ItemHeight = Pixels(list, 34)
                 AddHandler list.DrawItem, AddressOf PaintListItem
             ElseIf TypeOf child Is CheckBox OrElse TypeOf child Is RadioButton Then
                 child.BackColor = Color.Transparent
             ElseIf TypeOf child Is ToolStrip Then
                 Dim strip As ToolStrip = DirectCast(child, ToolStrip)
                 strip.BackColor = Navy
-                strip.ForeColor = Surface
+                strip.ForeColor = Ink
                 strip.Renderer = New SkyMenuRenderer()
                 StyleMenuItems(strip.Items)
             ElseIf TypeOf child Is Panel Then
@@ -151,38 +152,7 @@ Friend NotInheritable Class SkyTheme
 
     Private Shared Sub StyleButton(button As Button)
         button.Font = StrongFont
-        button.FlatStyle = FlatStyle.Flat
-        button.UseVisualStyleBackColor = False
-        button.BackColor = Ocean
-        button.ForeColor = Surface
-        button.FlatAppearance.BorderSize = 0
-        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(31, 125, 180)
-        button.FlatAppearance.MouseDownBackColor = Navy
-
-        Select Case button.Name
-            Case "btnTraps", "btnVehicles", "btnCrystals", "btnGoBack"
-                button.BackColor = Navy
-                button.FlatAppearance.MouseOverBackColor = Ocean
-                button.FlatAppearance.MouseDownBackColor = Color.FromArgb(12, 33, 58)
-            Case "btnReset", "btnClearData", "btnRaw"
-                button.BackColor = Color.FromArgb(255, 238, 202)
-                button.ForeColor = Navy
-                button.FlatAppearance.MouseOverBackColor = Gold
-                button.FlatAppearance.MouseDownBackColor = Color.FromArgb(230, 174, 55)
-        End Select
-
-        RoundButton(button, EventArgs.Empty)
-        AddHandler button.Resize, AddressOf RoundButton
-    End Sub
-
-    Private Shared Sub RoundButton(sender As Object, e As EventArgs)
-        Dim button As Button = DirectCast(sender, Button)
-        If button.Width < 2 OrElse button.Height < 2 Then Return
-        Using path As GraphicsPath = RoundedRectangle(New Rectangle(0, 0, button.Width, button.Height), Pixels(button, 6))
-            Dim oldRegion As Region = button.Region
-            button.Region = New Region(path)
-            If oldRegion IsNot Nothing Then oldRegion.Dispose()
-        End Using
+        SkyPresentation.StyleButton(button)
     End Sub
 
     Private Shared Sub PaintGroup(sender As Object, e As PaintEventArgs)
@@ -197,7 +167,7 @@ Friend NotInheritable Class SkyTheme
         End Using
         Dim heading As New Rectangle(Pixels(group, 10), Pixels(group, 2), group.Width - Pixels(group, 20), Pixels(group, 20))
         TextRenderer.DrawText(e.Graphics, group.Text, StrongFont, heading,
-                              If(group.Enabled, Navy, SystemColors.GrayText),
+                              If(group.Enabled, Ink, SystemColors.GrayText),
                               TextFormatFlags.Left Or TextFormatFlags.VerticalCenter Or TextFormatFlags.EndEllipsis)
     End Sub
 
@@ -218,7 +188,7 @@ Friend NotInheritable Class SkyTheme
         Dim textBounds As Rectangle = e.Bounds
         textBounds.X += Pixels(list, 10)
         textBounds.Width -= Pixels(list, 18)
-        Dim textColor As Color = If(list.Enabled, If(heading, Ocean, Ink), SystemColors.GrayText)
+        Dim textColor As Color = If(list.Enabled, If(selected, SkyAssets.Dark, Ink), SystemColors.GrayText)
         TextRenderer.DrawText(e.Graphics, caption, If(heading, StrongFont, list.Font), textBounds, textColor,
                               TextFormatFlags.Left Or TextFormatFlags.VerticalCenter Or TextFormatFlags.EndEllipsis Or TextFormatFlags.NoPrefix)
         e.DrawFocusRectangle()
@@ -300,9 +270,9 @@ Friend NotInheritable Class SkyTheme
         End Select
 
         TextRenderer.DrawText(e.Graphics, title, TitleFont,
-                              New Point(Pixels(window, 18), top + Pixels(window, 5)), Surface, TextFormatFlags.NoPadding)
+                              New Point(Pixels(window, 18), top + Pixels(window, 5)), Ink, TextFormatFlags.NoPadding)
         TextRenderer.DrawText(e.Graphics, subtitle, BodyFont,
-                              New Point(Pixels(window, 20), top + Pixels(window, 45)), Color.FromArgb(208, 238, 250), TextFormatFlags.NoPadding)
+                              New Point(Pixels(window, 20), top + Pixels(window, 58)), SkyAssets.Ink, TextFormatFlags.NoPadding)
 
         If bounds.Width >= Pixels(window, 400) Then
             Dim ring As New Rectangle(bounds.Right - Pixels(window, 76), top + Pixels(window, 13), Pixels(window, 44), Pixels(window, 44))
@@ -344,8 +314,8 @@ Friend NotInheritable Class SkyTheme
         Protected Overrides Sub OnRenderItemText(e As ToolStripItemTextRenderEventArgs)
             If Not e.Item.Enabled Then
                 e.TextColor = SystemColors.GrayText
-            ElseIf (TypeOf e.Item.Owner Is MenuStrip OrElse TypeOf e.Item.Owner Is StatusStrip) AndAlso Not (e.Item.Selected OrElse e.Item.Pressed) Then
-                e.TextColor = Surface
+            ElseIf e.Item.Selected OrElse e.Item.Pressed Then
+                e.TextColor = SkyAssets.Dark
             Else
                 e.TextColor = Ink
             End If

@@ -108,6 +108,7 @@
     <Compile Include="DeviceManagementDeclarations.vb" />
     <Compile Include="Exp.vb" />
     <Compile Include="FigureArtwork.vb" />
+    <Compile Include="FigureGallery.vb" />
     <Compile Include="FigureIO.vb" />
     <Compile Include="Figures.vb" />
     <Compile Include="FigureWarnings.vb" />
@@ -138,6 +139,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmModifier.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmPortalHelp.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmTraps.Designer.vb">
@@ -174,6 +178,12 @@
     <Compile Include="SimplePortal.vb" />
     <Compile Include="SimpleUi.vb" />
     <Compile Include="Skills.vb" />
+    <Compile Include="SkyAssets.vb" />
+    <Compile Include="SkyDecor.vb" />
+    <Compile Include="SkyElevation.vb" />
+    <Compile Include="SkyMessageBox.vb" />
+    <Compile Include="SkyPolish.vb" />
+    <Compile Include="SkyPresentation.vb" />
     <Compile Include="SkyTheme.Forms.vb">
       <SubType>Form</SubType>
     </Compile>
