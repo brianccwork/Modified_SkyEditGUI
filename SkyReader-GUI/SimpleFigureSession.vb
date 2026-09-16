@@ -20,6 +20,8 @@ Friend NotInheritable Class SimpleFigureSession
     Friend ReadOnly Property IsSensei As Boolean
     Friend ReadOnly Property IsUnsafe As Boolean
     Private ReadOnly vehicleMode As Boolean
+    Friend ReadOnly Property NeedsChecksumRepair As Boolean
+    Friend ReadOnly Property RequiresFullEncryption As Boolean
     Friend ReadOnly Property CanEdit As Boolean
     Friend ReadOnly Property FigureName As String
     Friend ReadOnly Property GameName As String
@@ -54,6 +56,11 @@ Friend NotInheritable Class SimpleFigureSession
                   supportedGames.Contains(GameName) AndAlso
                   frmMain.lstCharacters.SelectedItem IsNot Nothing AndAlso frmMain.numGold.Enabled AndAlso frmMain.numLevel.Enabled AndAlso
                   frmMain.Save_Enc_ToolStripMenuItem.Enabled
+        'Only catalog-recognized legacy characters may initialize missing payload checksums.
+        'Imaginators/Senseis, vehicles, traps and crystals retain their existing policy.
+        Dim legacy As Boolean = CanEdit AndAlso Not IsSensei AndAlso Not vehicleMode AndAlso
+            {"Spyro's Adventure", "Giants", "Swap Force", "Trap Team", "SuperChargers"}.Contains(GameName)
+        RequiresFullEncryption = legacy AndAlso Not FigureIO.blnEncrypted
         If IsVehicle Then
             Using vehicle As New frmVehicles()
                 GoldValue = vehicle.ReadGearbitsForSimpleEditor()
@@ -66,8 +73,10 @@ Friend NotInheritable Class SimpleFigureSession
             CanEdit = vehicleMode AndAlso Not IsUnsafe AndAlso FigureName <> "Unknown figure"
         Else
             IsUnsafe = Not FigureIO.blnTrap AndAlso Not FigureIO.blnCrystal AndAlso
-                supportedGames.Contains(GameName) AndAlso FigureWarnings.HasUnsafeCharacterData(SimplePortal.IsSwapTop(Original))
+                supportedGames.Contains(GameName) AndAlso FigureWarnings.HasUnsafeCharacterData(legacy)
             CanEdit = CanEdit AndAlso Not vehicleMode AndAlso Not IsUnsafe
+            NeedsChecksumRepair = legacy AndAlso CanEdit AndAlso
+                (RequiresFullEncryption OrElse FigureWarnings.HasUnsafeCharacterData())
         End If
         If Not CanEdit Then
             GoldValue = 0D
@@ -85,7 +94,7 @@ Friend NotInheritable Class SimpleFigureSession
         If gold < 0 OrElse gold > GoldMaximum OrElse level < 1 OrElse level > LevelMaximum Then
             Throw New ArgumentOutOfRangeException("The requested values are outside this editor's limits.")
         End If
-        If gold = GoldValue AndAlso level = LevelValue Then Return Original
+        If gold = GoldValue AndAlso level = LevelValue AndAlso Not NeedsChecksumRepair Then Return Original
 
         'Reload the scanned bytes, never a browsed gallery selection or stale buffer.
         Dim fresh As New SimpleFigureSession(Original, vehicleMode)
@@ -111,8 +120,8 @@ Friend NotInheritable Class SimpleFigureSession
             End If
             frmMain.numGold.Value = gold
             frmMain.numLevel.Value = level
-            If gold <> GoldValue Then Global.SkyReader_GUI.Gold.WriteGold()
-            If level <> LevelValue Then
+            If gold <> GoldValue OrElse NeedsChecksumRepair Then Global.SkyReader_GUI.Gold.WriteGold()
+            If level <> LevelValue OrElse NeedsChecksumRepair Then
                 'The existing non-Sensei writer leaves bucket 3 untouched at 11-15.
                 'Clear that bucket on a downgrade before using its normal mapping.
                 If Not FigureIO.blnSensei AndAlso level <= 15 Then
@@ -128,9 +137,16 @@ Friend NotInheritable Class SimpleFigureSession
             FigureIO.Encrypt()
             Dim encrypted As Byte() = FigureIO.WholeFile
             Dim result As Byte() = Original
-            For Each block As Integer In New Integer() {8, 17, 36, 45}
+            For Each block As Integer In If(RequiresFullEncryption, SimplePortal.LegacyPayloadBlocks, New Integer() {8, 17, 36, 45})
                 Array.Copy(encrypted, block * 16, result, block * 16, 16)
             Next
+            If NeedsChecksumRepair Then
+                'Validate the exact assembled output, not just the temporary plaintext buffer.
+                Dim check As New SimpleFigureSession(result)
+                If Not check.CanEdit OrElse FigureWarnings.HasUnsafeCharacterData() Then
+                    Throw New InvalidDataException("The prepared save did not pass checksum verification. Nothing was written.")
+                End If
+            End If
             Return result
         Finally
             FigureIO.WholeFile = plain

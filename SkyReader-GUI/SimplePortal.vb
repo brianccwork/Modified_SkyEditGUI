@@ -17,6 +17,13 @@ Friend NotInheritable Class SimplePortal
         End Get
     End Property
 
+    'All encrypted character payload blocks, excluding every access trailer and header/signature block.
+    Friend Shared ReadOnly Property LegacyPayloadBlocks As Integer()
+        Get
+            Return Enumerable.Range(8, 56).Where(Function(block) block Mod 4 <> 3).ToArray()
+        End Get
+    End Property
+
     Private Sub New()
     End Sub
 
@@ -75,7 +82,7 @@ Friend NotInheritable Class SimplePortal
     Private Shared Async Function ReadBlockAsync(slot As Integer, block As Integer, token As CancellationToken) As Task(Of Byte())
         Dim request(32) As Byte
         request(1) = &H51
-        request(2) = CByte(slot)
+        request(2) = CByte(&H20 Or slot)
         request(3) = CByte(block)
         Send(request)
         Dim reply As Byte() = Await ReplyAsync(&H51, slot, block, token)
@@ -132,6 +139,14 @@ Friend NotInheritable Class SimplePortal
         Dim tops As Integer() = slots.Where(Function(slot) IsSwapTop(headers(slot))).ToArray()
         If tops.Length = 1 AndAlso (slots.Length = 1 OrElse
            (slots.Length = 2 AndAlso slots.Any(Function(slot) IsSwapBottom(headers(slot))))) Then
+            'Match the working Developer sequence: finish reading the bottom, then
+            'read the top. Keep one activation so indices cannot reset between halves.
+            For Each bottom As Integer In slots.Where(Function(index) IsSwapBottom(headers(index)))
+                Dim bottomData As Byte() = Await ReadSlotAsync(bottom, token)
+                If Not headers(bottom).SequenceEqual(bottomData.Take(32)) Then
+                    Throw New IOException("The Swap Force bottom changed while reading. Read the figure again.")
+                End If
+            Next
             Return tops(0)
         End If
         If slots.Length = 1 AndAlso Not IsSwapBottom(headers(slots(0))) Then Return slots(0)
@@ -161,7 +176,7 @@ Friend NotInheritable Class SimplePortal
         Return Await ReadSlotAsync(slot, token)
     End Function
 
-    Friend Shared Async Function SaveAsync(original As Byte(), updated As Byte(), token As CancellationToken, Optional vehicle As Boolean = False) As Task(Of Byte())
+    Friend Shared Async Function SaveAsync(original As Byte(), updated As Byte(), token As CancellationToken, Optional vehicle As Boolean = False, Optional initializeLegacy As Boolean = False) As Task(Of Byte())
         If original Is Nothing OrElse updated Is Nothing OrElse original.Length <> 1024 OrElse updated.Length <> 1024 Then Throw New InvalidDataException("Invalid figure data.")
         If IsSwapBottom(original) Then Throw New InvalidDataException("Gold, XP and Level must be written to the Swap Force top half.")
         'Resolve the current slot again. Slot numbers may change across activation.
@@ -176,8 +191,16 @@ Friend NotInheritable Class SimplePortal
         'Only these four blocks contain the existing Gold/EXP fields and their
         'mirrored sequence/checksum bytes. Never write identity or signature data.
         Dim allowed As Integer() = If(vehicle, VehicleBlocks, New Integer() {8, 17, 36, 45})
+        If initializeLegacy Then
+            If vehicle Then Throw New InvalidDataException("Vehicle initialization is not supported here.")
+            Dim validation As New SimpleFigureSession(original)
+            If Not validation.CanEdit OrElse Not validation.RequiresFullEncryption OrElse validation.IsSensei Then
+                Throw New InvalidDataException("Full payload initialization is restricted to recognized pre-Imaginators characters with valid identity and access data.")
+            End If
+            allowed = LegacyPayloadBlocks
+        End If
         'Commit sequence/header blocks last, after their associated payload is verified.
-        If vehicle Then allowed = allowed.Where(Function(block) block <> 8 AndAlso block <> 36).Concat(New Integer() {8, 36}).ToArray()
+        If vehicle OrElse initializeLegacy Then allowed = allowed.Where(Function(block) block <> 8 AndAlso block <> 36).Concat(New Integer() {8, 36}).ToArray()
         For index As Integer = 0 To 1023
             If original(index) <> updated(index) AndAlso Not allowed.Contains(index \ 16) Then
                 Throw New InvalidDataException("The edit would affect data outside the permitted editor blocks. Nothing was written.")
@@ -191,7 +214,7 @@ Friend NotInheritable Class SimplePortal
             If Not identity.SequenceEqual(original.Take(32)) Then Throw New IOException("The figure was removed or changed while saving.")
             Dim request(32) As Byte
             request(1) = &H57
-            request(2) = CByte(slot)
+            request(2) = CByte(&H20 Or slot)
             request(3) = CByte(block)
             Array.Copy(expected, 0, request, 4, 16)
             Send(request)

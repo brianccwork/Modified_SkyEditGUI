@@ -61,10 +61,10 @@ Public Class frmHome
         For index As Integer = 0 To 2
             buttons.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / 3.0F))
         Next
-        Dim modifier As Button = SimpleUi.Action("Skylanders XP / Level Modifier")
+        Dim modifier As Button = SimpleUi.Action("Skylanders XP and Gold Modifier")
         Dim traps As Button = SimpleUi.Action("Traps")
         Dim vehicles As Button = SimpleUi.Action("Vehicles")
-        Dim developer As Button = SimpleUi.Action("Developer")
+        Dim developer As Button = SimpleUi.Action("Advanced")
         Dim imaginators As Button = SimpleUi.Action("Imaginators")
         traps.Enabled = False
         imaginators.Enabled = False

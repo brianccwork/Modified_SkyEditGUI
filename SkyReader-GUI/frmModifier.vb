@@ -195,7 +195,7 @@ Public Class frmModifier
         busy = True
         ClearSession()
         loadedName.Text = "Reading figure..."
-        status.Text = "Keep one figure on the portal. Swap Force: leave both halves assembled; the top is selected automatically."
+        status.Text = "Keep one figure on the portal. Swap Force: keep both halves assembled while the bottom and then the top are read."
         RefreshActions()
         Try
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(30))
@@ -213,7 +213,7 @@ Public Class frmModifier
 
     Private Async Sub SaveFigure(sender As Object, e As EventArgs)
         If busy OrElse session Is Nothing OrElse Not session.CanEdit Then Return
-        If goldInput.Value = session.GoldValue AndAlso levelInput.Value = session.LevelValue Then
+        If goldInput.Value = session.GoldValue AndAlso levelInput.Value = session.LevelValue AndAlso Not session.NeedsChecksumRepair Then
             status.Text = "There are no changes to save."
             Return
         End If
@@ -225,7 +225,7 @@ Public Class frmModifier
             Dim original As Byte() = session.Original
             Dim updated As Byte() = session.BuildSave(goldInput.Value, levelInput.Value)
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(60))
-                Dim verified As Byte() = Await SimplePortal.SaveAsync(original, updated, timeout.Token, vehicleMode)
+                Dim verified As Byte() = Await SimplePortal.SaveAsync(original, updated, timeout.Token, vehicleMode, session.RequiresFullEncryption)
                 DisplaySession(New SimpleFigureSession(verified, vehicleMode))
             End Using
             status.Text = If(vehicleMode, "Gearbits saved and read back successfully.", "Gold and Level saved and read back successfully.")
@@ -250,6 +250,9 @@ Public Class frmModifier
             If(value.IsUnsafe, "Unsafe figure data. Saving is disabled.", If(vehicleMode, "Read a supported vehicle to edit Gearbits.", "This figure is preview-only here. Use its matching editor.")))
         If value.CanEdit AndAlso SimplePortal.IsSwapTop(value.Original) Then
             status.Text = "Swap Force top half loaded. Gold, XP and Level changes save to the top; the bottom stays unchanged."
+        End If
+        If value.CanEdit AndAlso value.NeedsChecksumRepair Then
+            status.Text = "Header and serial verified. Save Gold/Level to initialize the character payload and rebuild its checksums."
         End If
     End Sub
 
