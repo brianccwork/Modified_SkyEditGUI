@@ -12,6 +12,7 @@ obj/
 # Project-specific build folders
 SkyReader-GUI/bin/
 SkyReader-GUI/obj/
+Visual Studio 2019/
 
 # Debug / logs
 *.log
