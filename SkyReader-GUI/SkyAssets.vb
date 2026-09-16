@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 Friend NotInheritable Class SkyAssets
     Friend Shared ReadOnly Panel As Color = Color.FromArgb(218, 220, 224)
     Friend Shared ReadOnly Ink As Color = Color.Black
-    Friend Shared ReadOnly Dark As Color = Color.FromArgb(30, 38, 61)
+    Friend Shared ReadOnly Dark As Color = Color.FromArgb(158, 160, 164)
     Friend Shared ReadOnly Bright As Color = Color.FromArgb(120, 126, 135)
     Friend Shared ReadOnly White As Color = Color.FromArgb(239, 244, 238)
     Friend Shared ReadOnly Sand As Color = Color.FromArgb(179, 179, 167)

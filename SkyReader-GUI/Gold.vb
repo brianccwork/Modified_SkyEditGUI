@@ -3,6 +3,11 @@ Imports SkyReader_GUI.frmMain
 Public Class Gold
     'Remember all values are offset 1C0
     Shared Sub GetGold()
+        If Not blnSensei AndAlso Not BlnVehicle AndAlso Not blnTrap AndAlso Not blnCrystal Then
+            Dim start = Exp.RegularRegion(&H80, &H240, 9)
+            frmMain.numGold.Value = Math.Min(CDec(BitConverter.ToUInt16(WholeFile, start + 3)), frmMain.numGold.Maximum)
+            Return
+        End If
         Dim GoldArea0(1) As Byte
         Dim GoldValueArea0 As UShort
         Dim GoldArea1(1) As Byte

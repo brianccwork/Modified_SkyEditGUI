@@ -251,7 +251,7 @@ Friend NotInheritable Class SkyTheme
         Select Case window.Name
             Case "frmMain"
                 title = "SkyGUI"
-                subtitle = String.Empty
+                subtitle = "This is a buggy archived tool, please do your research before using it as it may corrupt your figures."
             Case "frmTraps"
                 title = "Trap Editor"
                 subtitle = "Captured villains and customizations"

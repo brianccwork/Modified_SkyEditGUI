@@ -280,8 +280,10 @@ Friend Class SkyPortalPreview
         g.SmoothingMode = SmoothingMode.AntiAlias
         g.InterpolationMode = InterpolationMode.HighQualityBicubic
         Dim portalBounds As New RectangleF(Width * 0.12F, Height * 0.57F, Width * 0.76F, Height * 0.42F)
+        Dim fittedPortal As RectangleF = portalBounds
         If SkyAssets.PortalImage IsNot Nothing Then
-            DrawFit(g, SkyAssets.PortalImage, portalBounds)
+            fittedPortal = FitBounds(SkyAssets.PortalImage, portalBounds)
+            g.DrawImage(SkyAssets.PortalImage, fittedPortal)
         Else
             Using glow As New SolidBrush(Color.FromArgb(70, SkyAssets.Bright)), rim As New Pen(SkyAssets.Sand, 3)
                 g.FillEllipse(glow, portalBounds)
@@ -289,7 +291,8 @@ Friend Class SkyPortalPreview
             End Using
         End If
         Dim diameter As Single = Math.Min(Width * 0.65F, Height * 0.72F)
-        Dim figureTop As Single = If(AnchorFigureToPortal, Math.Max(0, portalBounds.Y + portalBounds.Height * 0.18F - diameter), Height * 0.03F)
+        'Anchor against the rendered image, not its letterboxed allocation.
+        Dim figureTop As Single = If(AnchorFigureToPortal, Math.Max(0, fittedPortal.Y + fittedPortal.Height * 0.35F - diameter), Height * 0.03F)
         Dim figureBounds As New RectangleF((Width - diameter) / 2, figureTop, diameter, diameter)
         If Image Is Nothing Then
             'Always show an icon, even when neither figure artwork nor ERROR PNG exists.
@@ -314,10 +317,14 @@ Friend Class SkyPortalPreview
         'Do not call PictureBox.OnPaint: it would paint the image a second time.
     End Sub
 
-    Private Shared Sub DrawFit(g As Graphics, source As Image, bounds As RectangleF)
+    Private Shared Function FitBounds(source As Image, bounds As RectangleF) As RectangleF
         Dim ratio As Single = Math.Min(bounds.Width / source.Width, bounds.Height / source.Height)
         Dim w As Single = source.Width * ratio
         Dim h As Single = source.Height * ratio
-        g.DrawImage(source, bounds.X + (bounds.Width - w) / 2, bounds.Y + (bounds.Height - h) / 2, w, h)
+        Return New RectangleF(bounds.X + (bounds.Width - w) / 2, bounds.Y + (bounds.Height - h) / 2, w, h)
+    End Function
+
+    Private Shared Sub DrawFit(g As Graphics, source As Image, bounds As RectangleF)
+        g.DrawImage(source, FitBounds(source, bounds))
     End Sub
 End Class

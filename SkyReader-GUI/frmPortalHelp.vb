@@ -33,9 +33,9 @@ Public Class frmPortalHelp
         title.AutoSize = False
         page.Controls.Add(title, 0, 0)
 
-        Dim viewport As New Panel With {.Dock = DockStyle.Fill, .AutoScroll = True, .BackColor = Color.Transparent}
+        Dim viewport As New SkyHelpViewport With {.Dock = DockStyle.Fill, .AutoScroll = True, .BackColor = SkyAssets.Panel}
         Dim guide As New SkyLayoutPanel With {.Dock = DockStyle.Top, .ColumnCount = 1, .RowCount = 0,
-            .AutoSize = True, .AutoSizeMode = AutoSizeMode.GrowAndShrink, .Padding = New Padding(12), .BackColor = Color.Transparent}
+            .AutoSize = True, .AutoSizeMode = AutoSizeMode.GrowAndShrink, .Padding = New Padding(12), .BackColor = SkyAssets.Dark}
         guide.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100))
         AddCard(guide, "Before you begin", "Use a compatible non-Xbox portal. If it already connects, no driver changes are needed. " &
             "This program uses USB Input Device (HID). In the troubleshooting sequence below, WinUSB is an intermediate step; finish by selecting USB Input Device before trying SkyGUI again.")
@@ -102,4 +102,27 @@ Friend Class SkyHelpShortcut
         BackColor = SkyAssets.Sand
     End Sub
 
+End Class
+
+'Keep scroll copying on an opaque surface; transparent ancestors otherwise
+'repaint the fixed shattered background at stale child coordinates.
+Friend Class SkyHelpViewport
+    Inherits Panel
+
+    Friend Sub New()
+        SetStyle(ControlStyles.UserPaint Or ControlStyles.AllPaintingInWmPaint Or
+                 ControlStyles.OptimizedDoubleBuffer Or ControlStyles.ResizeRedraw, True)
+        BackColor = SkyAssets.Panel
+    End Sub
+
+    Protected Overrides Sub OnScroll(e As ScrollEventArgs)
+        MyBase.OnScroll(e)
+        Invalidate(True)
+    End Sub
+
+    Protected Overrides Sub OnMouseWheel(e As MouseEventArgs)
+        MyBase.OnMouseWheel(e)
+        'Mouse-wheel scrolling does not always raise Scroll in WinForms.
+        Invalidate(True)
+    End Sub
 End Class

@@ -131,7 +131,7 @@ Friend NotInheritable Class SimplePortal
 
     Private Shared Async Function SelectSlotAsync(token As CancellationToken) As Task(Of Integer)
         Dim slots As Integer() = Await PresentSlotsAsync(token)
-        If slots.Length = 0 Then Throw New IOException("No figure was found. Place one figure on the portal and read again.")
+        If slots.Length = 0 Then Throw New IOException("No figure was found. Press (Connect Portal) again, then place one figure on the portal and read again.")
         Dim headers As New Dictionary(Of Integer, Byte())
         For Each slot As Integer In slots
             headers.Add(slot, Await HeaderAsync(slot, token))
@@ -191,16 +191,21 @@ Friend NotInheritable Class SimplePortal
         'Only these four blocks contain the existing Gold/EXP fields and their
         'mirrored sequence/checksum bytes. Never write identity or signature data.
         Dim allowed As Integer() = If(vehicle, VehicleBlocks, New Integer() {8, 17, 36, 45})
-        If initializeLegacy Then
-            If vehicle Then Throw New InvalidDataException("Vehicle initialization is not supported here.")
+        If Not vehicle Then
             Dim validation As New SimpleFigureSession(original)
-            If Not validation.CanEdit OrElse Not validation.RequiresFullEncryption OrElse validation.IsSensei Then
-                Throw New InvalidDataException("Full payload initialization is restricted to recognized pre-Imaginators characters with valid identity and access data.")
+            If Not validation.CanEdit Then Throw New InvalidDataException("This character is not safe to write.")
+            If Not validation.IsSensei AndAlso validation.GameName <> "Imaginators" Then
+                allowed = RegularCharacterData.WriteBlocks(original)
+            ElseIf initializeLegacy Then
+                Throw New InvalidDataException("Imaginators initialization is not supported here.")
             End If
-            allowed = LegacyPayloadBlocks
         End If
-        'Commit sequence/header blocks last, after their associated payload is verified.
-        If vehicle OrElse initializeLegacy Then allowed = allowed.Where(Function(block) block <> 8 AndAlso block <> 36).Concat(New Integer() {8, 36}).ToArray()
+        'Commit each record's header after its payload, including extended headers.
+        If vehicle Then
+            allowed = allowed.Where(Function(block) block <> 8 AndAlso block <> 36).Concat(New Integer() {8, 36}).ToArray()
+        Else
+            allowed = allowed.Where(Function(block) Not {8, 17, 36, 45}.Contains(block)).Concat(allowed.Where(Function(block) {8, 17, 36, 45}.Contains(block))).ToArray()
+        End If
         For index As Integer = 0 To 1023
             If original(index) <> updated(index) AndAlso Not allowed.Contains(index \ 16) Then
                 Throw New InvalidDataException("The edit would affect data outside the permitted editor blocks. Nothing was written.")
@@ -229,6 +234,7 @@ Friend NotInheritable Class SimplePortal
     End Function
     Friend Shared Async Function SaveTrapAsync(original As Byte(), updated As Byte(), token As CancellationToken) As Task(Of Byte())
         Dim trap As New TrapSession(original)
+        'niche case
         If Not trap.CanWrite Then Throw New InvalidDataException("This trap is read-only.")
         Dim blocks As Integer() = trap.WriteBlocks(updated)
         Await ActivateAsync(token)

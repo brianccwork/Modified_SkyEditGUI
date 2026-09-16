@@ -115,7 +115,7 @@ Public Class frmHome
     Protected Overrides Sub OnShown(e As EventArgs)
         MyBase.OnShown(e)
         FigureWarnings.ShowWarning(Me, "Edit safely - keep backups",
-            "I am not responsible for any damage done to figures. Please edit and modify safely, and keep backups of your figures before making changes.")
+            "The user is responsible for any damage done to figures. Please edit and modify safely, and keep backups of your figures before making changes.")
     End Sub
 
     Private Sub OpenTraps(sender As Object, e As EventArgs)
