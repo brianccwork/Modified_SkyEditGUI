@@ -1,8 +1,15 @@
-# Modified SkyEditGUI
-
+# Skylander Editor SkyGUI
 Everything in this first section of the README contains changes, additions, and notes for this modified version of the project. Below this section is hegyak's original README.
 
-## Resources and Information Useful for Development
+ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
+
+ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
+
+ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
+
+This program only works with Non-Xbox Skylander Portals
+
+## Resources and Information Used for Development
 
 https://github.com/Texthead1/Riches  
 https://github.com/NefariousTechSupport/Runes  
@@ -11,18 +18,59 @@ https://xmcacutt.github.io/SkanderNET/docs/introduction.html
 https://github.com/hegyak/SkyEditGUI/tree/master  
 https://github.com/skylandersNFC/Skylanders-GUI-Tool  
 https://www.pyrofersprojects.com/blog/skylanders-gui-tool/
+https://github.com/Texthead1/Skylander-IDs
+https://github.com/Texthead1/Revolve
+https://github.com/Texthead1/Skylanders-Portal-IDs
 
-## Small Update 9/13/2026
-- Added Instant Super Shot Stealth Elf, Instant Dive Clops, Instant Spitfire, Instant Dive Clops, Instant Stealth Stinger, Instant Hot Streak, and VVindup Gold and Level modifications.
+### Special Thanks:
+- hegyak
+- Texthead1
+- NefariousTechSupport
+- skylandersNFC
+- XMcacutt
+- pyrofersprojects
 
-## Small Update 8/18/2026
+### Credits:
+- Skylandeer - Shattered Trap Team background
+- Motion Vision - Animated Cloud background
+- Activision Skylanders - Icons, Logo, and UI details
+
+## MASSIVE REDESEIGN AND UPDATE 9/16/2026
+- Modernized Skylanders UI
+  - Added a main menu with Skylanders XP and Gold Modifier, Traps, Vehicles, Advanced, and Imaginators. Advanced opens the original Developer editor. The separate Imaginators page is still in development.
+    - Note that the Advanced page will no longer be maintained by me, but will be used for testing scenarios. Use at your own risk.
+  - Added the Linotype Markin LT font.
+  - Figure artwork is displayed in a circle above the Portal of Power.
+- Simplified Skylanders XP and Gold Modifier so that it is easier to use for general users.
+- Expandable Preview lists to see possible figures.
+
+- Regular Character Gold and XP Save Updates
+  - Big thanks to NefariousTechSupport, reading through the Runes project and using the given context from my research has helped tremendously at understanding and setting up a consistently working Gold and XP save.
+
+- Swap Force Character Handling
+  - The simplified editor supports reading an assembled Swap Force figure by reading the bottom half and then the top half during one read operation.
+  - Gold, XP, and Level edits target the top half. Bottom-only reads and ambiguous combinations of figures are rejected.
+  - The Developer/Advanced editor retains its separate first/second figure controls. The simplified editor resolves the target portal slot again before saving.
+
+- Trap Villain Workshop
+  - Traps page contains trap reading, and identification of empty traps or their current villains.
+  - Added evolution and de-evolution editing using the Revolve project as reference.
+  - Added supported villain variants. Variant editing is available only for villains with a supported variant.
+
+- Simplified Vehicle Gearbits Modifier
+  - Gearbits can be set from 0 to 33,000.
+  - The simplified vehicle page writes and verifies the changes directly.
+
+- Help Portal and Connection Troubleshooting
+  - Added a compact Help Portal button at the top left. The help page includes an official Zadig website button and step-by-step portal driver instructions.
+  - Connection failure messages remind users that only non-Xbox portals are supported and point them to Help Portal.
+
+### Older Changes
 - Sensei Gold and Level modifier now accepts Heartbreaker Buckshot
 
-## Current New Working Modifications to the Original Codebase Explanations
 Gold and Level modifiers for Instant Super Shot Stealth Elf, Instant Dive Clops, Instant Spitfire, Instant Dive Clops, Instant Stealth Stinger, Instant Hot Streak, and VVindup.
   - After scanning in these Skylanders, once the Header and Serial areas are both green, both Gold and Level may be edited.
 
-### Older Changes
 - Sensei Gold and Level Modifier
   - Senseis can now be safely detected, read, modified, and written back through the Portal of Power.
   - The editor currently supports modifying Sensei Gold and Level/EXP values.
@@ -50,7 +98,7 @@ Gold and Level modifiers for Instant Super Shot Stealth Elf, Instant Dive Clops,
 
 ---
 
-# SkyEditGUI
+# SkyEditGUI - Base Project, Now Archived
 GUI Editor for MiFare based figures
 
 I am trying to create an All-in-One Editor for a game that uses MiFare based Figures.
