@@ -144,6 +144,9 @@
     <Compile Include="frmPortalHelp.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmTrapModifier.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmTraps.Designer.vb">
       <DependentUpon>frmTraps.vb</DependentUpon>
     </Compile>
@@ -196,6 +199,9 @@
     <Compile Include="frmVehicles.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="TrapCatalog.vb" />
+    <Compile Include="TrapFeatures.vb" />
+    <Compile Include="TrapSession.vb" />
     <Compile Include="Web_Code.vb" />
   </ItemGroup>
   <ItemGroup>

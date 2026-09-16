@@ -66,11 +66,11 @@ Public Class frmHome
         Dim vehicles As Button = SimpleUi.Action("Vehicles")
         Dim developer As Button = SimpleUi.Action("Advanced")
         Dim imaginators As Button = SimpleUi.Action("Imaginators")
-        traps.Enabled = False
+        AddHandler traps.Click, AddressOf OpenTraps
         imaginators.Enabled = False
         buttons.Controls.Add(modifier, 0, 0)
         buttons.SetColumnSpan(modifier, 2)
-        buttons.Controls.Add(SkyDecor.Development(traps), 0, 1)
+        buttons.Controls.Add(traps, 0, 1)
         buttons.Controls.Add(vehicles, 1, 1)
         buttons.Controls.Add(developer, 0, 2)
         buttons.Controls.Add(SkyDecor.Development(imaginators), 1, 2)
@@ -116,6 +116,13 @@ Public Class frmHome
         MyBase.OnShown(e)
         FigureWarnings.ShowWarning(Me, "Edit safely - keep backups",
             "I am not responsible for any damage done to figures. Please edit and modify safely, and keep backups of your figures before making changes.")
+    End Sub
+
+    Private Sub OpenTraps(sender As Object, e As EventArgs)
+        Dim editor As New frmTrapModifier()
+        AddHandler editor.FormClosed, AddressOf ReturnHome
+        editor.Show()
+        Hide()
     End Sub
 
     Private Sub OpenVehicles(sender As Object, e As EventArgs)

@@ -268,6 +268,7 @@ End Class
 
 Friend Class SkyPortalPreview
     Inherits PictureBox
+    Friend Property AnchorFigureToPortal As Boolean
 
     Friend Sub New()
         DoubleBuffered = True
@@ -288,7 +289,8 @@ Friend Class SkyPortalPreview
             End Using
         End If
         Dim diameter As Single = Math.Min(Width * 0.65F, Height * 0.72F)
-        Dim figureBounds As New RectangleF((Width - diameter) / 2, Height * 0.03F, diameter, diameter)
+        Dim figureTop As Single = If(AnchorFigureToPortal, Math.Max(0, portalBounds.Y + portalBounds.Height * 0.18F - diameter), Height * 0.03F)
+        Dim figureBounds As New RectangleF((Width - diameter) / 2, figureTop, diameter, diameter)
         If Image Is Nothing Then
             'Always show an icon, even when neither figure artwork nor ERROR PNG exists.
             Using fill As New SolidBrush(SkyAssets.Sand), rim As New Pen(SkyAssets.Ink, 2)

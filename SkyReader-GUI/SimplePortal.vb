@@ -227,4 +227,32 @@ Friend NotInheritable Class SimplePortal
         If Not verified.SequenceEqual(updated) Then Throw New IOException("The saved figure did not match the requested changes. Read it again.")
         Return verified
     End Function
+    Friend Shared Async Function SaveTrapAsync(original As Byte(), updated As Byte(), token As CancellationToken) As Task(Of Byte())
+        Dim trap As New TrapSession(original)
+        If Not trap.CanWrite Then Throw New InvalidDataException("This trap is read-only.")
+        Dim blocks As Integer() = trap.WriteBlocks(updated)
+        Await ActivateAsync(token)
+        Dim slot As Integer = Await SelectSlotAsync(token)
+        Dim current As Byte() = Await ReadSlotAsync(slot, token)
+        If Not current.SequenceEqual(original) Then Throw New IOException("The trap or its data changed. Read it again before saving.")
+        For Each block As Integer In blocks
+            Dim expected As Byte() = updated.Skip(block * 16).Take(16).ToArray()
+            If expected.SequenceEqual(original.Skip(block * 16).Take(16)) Then Continue For
+            Dim identity As Byte() = Await HeaderAsync(slot, token)
+            If Not identity.SequenceEqual(original.Take(32)) Then Throw New IOException("The trap changed while saving. Read it again.")
+            Dim request(32) As Byte
+            request(1) = &H57
+            request(2) = CByte(&H20 Or slot)
+            request(3) = CByte(block)
+            Array.Copy(expected, 0, request, 4, 16)
+            Send(request)
+            Await ReplyAsync(&H57, slot, block, token)
+            Await Task.Delay(100, token)
+            Dim actual As Byte() = Await ReadBlockAsync(slot, block, token)
+            If Not actual.SequenceEqual(expected) Then Throw New IOException("Trap write verification failed. Read the trap again.")
+        Next
+        Dim verified As Byte() = Await ReadSlotAsync(slot, token)
+        If Not verified.SequenceEqual(updated) Then Throw New IOException("The saved trap did not match the requested edit.")
+        Return verified
+    End Function
 End Class
