@@ -36,7 +36,7 @@ https://github.com/Texthead1/Skylanders-Portal-IDs
 - Activision Skylanders - Icons, Logo, and UI details
 
 ## MASSIVE REDESEIGN AND UPDATE 9/16/2026
-- Modernized Skylanders UI
+- NEW Skylanders UI
   - Added a main menu with Skylanders XP and Gold Modifier, Traps, Vehicles, Advanced, and Imaginators. Advanced opens the original Developer editor. The separate Imaginators page is still in development.
     - Note that the Advanced page will no longer be maintained by me, but will be used for testing scenarios. Use at your own risk.
   - Added the Linotype Markin LT font.

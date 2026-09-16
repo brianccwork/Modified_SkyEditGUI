@@ -1,4 +1,4 @@
-﻿Option Strict On
+Option Strict On
 Option Explicit On
 
 Imports System.Linq
@@ -224,14 +224,6 @@ Public Class frmModifier
         Try
             Dim original As Byte() = session.Original
             Dim updated As Byte() = session.BuildSave(goldInput.Value, levelInput.Value)
-            If Not vehicleMode Then
-                Dim folder = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SkyGUI", "Backups")
-                IO.Directory.CreateDirectory(folder)
-                Dim name = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") & "-" & Guid.NewGuid().ToString("N") & ".bin"
-                Dim backup = IO.Path.Combine(folder, name)
-                IO.File.WriteAllBytes(backup, original)
-                If Not IO.File.ReadAllBytes(backup).SequenceEqual(original) Then Throw New IO.IOException("Backup verification failed. Nothing was written.")
-            End If
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(60))
                 Dim verified As Byte() = Await SimplePortal.SaveAsync(original, updated, timeout.Token, vehicleMode, session.RequiresFullEncryption)
                 DisplaySession(New SimpleFigureSession(verified, vehicleMode))
