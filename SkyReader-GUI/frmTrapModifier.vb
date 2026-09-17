@@ -22,6 +22,9 @@ Public Class frmTrapModifier
     Private ReadOnly waiting As PictureBox = SkyDecor.Badge("Waiting.ico")
     Private ReadOnly ids As New Collections.Generic.List(Of Integer)
 
+    'Builds the trap workshop controls and wires its read, selection, and save events.
+    'Initially, I actually was just going to integrate Textheads Revolve but once I spent time figuring out how the implementation
+    'for the villian variants works I ended up integrating both and calling it workshop.
     Public Sub New()
         Text = If(TrapFeatures.AllowAssignment, "Traps - Villain Workshop", "Traps - Evolution")
         Name = "frmTrapModifier"
@@ -100,12 +103,16 @@ Public Class frmTrapModifier
         SimpleUi.StyleButtons(Me)
         RefreshActions()
     End Sub
+
+    'Adds a control to a new layout row using a fixed height or automatic sizing.
     Private Shared Sub AddRow(card As TableLayoutPanel, control As Control, Optional height As Integer = 0)
         Dim row As Integer = card.RowCount
         card.RowCount += 1
         card.RowStyles.Add(New RowStyle(If(height = 0, SizeType.AutoSize, SizeType.Absolute), height))
         card.Controls.Add(control, 0, row)
     End Sub
+
+    'Enables or disables page actions according to connection, loaded data, and operation state.
     Private Sub RefreshActions()
         connectButton.Enabled = Not busy
         readButton.Enabled = Not busy AndAlso Portal.blnPortal
@@ -117,6 +124,8 @@ Public Class frmTrapModifier
         variantValue.Enabled = choices.Enabled AndAlso choices.SelectedIndex >= 0 AndAlso TrapCatalog.Variants.ContainsKey(ids(choices.SelectedIndex))
         waiting.Visible = busy
     End Sub
+
+    'Attempts portal connection and updates the page with connection status or troubleshooting guidance.
     Private Sub ConnectPortal(sender As Object, e As EventArgs)
         ClearSession()
         Try
@@ -127,6 +136,7 @@ Public Class frmTrapModifier
         End Try
         RefreshActions()
     End Sub
+    'Reads the portal under a timeout and displays the resulting validated trap session.
     Private Async Sub ReadTrap(sender As Object, e As EventArgs)
         If busy Then Return
         ClearSession()
@@ -141,10 +151,11 @@ Public Class frmTrapModifier
             busy = False : RefreshActions()
         End Try
     End Sub
+    'Loads the scanned trap's villain choices and flags into the workshop controls.
     Private Sub ShowSession(value As TrapSession)
         updating = True
         session = value
-        summary.Text = value.TrapName & vbCrLf & If(value.VillainId = 0, "Empty trap - no active villain.",
+        summary.Text = value.TrapName & vbCrLf & If(value.VillainId = 0, "Empty trap - No active villian yet inside.",
             "Current villain: " & value.VillainName & vbCrLf & If(value.Evolved, "Evolved", "Not evolved"))
         evolved.Checked = value.Evolved
         ids.Clear() : choices.Items.Clear()
@@ -155,10 +166,11 @@ Public Class frmTrapModifier
         Next
         choices.SelectedIndex = If(ids.Contains(value.VillainId), ids.IndexOf(value.VillainId), -1)
         variantValue.Checked = value.IsVariant
-        status.Text = If(String.IsNullOrEmpty(value.Notice), "Trap loaded. Choose a villain and options, then select Save Villain.", value.Notice)
+        status.Text = If(String.IsNullOrEmpty(value.Notice), "Trap loaded. Choose a villain and options that villian may have, then select Save Villain.", value.Notice)
         updating = False
         RefreshPreview()
     End Sub
+    'Replaces the preview image with artwork for the current trap or villain selection.
     Private Sub RefreshPreview()
         If updating OrElse session Is Nothing Then Return
         Dim name As String = session.TrapName
@@ -169,6 +181,7 @@ Public Class frmTrapModifier
         picture.Image = artwork.Load("Traps", name)
         If old IsNot Nothing Then old.Dispose()
     End Sub
+    'Refreshes the variant/evolution controls and artwork when the villain selection changes.
     Private Sub SelectionChanged(sender As Object, e As EventArgs)
         If updating Then Return
         variantValue.Checked = session IsNot Nothing AndAlso choices.SelectedIndex >= 0 AndAlso
@@ -176,6 +189,7 @@ Public Class frmTrapModifier
         RefreshActions()
         RefreshPreview()
     End Sub
+    'Builds the selected villain update and waits for a verified portal write before refreshing the session.
     Private Async Sub SaveTrap(sender As Object, e As EventArgs)
         If busy OrElse session Is Nothing OrElse Not session.CanWrite Then Return
         busy = True : RefreshActions()
@@ -194,11 +208,15 @@ Public Class frmTrapModifier
             busy = False : RefreshActions()
         End Try
     End Sub
+
+    'Shows the trap operation error, clears stale session data, and updates available actions.
     Private Sub Failure(ex As Exception)
         ClearSession()
         status.Text = If(TypeOf ex Is OperationCanceledException, "The portal timed out. Reconnect and read the trap again.", ex.Message)
         FigureWarnings.ShowWarning(Me, "Trap operation interrupted", status.Text)
     End Sub
+
+    'Clears the scanned session so later actions cannot reuse old figure data.
     Private Sub ClearSession()
         session = Nothing
         ids.Clear() : choices.Items.Clear()
@@ -207,6 +225,8 @@ Public Class frmTrapModifier
             Dim old As Image = picture.Image : picture.Image = Nothing : old.Dispose()
         End If
     End Sub
+
+    'Prevents closing during a trap operation and disconnects when the workshop can close.
     Protected Overrides Sub OnFormClosing(e As FormClosingEventArgs)
         If busy Then
             e.Cancel = True

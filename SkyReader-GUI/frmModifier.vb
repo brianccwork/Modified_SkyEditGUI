@@ -7,9 +7,9 @@ Imports System.Threading
 Public Class frmModifier
     Inherits Form
 
-    Private ReadOnly connectButton As Button = SimpleUi.Action("Connect portal")
-    Private ReadOnly readButton As Button = SimpleUi.Action("Read figure")
-    Private ReadOnly saveButton As Button = SimpleUi.Action("Save changes")
+    Private ReadOnly connectButton As Button = SimpleUi.Action("Connect Portal")
+    Private ReadOnly readButton As Button = SimpleUi.Action("Read Figure")
+    Private ReadOnly saveButton As Button = SimpleUi.Action("Save Changes")
     Private ReadOnly backButton As Button = SimpleUi.Action("Back")
     Private ReadOnly goldInput As New NumericUpDown()
     Private ReadOnly levelInput As New NumericUpDown()
@@ -20,7 +20,7 @@ Public Class frmModifier
     Private ReadOnly gallery As New TreeView()
     Private ReadOnly waiting As PictureBox = SkyDecor.Badge("Waiting.ico")
     Private ReadOnly connectionHelp As Label = SimpleUi.Caption("Only Non-Xbox Portals are Compatible with the Program." & vbCrLf &
-        "If you are struggling connecting please follow the Zadig process in the Main Menu.")
+        "If you are struggling connecting please follow the Zadig process in the Main Menu, Help Portal option.")
     Private saving As Boolean
     Private connectionFailed As Boolean
     Private ReadOnly artwork As New FigureArtwork()
@@ -28,10 +28,11 @@ Public Class frmModifier
     Private session As SimpleFigureSession
     Private busy As Boolean
 
+    'Builds the shared character or vehicle editor and connects its actions and preview events.
     Public Sub New(Optional editVehicle As Boolean = False)
         vehicleMode = editVehicle
         SimplePortal.Disconnect()
-        Text = If(vehicleMode, "SkyGUI - Vehicle Gearbits", "SkyGUI - XP / Level Modifier")
+        Text = If(vehicleMode, "SkyGUI - Vehicle Gearbits", "SkyGUI - Level and Gold Modifier")
         Name = "frmModifier"
         SkyAssets.ApplyWindowIcon(Me)
         Font = SimpleUi.Body
@@ -56,7 +57,7 @@ Public Class frmModifier
         page.RowStyles.Add(New RowStyle(SizeType.Percent, 100))
         page.RowStyles.Add(New RowStyle(SizeType.AutoSize))
         page.RowStyles.Add(New RowStyle(SizeType.Absolute, 116))
-        Dim heading As Label = SimpleUi.Caption(If(vehicleMode, "Vehicle Gearbits", "XP / Level Modifier"))
+        Dim heading As Label = SimpleUi.Caption(If(vehicleMode, "Vehicle Gearbits", "Level and Gold Modifier"))
         heading.Font = SimpleUi.Heading
         heading.AutoSize = False
         heading.BackColor = SkyAssets.Panel
@@ -88,7 +89,7 @@ Public Class frmModifier
         Next
         editor.Controls.Add(goldInput, 0, 4)
         If Not vehicleMode Then
-            editor.Controls.Add(SkyDecor.FieldLabel("XP / Level", "XP.ico"), 0, 5)
+            editor.Controls.Add(SkyDecor.FieldLabel("Level", "XP.ico"), 0, 5)
             editor.Controls.Add(levelInput, 0, 6)
         Else
             Dim hint As Label = SimpleUi.Caption("Gearbits range: 0 - 33,000")
@@ -155,6 +156,7 @@ Public Class frmModifier
         RefreshActions()
     End Sub
 
+    'Enables or disables page actions according to connection, loaded data, and operation state.
     Private Sub RefreshActions()
         connectButton.Enabled = Not busy
         readButton.Enabled = Not busy AndAlso Portal.blnPortal
@@ -167,6 +169,7 @@ Public Class frmModifier
         gallery.Enabled = Not busy
     End Sub
 
+    'portal connection and updates the page with connection status or troubleshooting guidance.
     Private Sub ConnectPortal(sender As Object, e As EventArgs)
         If busy Then Return
         busy = True
@@ -190,6 +193,7 @@ Public Class frmModifier
         End Try
     End Sub
 
+    'Reads one figure under a timeout and creates a new character or vehicle session.
     Private Async Sub ReadFigure(sender As Object, e As EventArgs)
         If busy Then Return
         busy = True
@@ -211,6 +215,7 @@ Public Class frmModifier
         End Try
     End Sub
 
+    'Prepares the requested values and writes them through the portal with a timeout and readback verification.
     Private Async Sub SaveFigure(sender As Object, e As EventArgs)
         If busy OrElse session Is Nothing OrElse Not session.CanEdit Then Return
         If goldInput.Value = session.GoldValue AndAlso levelInput.Value = session.LevelValue AndAlso Not session.NeedsChecksumRepair Then
@@ -228,7 +233,7 @@ Public Class frmModifier
                 Dim verified As Byte() = Await SimplePortal.SaveAsync(original, updated, timeout.Token, vehicleMode, session.RequiresFullEncryption)
                 DisplaySession(New SimpleFigureSession(verified, vehicleMode))
             End Using
-            status.Text = If(vehicleMode, "Gearbits saved and read back successfully.", "Gold and Level saved and read back successfully.")
+            status.Text = If(vehicleMode, "Gearbits saved and read back successfully.", "Level and Gold saved and read back successfully.")
         Catch ex As Exception
             FailOperation(ex)
         Finally
@@ -238,6 +243,7 @@ Public Class frmModifier
         End Try
     End Sub
 
+    'Copies the scanned name, editable values, and limits into the simplified editor controls.
     Private Sub DisplaySession(value As SimpleFigureSession)
         session = value
         loadedName.Text = "Loaded: " & value.FigureName & If(SimplePortal.IsSwapTop(value.Original), " (top half)", "")
@@ -247,15 +253,16 @@ Public Class frmModifier
         levelInput.Value = Math.Max(levelInput.Minimum, Math.Min(value.LevelValue, levelInput.Maximum))
         ShowPreview(Me, EventArgs.Empty)
         status.Text = If(value.CanEdit, If(vehicleMode, "Vehicle loaded. Change Gearbits, then save.", "Figure loaded. Change Gold or Level, then save."),
-            If(value.IsUnsafe, "Unsafe figure data. Saving is disabled.", If(vehicleMode, "Read a supported vehicle to edit Gearbits.", "This figure is preview-only here. Use its matching editor.")))
+            If(value.IsUnsafe, "Unsafe figure data. Saving is disabled. Please press Connect Portal and try again.", If(vehicleMode, "Read a supported vehicle to edit Gearbits.", "This figure is preview-only here. Use its matching editor if one exists on a different page.")))
         If value.CanEdit AndAlso SimplePortal.IsSwapTop(value.Original) Then
-            status.Text = "Swap Force top half loaded. Gold, XP and Level changes save to the top; the bottom stays unchanged."
+            status.Text = "Swap Force top half loaded. Gold, and Level changes save to the top; the bottom stays unchanged."
         End If
         If value.CanEdit AndAlso value.NeedsChecksumRepair Then
-            status.Text = "Header and serial verified. Save Gold/Level to initialize the character payload and rebuild its checksums."
+            status.Text = "Figure loaded. Change Gold or Level, then save."
         End If
     End Sub
 
+    'Displays the relevant unsafe data or Sensei initialization guidance for the loaded session.
     Private Sub ShowFigureWarnings()
         If session Is Nothing Then Return
         If session.IsSensei Then FigureWarnings.ShowWarning(Me, "Sensei initialization", FigureWarnings.SenseiText)
@@ -267,6 +274,7 @@ Public Class frmModifier
         End If
     End Sub
 
+    'Builds the expandable game and figure list used for pre-scan artwork browsing.
     Private Sub LoadGallery(sender As Object, e As EventArgs)
         gallery.BeginUpdate()
         Try
@@ -287,11 +295,13 @@ Public Class frmModifier
         ShowPreview(Me, EventArgs.Empty)
     End Sub
 
+    'Selects hovered gallery entries only when no scanned figure is pinned to the preview.
     Private Sub HoverFigure(sender As Object, e As TreeNodeMouseHoverEventArgs)
         If busy OrElse session IsNot Nothing OrElse e.Node.Tag Is Nothing Then Return
         gallery.SelectedNode = e.Node
     End Sub
 
+    'Displays scanned artwork or the currently browsed preview and disposes the previous image.
     Private Sub ShowPreview(sender As Object, e As EventArgs)
         Dim old As Image = imageBox.Image
         If session IsNot Nothing Then
@@ -308,6 +318,7 @@ Public Class frmModifier
         imageBox.Invalidate()
     End Sub
 
+    'reports a failed or timed-out operation and clears stale editor session state.
     Private Sub FailOperation(ex As Exception)
         SimplePortal.Disconnect()
         connectionFailed = True
@@ -319,6 +330,7 @@ Public Class frmModifier
         FigureWarnings.ShowWarning(Me, If(TypeOf ex Is IO.InvalidDataException, "Figure unsafe to write", "Portal operation interrupted"), status.Text)
     End Sub
 
+    'Clears the scanned session so later actions cannot reuse old figure data.
     Private Sub ClearSession()
         session = Nothing
         loadedName.Text = "No figure read yet"
@@ -326,6 +338,7 @@ Public Class frmModifier
         ShowPreview(Me, EventArgs.Empty)
     End Sub
 
+    'Prevents closing during a portal operation and disconnects when the editor can close.
     Protected Overrides Sub OnFormClosing(e As FormClosingEventArgs)
         If busy Then
             e.Cancel = True
@@ -336,6 +349,7 @@ Public Class frmModifier
         MyBase.OnFormClosing(e)
     End Sub
 
+    'Disposes the current preview image when the editor is disposed.
     Protected Overrides Sub Dispose(disposing As Boolean)
         If disposing AndAlso imageBox.Image IsNot Nothing Then
             imageBox.Image.Dispose()

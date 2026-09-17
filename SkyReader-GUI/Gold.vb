@@ -46,8 +46,9 @@ Public Class Gold
             frmMain.numGold.Value = GoldValueArea0
         End If
 
-
     End Sub
+
+    'Writes the requested Gold value into both copies of the shared Developer buffer.
     Shared Sub WriteGold()
         Dim intGold As UShort = frmMain.numGold.Value
         Dim Gold As Byte() = BitConverter.GetBytes(intGold)

@@ -1,10 +1,13 @@
 Option Strict On
 Option Explicit On
 
+'This file should later be merged, or organized properly into a file system but for now it'll live here.
 Friend NotInheritable Class SkyPolish
+    'Keeps this shared helper from being instantiated.
     Private Sub New()
     End Sub
 
+    'Replaces the control's clipping region with a DPI-scaled rounded outline.
     Friend Shared Sub RoundControl(control As Control, radius As Single)
         If control.Width < 2 OrElse control.Height < 2 Then Return
         Using path As Drawing.Drawing2D.GraphicsPath = SkyPresentation.Rounded(
@@ -15,6 +18,7 @@ Friend NotInheritable Class SkyPolish
         End Using
     End Sub
 
+    'Measures dialog text and sizes its layout to fit within the available screen area.
     Friend Shared Sub FitDialog(window As Form, heading As Label, body As Label)
         'Measure after DPI scaling and font inheritance. Warning text is a label,
         'not an editable/scrollable native text field.
@@ -38,13 +42,16 @@ Friend NotInheritable Class SkyPolish
     End Sub
 End Class
 
+'Provides a rounded gray layout panel with a parent-painted shadow.
 Friend Class SkyCardLayout
     Inherits TableLayoutPanel
+    'Initializes the rounded panel background and registers its shadow.
     Friend Sub New()
         DoubleBuffered = True
         BackColor = SkyAssets.Panel
         SkyElevation.Attach(Me)
     End Sub
+    'Recomputes the rounded surface or text-card height after its size changes.
     Protected Overrides Sub OnSizeChanged(e As EventArgs)
         MyBase.OnSizeChanged(e)
         SkyPolish.RoundControl(Me, 20)
@@ -52,10 +59,12 @@ Friend Class SkyCardLayout
 End Class
 
 'Compact, nonselectable text card; height follows wrapped text as width changes.
+'Fits wrapped read-only text into a rounded, shadowed label.
 Friend Class SkyTextCard
     Inherits Label
     Private fitting As Boolean
 
+    'Initializes a read-only text label with buffered painting and a parent-owned shadow.
     Friend Sub New()
         AutoSize = False
         UseMnemonic = False
@@ -64,6 +73,7 @@ Friend Class SkyTextCard
         SetStyle(ControlStyles.OptimizedDoubleBuffer, True)
     End Sub
 
+    'Adjusts the card height to wrapped text and reapplies its rounded clipping region.
     Private Sub FitText()
         If fitting OrElse Width < 40 OrElse Font Is Nothing Then Return
         fitting = True
@@ -76,14 +86,17 @@ Friend Class SkyTextCard
         End Try
     End Sub
 
+    'Recomputes the rounded surface or text-card height after its size changes.
     Protected Overrides Sub OnSizeChanged(e As EventArgs)
         MyBase.OnSizeChanged(e)
         FitText()
     End Sub
+    'Refits the text card after its displayed text changes.
     Protected Overrides Sub OnTextChanged(e As EventArgs)
         MyBase.OnTextChanged(e)
         FitText()
     End Sub
+    'Refits the text card after its font metrics change.
     Protected Overrides Sub OnFontChanged(e As EventArgs)
         MyBase.OnFontChanged(e)
         FitText()

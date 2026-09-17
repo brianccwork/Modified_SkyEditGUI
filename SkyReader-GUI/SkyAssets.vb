@@ -20,13 +20,16 @@ Friend NotInheritable Class SkyAssets
     Friend Shared ReadOnly PortalImage As Image = LoadStill("PortalofPower.png")
     Friend Shared ReadOnly Logo As Image = LoadStill("SkylandersLogo.png")
 
+    'Declares the Windows GDI call used to register the bundled font privately for this process.
     <DllImport("gdi32.dll", CharSet:=CharSet.Unicode)>
     Private Shared Function AddFontResourceEx(filename As String, flags As UInteger, reserved As IntPtr) As Integer
     End Function
 
+    'Keeps this shared helper from being instantiated.
     Private Sub New()
     End Sub
 
+    'Searches the startup folder and its parents for the requested Images/UIDesign asset.
     Friend Shared Function AssetPath(filename As String) As String
         Dim directory As New DirectoryInfo(Application.StartupPath)
         'Also supports running from bin/Debug, bin/Release and framework subfolders.
@@ -39,6 +42,7 @@ Friend NotInheritable Class SkyAssets
         Return Nothing
     End Function
 
+    'Loads the bundled Markin font for GDI and GDI+ or falls back to the system sans-serif family.
     Private Shared Function LoadFamily() As FontFamily
         Try
             Dim filename As String = AssetPath("markin-lt-regular-regular_ufonts.com.ttf")
@@ -56,6 +60,7 @@ Friend NotInheritable Class SkyAssets
         Return FontFamily.GenericSansSerif
     End Function
 
+    'Returns a cached regular font at the requested size plus the shared four-point increase.
     Friend Shared Function UiFont(size As Single) As Font
         size += 4.0F
         SyncLock fonts
@@ -64,6 +69,7 @@ Friend NotInheritable Class SkyAssets
         End SyncLock
     End Function
 
+    'Applies the optional balloon icon to non Developer windows and disposes the cloned icon with its owner.
     Friend Shared Sub ApplyWindowIcon(window As Form)
         If TypeOf window Is frmMain Then Return
         Try
@@ -80,6 +86,7 @@ Friend NotInheritable Class SkyAssets
         End Try
     End Sub
 
+    'Loads a detached bitmap copy of an optional static UI image.
     Private Shared Function LoadStill(filename As String) As Image
         Try
             Dim resolved As String = AssetPath(filename)

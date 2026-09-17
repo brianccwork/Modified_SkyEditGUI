@@ -10,6 +10,8 @@ Friend NotInheritable Class FigureArtwork
     Private ReadOnly paths As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
     Private ReadOnly editionPaths As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
 
+    'Finds the Images directory and indexes PNG paths for exact and edition-insensitive matching.
+    'This has bugs that I will come back to fix hopefully idk.
     Friend Sub New()
         Dim directory As DirectoryInfo = New DirectoryInfo(Application.StartupPath)
         For depth As Integer = 0 To 4
@@ -40,6 +42,8 @@ Friend NotInheritable Class FigureArtwork
         End Try
     End Sub
 
+    'Normalizes artwork names, spelling differences, and word order for filename matching.
+    '(At first I wasnt doing this, but idk anymore, ran into too many bugs so i just had this done)
     Friend Shared Function Normalize(name As String) As String
         Dim value As String = name.ToLowerInvariant()
         value = Regex.Replace(value.Normalize(System.Text.NormalizationForm.FormD), "\p{Mn}", "")
@@ -53,14 +57,15 @@ Friend NotInheritable Class FigureArtwork
         value = value.Replace("flarewolf", "flare wolf")
         value = Regex.Replace(value, "\((top|bottom)\)", "")
         value = Regex.Replace(value, "[^a-z0-9]+", " ").Trim()
-        'Hyphens and apostrophes in display names and filenames vary.
+        'Hyphens and apostrophes 
         value = value.Replace("jet vac", "jetvac").Replace("dive clops", "diveclops")
         value = value.Replace("eye brawl", "eyebrawl").Replace("ro bow", "robow")
         Return String.Join(" ", value.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries).OrderBy(Function(word) word, StringComparer.Ordinal))
     End Function
 
+    'Removes series numbers and LightCore words for a secondary artwork lookup.
     Private Shared Function WithoutEdition(name As String) As String
-        'Some uniquely named upgrades include an edition suffix only in the PNG.
+        'Some of the more unqiue figures like the lightcore or series variants
         Return String.Join(" ", name.Split(" "c).Where(Function(word) word <> "series" AndAlso word <> "lightcore" AndAlso Not Regex.IsMatch(word, "^\d+$")))
     End Function
 
@@ -178,6 +183,7 @@ Friend NotInheritable Class FigureArtwork
         {"Ultimate Kaos Trap (Dark Edition Variant)", "STT\7) Traps\2) Crystal Trap Variants\Sobersu's kaos trap_KAOS LEGENDARY_logo_v2.png"}
     }
 
+    'Resolves the requested artwork through explicit mappings, indexed names, and the error-image fallback.
     Friend Function Load(gameName As String, figureName As String) As Image
         If gameName = "Traps" AndAlso root IsNot Nothing Then
             Dim relative As String = Nothing
@@ -214,10 +220,11 @@ Friend NotInheritable Class FigureArtwork
                 If found IsNot Nothing Then Return found
             Next
         End If
-        'The PNGs are external assets; a missing/corrupt fallback must not crash UI.
+        'fallback here
         Return Nothing
     End Function
 
+    'Loads a detached image copy when a candidate artwork file exists and can be opened.
     Private Shared Function TryLoad(path As String) As Image
         Try
             If Not File.Exists(path) Then Return Nothing

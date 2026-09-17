@@ -10,21 +10,25 @@ Friend NotInheritable Class SimpleUi
     Friend Shared ReadOnly ActionFont As Font = SkyAssets.UiFont(13.0F)
     Friend Shared ReadOnly NumberFont As Font = SkyAssets.UiFont(20.0F)
 
+    'Keeps this shared helper from being instantiated.
     Private Sub New()
     End Sub
 
+    'Creates a consistently sized and styled action button with the supplied caption.
     Friend Shared Function Action(caption As String) As Button
         Return New Button With {.Text = caption, .Font = ActionFont, .BackColor = Blue,
             .ForeColor = Color.White, .FlatStyle = FlatStyle.Flat, .Dock = DockStyle.Fill,
             .Margin = New Padding(8), .Cursor = Cursors.Hand, .UseVisualStyleBackColor = False}
     End Function
 
+    'Creates a shared font label for text on the simplified pages.
     Friend Shared Function Caption(text As String) As Label
         Return New Label With {.Text = text, .Font = Body, .ForeColor = Navy,
             .Dock = DockStyle.Fill, .AutoSize = True, .Margin = New Padding(8, 3, 8, 3),
             .TextAlign = ContentAlignment.MiddleLeft}
     End Function
 
+    'Walks the control tree and applies the shared button appearance.
     Friend Shared Sub StyleButtons(parent As Control)
         For Each control As Control In parent.Controls
             Dim button As Button = TryCast(control, Button)

@@ -6,6 +6,7 @@ Public Class frmHome
 
     Private closingApplication As Boolean
 
+    'Builds the landing layout, navigation buttons, and third-party image disclaimer.
     Public Sub New()
         Text = "Skylander Editor"
         Name = "frmHome"
@@ -61,7 +62,7 @@ Public Class frmHome
         For index As Integer = 0 To 2
             buttons.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / 3.0F))
         Next
-        Dim modifier As Button = SimpleUi.Action("Skylanders XP and Gold Modifier")
+        Dim modifier As Button = SimpleUi.Action("Skylanders Level and Gold Modifier")
         Dim traps As Button = SimpleUi.Action("Traps")
         Dim vehicles As Button = SimpleUi.Action("Vehicles")
         Dim developer As Button = SimpleUi.Action("Advanced")
@@ -95,6 +96,7 @@ Public Class frmHome
         SimpleUi.StyleButtons(Me)
     End Sub
 
+    'Hides the landing page and opens the portal troubleshooting window.
     Private Sub OpenPortalHelp(sender As Object, e As EventArgs)
         Dim help As New frmPortalHelp()
         AddHandler help.FormClosed, AddressOf ReturnHome
@@ -102,6 +104,7 @@ Public Class frmHome
         Hide()
     End Sub
 
+    'Initializes and opens the original Developer editor from the landing page.
     Private Sub OpenDeveloper(sender As Object, e As EventArgs)
         frmMain.EnsureEditorInitialized()
         If Not Portal.blnPortal Then frmMain.lockPortalControls()
@@ -112,12 +115,15 @@ Public Class frmHome
         Hide()
     End Sub
 
+    'Displays the startup responsibility warning once for this home window.
     Protected Overrides Sub OnShown(e As EventArgs)
         MyBase.OnShown(e)
-        FigureWarnings.ShowWarning(Me, "Edit safely - keep backups",
-            "The user is responsible for any damage done to figures. Please edit and modify safely, and keep backups of your figures before making changes.")
+        FigureWarnings.ShowWarning(Me, "Edit Responsibly - BACKUP FIGURES",
+            "The user is responsible for any damage done to figures. Please edit and modify safely, and keep 
+            of your figures before making changes.")
     End Sub
 
+    'Opens the villain workshop and arranges to return home when it closes.
     Private Sub OpenTraps(sender As Object, e As EventArgs)
         Dim editor As New frmTrapModifier()
         AddHandler editor.FormClosed, AddressOf ReturnHome
@@ -125,6 +131,7 @@ Public Class frmHome
         Hide()
     End Sub
 
+    'Opens the simplified modifier in vehicle Gearbits mode.
     Private Sub OpenVehicles(sender As Object, e As EventArgs)
         Dim editor As New frmModifier(True)
         AddHandler editor.FormClosed, AddressOf ReturnHome
@@ -132,6 +139,7 @@ Public Class frmHome
         Hide()
     End Sub
 
+    'Opens the simplified character Gold and Level editor.
     Private Sub OpenModifier(sender As Object, e As EventArgs)
         Dim modifier As New frmModifier()
         AddHandler modifier.FormClosed, AddressOf ReturnHome
@@ -139,6 +147,7 @@ Public Class frmHome
         Hide()
     End Sub
 
+    'Shows and activates the landing page when a child editor closes.
     Private Sub ReturnHome(sender As Object, e As FormClosedEventArgs)
         If Not closingApplication AndAlso Not IsDisposed Then
             Show()
@@ -146,6 +155,7 @@ Public Class frmHome
         End If
     End Sub
 
+    'Marks the application as closing and disconnects the portal before the home window closes.
     Protected Overrides Sub OnFormClosing(e As FormClosingEventArgs)
         closingApplication = True
         SimplePortal.Disconnect()

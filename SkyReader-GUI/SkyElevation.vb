@@ -7,9 +7,11 @@ Imports System.Drawing.Drawing2D
 Friend NotInheritable Class SkyElevation
     Private Shared ReadOnly raised As New ConditionalWeakTable(Of Control, Object)()
     Private Shared ReadOnly parents As New ConditionalWeakTable(Of Control, Object)()
+    'Keeps this shared helper from being instantiated.
     Private Sub New()
     End Sub
 
+    'NRegisters a control for shadow painting and tracks changes that require its parent to redraw.
     Friend Shared Sub Attach(control As Control)
         Dim marker As Object = Nothing
         If raised.TryGetValue(control, marker) Then Return
@@ -21,6 +23,7 @@ Friend NotInheritable Class SkyElevation
         RefreshParent(control, EventArgs.Empty)
     End Sub
 
+    'Hooks shadow painting once per parent and invalidates that parent when a raised control changes.
     Private Shared Sub RefreshParent(sender As Object, e As EventArgs)
         Dim control As Control = DirectCast(sender, Control)
         Dim parent As Control = control.Parent
@@ -33,6 +36,7 @@ Friend NotInheritable Class SkyElevation
         parent.Invalidate()
     End Sub
 
+    'Draws soft rounded shadows behind registered visible child controls.
     Private Shared Sub PaintShadows(sender As Object, e As PaintEventArgs)
         Dim parent As Control = DirectCast(sender, Control)
         Dim state As GraphicsState = e.Graphics.Save()
@@ -60,6 +64,7 @@ Friend NotInheritable Class SkyElevation
         End Try
     End Sub
 
+    'Sizes a title to its text and adds rounded edges and a parent-painted shadow.
     Friend Shared Sub CompactTitle(label As Label)
         label.Dock = DockStyle.None
         label.Anchor = AnchorStyles.Top Or AnchorStyles.Left
@@ -71,16 +76,20 @@ Friend NotInheritable Class SkyElevation
     End Sub
 End Class
 
-'An inert button surface can receive hover tooltips without an extra wrapper.
+'This class is really for development and just rendering things useless.
 Friend Class SkyInactiveButton
     Inherits Button
+    'Suppresses normal click activation for a feature that is still in development.
     Protected Overrides Sub OnClick(e As EventArgs)
         'Intentionally no navigation or click event while under development.
     End Sub
+    'Prevents mouse click events from activating the inactive button.
     Protected Overrides Sub OnMouseClick(e As MouseEventArgs)
     End Sub
+    'Prevents double click events from activating the inactive button.
     Protected Overrides Sub OnDoubleClick(e As EventArgs)
     End Sub
+    'Consumes Enter and Space so the inactive button cannot be activated by keyboard.
     Protected Overrides Sub OnKeyDown(e As KeyEventArgs)
         If e.KeyCode = Keys.Enter OrElse e.KeyCode = Keys.Space Then
             e.SuppressKeyPress = True
@@ -88,21 +97,27 @@ Friend Class SkyInactiveButton
         End If
         MyBase.OnKeyDown(e)
     End Sub
+    'Exposes the inactive button through an accessibility object that reports it as unavailable.
     Protected Overrides Function CreateAccessibilityInstance() As AccessibleObject
         Return New InactiveAccessibleObject(Me)
     End Function
+    'Reports the placeholder button as unavailable to assistive technology.
     Private Class InactiveAccessibleObject
         Inherits Control.ControlAccessibleObject
+        'Attaches the custom accessibility state to its placeholder button.
         Friend Sub New(owner As Button)
             MyBase.New(owner)
         End Sub
+        'Prevents accessibility clients from invoking the inactive button's default action.
         Public Overrides Sub DoDefaultAction()
         End Sub
+        'Reports this accessible control as a push button.
         Public Overrides ReadOnly Property Role As AccessibleRole
             Get
                 Return AccessibleRole.PushButton
             End Get
         End Property
+        'Adds the unavailable state to the accessible button's existing state flags.
         Public Overrides ReadOnly Property State As AccessibleStates
             Get
                 Return MyBase.State Or AccessibleStates.Unavailable

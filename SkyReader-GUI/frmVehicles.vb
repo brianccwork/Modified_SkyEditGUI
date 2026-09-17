@@ -13,11 +13,17 @@ Public Class frmVehicles
     Private Const RegionCopyLength As Integer = &HE0
 
     'This helper class describes one of the two mirrored vehicle data regions.
+    'Groups the byte offsets used to read and update one vehicle save copy.
     Private NotInheritable Class VehicleSlot
+        'Locates the main header of this vehicle save copy.
         Public Property HeaderBase As Integer
+        'Locates the extended record of this vehicle save copy.
         Public Property ExtendedBase As Integer
+        'Locates the main sequence counter for this vehicle copy.
         Public Property Sequence1Offset As Integer
+        'Locates the extended sequence counter for this vehicle copy.
         Public Property Sequence2Offset As Integer
+        'Locates the two-byte Gearbits value for this vehicle copy.
         Public Property GearBitsOffset As Integer
     End Class
 
@@ -39,6 +45,7 @@ Public Class frmVehicles
         .GearBitsOffset = &H2D8
     }
 
+    'Configures the vehicle window and reads Gearbits from the selected vehicle data copy.
     Private Sub frmVehicles_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         frmMain.Disable_Controls()
 
@@ -76,6 +83,7 @@ Public Class frmVehicles
         End Try
     End Sub
 
+    'Routes window closing through the vehicle editor's return-and-save handling.
     Private Sub frmVehicles_Closing(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles MyBase.Closing
         Dim result As DialogResult
         result = MessageBox.Show("Do you want to apply any changes made to this figure?", "Apply Changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
@@ -88,6 +96,7 @@ Public Class frmVehicles
         Dispose()
     End Sub
 
+    'Offers to apply Gearbits to the shared buffer before returning to the Developer window.
     Private Sub btnGoBack_Click(sender As Object, e As EventArgs) Handles btnGoBack.Click
         Dim result As DialogResult
         result = MessageBox.Show("Do you want to apply any changes made to this figure?", "Apply Changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
@@ -100,10 +109,12 @@ Public Class frmVehicles
         Dispose()
     End Sub
 
+    'Returns Gearbits from the vehicle's selected active slot without opening the window.
     Friend Function ReadGearbitsForSimpleEditor() As Decimal
         Return CDec(ReadUInt16LE(SelectActiveSlot().GearBitsOffset))
     End Function
 
+    'Checks vehicle values and rebuilt checksum bytes while restoring the original data buffer afterward.
     Friend Function IsSafeForSimpleEditor() As Boolean
         Dim original As Byte() = DirectCast(WholeFile.Clone(), Byte())
         Dim slot As VehicleSlot = SelectActiveSlot()
@@ -121,6 +132,7 @@ Public Class frmVehicles
         End Try
     End Function
 
+    'Checks the requested Gearbits range and vehicle data before preparing the in-memory update.
     Friend Sub ApplyGearbitsForSimpleEditor(value As Decimal)
         If value < 0D OrElse value > MaxGearBits Then Throw New ArgumentOutOfRangeException(NameOf(value))
         If Not IsSafeForSimpleEditor() Then Throw New IO.InvalidDataException("Vehicle data is unsafe to write.")
@@ -196,6 +208,7 @@ Public Class frmVehicles
     End Function
 
     'Decide whether a mirrored slot looks like it contains usable vehicle data.
+    'Treats nonzero Gearbits or sequence bytes as evidence that a vehicle slot is populated.
     Private Function HasLikelyVehicleData(slot As VehicleSlot) As Boolean
         Dim gearBits As UShort = ReadUInt16LE(slot.GearBitsOffset)
         Return gearBits > 0US OrElse
@@ -220,7 +233,7 @@ Public Class frmVehicles
     End Function
 
     'Rebuild the vehicle checksums for the chosen mirrored slot.
-    'These are vehicle-specific and are not handled the same way as ordinary figure edits.
+    'These are vehicle specific and are not handled the same way as ordinary figure edits.
     Private Sub RewriteVehicleChecksums(slot As VehicleSlot)
         Dim headerBlock As Integer = slot.HeaderBase \ BlockSize
 
@@ -258,7 +271,7 @@ Public Class frmVehicles
         WriteUInt16LE(slot.ExtendedBase + &H0, crc4)
     End Sub
 
-    'Collect a set number of non-access-control blocks into one contiguous buffer.
+    'Collects the requested number of payload blocks while skipping access control trailers.
     Private Function CollectNonAcbBlocks(startBlock As Integer, nonAcbCount As Integer) As Byte()
         Dim result((nonAcbCount * BlockSize) - 1) As Byte
         Dim destPos As Integer = 0

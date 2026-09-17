@@ -1,3 +1,4 @@
+'Applies the runtime theme, layout adjustments, and custom painting to original Developer windows.
 Option Explicit On
 Option Strict On
 
@@ -28,9 +29,11 @@ Friend NotInheritable Class SkyTheme
     Private Const HeightScale As Single = 1.6F
     Private Const HeaderHeight As Integer = 98
 
+    'Keeps this shared helper from being instantiated.
     Private Sub New()
     End Sub
 
+    'Applies the Developer theme once, then attaches painting and layout refresh handlers.
     Friend Shared Sub Apply(window As Form)
         SkyAssets.ApplyWindowIcon(window)
         window.SuspendLayout()
@@ -70,6 +73,7 @@ Friend NotInheritable Class SkyTheme
         End Try
     End Sub
 
+    'recursively scales original controls and applies the required vertical layout offset.
     Private Shared Sub ScaleControls(parent As Control, topOffset As Integer)
         For Each child As Control In parent.Controls
             If TypeOf child Is ToolStrip Then Continue For
@@ -89,6 +93,7 @@ Friend NotInheritable Class SkyTheme
         Next
     End Sub
 
+    'Applies control-specific colors, fonts, and painting to the Developer control tree.
     Private Shared Sub StyleChildren(parent As Control)
         For Each child As Control In parent.Controls
             'These colors are live checksum/area results, not decoration.
@@ -150,11 +155,13 @@ Friend NotInheritable Class SkyTheme
         Next
     End Sub
 
+    'Applies shared button styling and registers the repaint handlers used for interaction feedback.
     Private Shared Sub StyleButton(button As Button)
         button.Font = StrongFont
         SkyPresentation.StyleButton(button)
     End Sub
 
+    'Paints a styled group box frame and its caption.
     Private Shared Sub PaintGroup(sender As Object, e As PaintEventArgs)
         Dim group As GroupBox = DirectCast(sender, GroupBox)
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias
@@ -171,6 +178,7 @@ Friend NotInheritable Class SkyTheme
                               TextFormatFlags.Left Or TextFormatFlags.VerticalCenter Or TextFormatFlags.EndEllipsis)
     End Sub
 
+    'Draws character list entries with the appropriate selection colors and text.
     Private Shared Sub PaintListItem(sender As Object, e As DrawItemEventArgs)
         Dim list As ListBox = DirectCast(sender, ListBox)
         If e.Index < 0 OrElse e.Index >= list.Items.Count Then Return
@@ -194,6 +202,7 @@ Friend NotInheritable Class SkyTheme
         e.DrawFocusRectangle()
     End Sub
 
+    'Applies the shared font and colors recursively to menu items and dropdowns.
     Private Shared Sub StyleMenuItems(items As ToolStripItemCollection)
         For Each item As ToolStripItem In items
             item.Font = BodyFont
@@ -207,6 +216,7 @@ Friend NotInheritable Class SkyTheme
         Next
     End Sub
 
+    'Adjusts the original windows' control positions and widths for the runtime theme.
     Private Shared Sub PolishLayout(window As Form)
         Dim main As frmMain = TryCast(window, frmMain)
         If main IsNot Nothing Then
@@ -233,6 +243,7 @@ Friend NotInheritable Class SkyTheme
         End If
     End Sub
 
+    'Draws the Developer window's themed header area and title decoration.
     Private Shared Sub PaintHeader(sender As Object, e As PaintEventArgs)
         Dim window As Form = DirectCast(sender, Form)
         If window.ClientSize.Width < 1 Then Return
@@ -251,7 +262,7 @@ Friend NotInheritable Class SkyTheme
         Select Case window.Name
             Case "frmMain"
                 title = "SkyGUI"
-                subtitle = "This is a buggy archived tool, please do your research before using it as it may corrupt your figures."
+                subtitle = "This is a tool that is no longer maintained other than for development and testing. Be Aware."
             Case "frmTraps"
                 title = "Trap Editor"
                 subtitle = "Captured villains and customizations"
@@ -284,14 +295,17 @@ Friend NotInheritable Class SkyTheme
         End If
     End Sub
 
+    'Invalidates the window so themed decoration is repainted after layout or scroll changes.
     Private Shared Sub RefreshWindow(sender As Object, e As EventArgs)
         DirectCast(sender, Control).Invalidate()
     End Sub
 
+    'Converts a logical size to pixels using the control's current DPI.
     Private Shared Function Pixels(control As Control, value As Integer) As Integer
         Return CInt(value * control.DeviceDpi / 96.0F)
     End Function
 
+    'Builds a rounded path used to paint Developer UI surfaces.
     Private Shared Function RoundedRectangle(bounds As Rectangle, radius As Integer) As GraphicsPath
         Dim path As New GraphicsPath()
         Dim diameter As Integer = Math.Max(1, Math.Min(radius * 2, Math.Min(bounds.Width, bounds.Height)))
@@ -303,14 +317,17 @@ Friend NotInheritable Class SkyTheme
         Return path
     End Function
 
+    'Draws menu item text using the Developer theme state colors.
     Private NotInheritable Class SkyMenuRenderer
         Inherits ToolStripProfessionalRenderer
 
+        'Installs the shared menu color table and disables rounded menu dropdown edges.
         Friend Sub New()
             MyBase.New(New SkyMenuColors())
             RoundedEdges = False
         End Sub
 
+        'Chooses menu text colors for disabled, selected, and normal menu states.
         Protected Overrides Sub OnRenderItemText(e As ToolStripItemTextRenderEventArgs)
             If Not e.Item.Enabled Then
                 e.TextColor = SystemColors.GrayText
@@ -323,98 +340,118 @@ Friend NotInheritable Class SkyTheme
         End Sub
     End Class
 
+    'Supplies the shared menu and status-strip color table.
     Private NotInheritable Class SkyMenuColors
         Inherits ProfessionalColorTable
 
+        'Uses the supplied theme colors instead of system menu colors.
         Friend Sub New()
             UseSystemColors = False
         End Sub
 
+        'Supplies the theme color for menu strip gradient begin.
         Public Overrides ReadOnly Property MenuStripGradientBegin As Color
             Get
                 Return Navy
             End Get
         End Property
+        'Supplies the theme color for menu strip gradient end.
         Public Overrides ReadOnly Property MenuStripGradientEnd As Color
             Get
                 Return Navy
             End Get
         End Property
+        'Supplies the theme color for tool strip drop down background.
         Public Overrides ReadOnly Property ToolStripDropDownBackground As Color
             Get
                 Return Surface
             End Get
         End Property
+        'Supplies the theme color for image margin gradient begin.
         Public Overrides ReadOnly Property ImageMarginGradientBegin As Color
             Get
                 Return Surface
             End Get
         End Property
+        'Supplies the theme color for image margin gradient middle.
         Public Overrides ReadOnly Property ImageMarginGradientMiddle As Color
             Get
                 Return Surface
             End Get
         End Property
+        'Supplies the theme color for image margin gradient end.
         Public Overrides ReadOnly Property ImageMarginGradientEnd As Color
             Get
                 Return Surface
             End Get
         End Property
+        'Supplies the theme color for menu item selected.
         Public Overrides ReadOnly Property MenuItemSelected As Color
             Get
                 Return Selection
             End Get
         End Property
+        'Supplies the theme color for menu item selected gradient begin.
         Public Overrides ReadOnly Property MenuItemSelectedGradientBegin As Color
             Get
                 Return Selection
             End Get
         End Property
+        'Supplies the theme color for menu item selected gradient end.
         Public Overrides ReadOnly Property MenuItemSelectedGradientEnd As Color
             Get
                 Return Selection
             End Get
         End Property
+        'Supplies the theme color for menu item pressed gradient begin.
         Public Overrides ReadOnly Property MenuItemPressedGradientBegin As Color
             Get
                 Return Selection
             End Get
         End Property
+        'Supplies the theme color for menu item pressed gradient middle.
         Public Overrides ReadOnly Property MenuItemPressedGradientMiddle As Color
             Get
                 Return Selection
             End Get
         End Property
+        'Supplies the theme color for menu item pressed gradient end.
         Public Overrides ReadOnly Property MenuItemPressedGradientEnd As Color
             Get
                 Return Selection
             End Get
         End Property
+        'Supplies the theme color for menu item border.
         Public Overrides ReadOnly Property MenuItemBorder As Color
             Get
                 Return Border
             End Get
         End Property
+        'Supplies the theme color for menu border.
         Public Overrides ReadOnly Property MenuBorder As Color
             Get
                 Return Border
             End Get
         End Property
+        'Supplies the theme color for separator dark.
         Public Overrides ReadOnly Property SeparatorDark As Color
             Get
                 Return Border
             End Get
         End Property
+        'Supplies the theme color for separator light.
         Public Overrides ReadOnly Property SeparatorLight As Color
             Get
                 Return Surface
             End Get
         End Property
+        'Supplies the theme color for status strip gradient begin.
         Public Overrides ReadOnly Property StatusStripGradientBegin As Color
             Get
                 Return Navy
             End Get
         End Property
+        'Supplies the theme color for status strip gradient end.
         Public Overrides ReadOnly Property StatusStripGradientEnd As Color
             Get
                 Return Navy

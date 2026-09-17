@@ -3,9 +3,11 @@ Option Explicit On
 
 Friend NotInheritable Class SkyDecor
     Private Shared ReadOnly images As New Dictionary(Of String, Image)(StringComparer.OrdinalIgnoreCase)
+    'Keeps this shared helper from being instantiated.
     Private Sub New()
     End Sub
 
+    'Caches a named decoration and supplies system icon fallbacks for missing warning or waiting icons.
     Friend Shared Function Asset(name As String) As Image
         If images.ContainsKey(name) Then Return images(name)
         Dim loaded As Image = Nothing
@@ -31,12 +33,14 @@ Friend NotInheritable Class SkyDecor
         Return loaded
     End Function
 
+    'Creates a transparent, scaled picture control for a named decoration.
     Friend Shared Function Badge(name As String) As PictureBox
         Return New PictureBox With {.Image = Asset(name), .Dock = DockStyle.Fill,
             .SizeMode = PictureBoxSizeMode.Zoom, .Margin = New Padding(4), .TabStop = False,
             .AccessibleName = name.Replace(".ico", ""), .BackColor = Color.Transparent}
     End Function
 
+    'Places an icon beside an existing text control without changing the text itself.
     Friend Shared Function WithBadge(text As Control, name As String, Optional right As Boolean = False) As Control
         Dim row As New TableLayoutPanel With {.Dock = DockStyle.Fill, .RowCount = 1, .ColumnCount = 2,
             .Margin = New Padding(0), .BackColor = SkyAssets.Panel}
@@ -47,6 +51,7 @@ Friend NotInheritable Class SkyDecor
         Return row
     End Function
 
+    'Replaces a placeholder button with an inert themed button and an in development tooltip. Lol. Update, I gave up on tooltips being useful xD
     Friend Shared Function Development(button As Button) As Control
         Dim inactive As New SkyInactiveButton With {.Text = button.Text, .Name = button.Name,
             .Font = button.Font, .Dock = button.Dock, .Margin = button.Margin,
@@ -58,6 +63,7 @@ Friend NotInheritable Class SkyDecor
         Return inactive
     End Function
 
+    'Builds a text and icon row with spacing above the associated numeric input.
     Friend Shared Function FieldLabel(caption As String, icon As String) As Control
         Dim label As Label = SimpleUi.Caption(caption)
         label.AutoSize = False
@@ -68,6 +74,7 @@ Friend NotInheritable Class SkyDecor
         Return row
     End Function
 
+    'Reserves right side padding and paints a warning icon in the card's upper right corner.
     Friend Shared Sub WarningOnCard(card As Control)
         card.Padding = New Padding(card.Padding.Left, card.Padding.Top, card.Padding.Right + 48, card.Padding.Bottom)
         AddHandler card.Paint, Sub(sender, e)

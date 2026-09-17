@@ -10,24 +10,34 @@ Friend NotInheritable Class TrapSession
     Private ReadOnly raw As Byte()
     Private ReadOnly region As Byte()
     Private ReadOnly activeArea As Integer
+    'Stores the trap identity read from its unencrypted header.
     Friend ReadOnly Property TrapId As Integer
+    'Stores the display name resolved for the scanned trap.
     Friend ReadOnly Property TrapName As String
+    'Stores the primary villain ID found in the selected trap region.
     Friend ReadOnly Property VillainId As Integer
+    'Records whether the primary villain has its evolution flag set.
     Friend ReadOnly Property Evolved As Boolean
+    'Records whether the stored villain uses a recognized variant flag.
     Friend ReadOnly Property IsVariant As Boolean
+    'Reports whether the trap record and villain metadata allow a verified save.
     Friend ReadOnly Property CanWrite As Boolean
+    'Provides initialization or read-only guidance for the current trap.
     Friend ReadOnly Property Notice As String
+    'Returns a cloned copy of the scanned bytes so callers cannot overwrite the stored snapshot.
     Friend ReadOnly Property Original As Byte()
         Get
             Return DirectCast(raw.Clone(), Byte())
         End Get
     End Property
+    'Resolves the loaded villain ID and variant flag into display text.
     Friend ReadOnly Property VillainName As String
         Get
             Return TrapCatalog.VillainName(VillainId, IsVariant)
         End Get
     End Property
 
+    'Validates trap identity and save copies, then exposes the current villain and write eligibility.
     Friend Sub New(bytes As Byte())
         If bytes Is Nothing OrElse bytes.Length <> 1024 Then Throw New InvalidDataException("Read a complete 1024-byte trap first.")
         raw = DirectCast(bytes.Clone(), Byte())
@@ -86,6 +96,7 @@ Friend NotInheritable Class TrapSession
         If Not CanWrite Then Notice = "The primary villain is readable, but cached data or villain metadata is invalid. This trap is read-only."
     End Sub
 
+    'Changes the primary villain's evolved flag and prepares a new trap save region.
     Friend Function BuildEvolution(evolve As Boolean) As Byte()
         If Not CanWrite OrElse VillainId = 0 Then Throw New InvalidOperationException("Read a valid trap with a captured villain before evolving it.")
         Dim edited As Byte() = DirectCast(region.Clone(), Byte())
@@ -108,6 +119,7 @@ Friend NotInheritable Class TrapSession
         Return BuildRegion(edited)
     End Function
 
+    'Builds a compatible villain record with the requested variant and evolution flags.
     Friend Function BuildAssignment(id As Integer, variantValue As Boolean, evolve As Boolean) As Byte()
         If Not TrapFeatures.AllowAssignment Then Throw New InvalidOperationException("Villain assignment is not included in the evolution-only update.")
         If Not CanWrite Then Throw New InvalidOperationException("Read a valid or empty trap before assigning a villain.")
@@ -128,6 +140,7 @@ Friend NotInheritable Class TrapSession
         Return BuildRegion(edited)
     End Function
 
+    'Writes the edited trap region into the alternate area and rebuilds its checksums and encryption.
     Private Function BuildRegion(edited As Byte()) As Byte()
         edited(9) = CByte((CInt(region(9)) + 1) And 255)
         PutWord(edited, 10, Crc(edited.Skip(64).ToArray()))
@@ -148,6 +161,7 @@ Friend NotInheritable Class TrapSession
         Return result
     End Function
 
+    'Returns the payload blocks permitted for this session's next save.
     Friend Function WriteBlocks(updated As Byte()) As Integer()
         If updated Is Nothing OrElse updated.Length <> 1024 Then Throw New InvalidDataException("Invalid trap save.")
         Dim allowed As Integer() = AreaBlocks(1 - activeArea)
@@ -170,9 +184,11 @@ Friend NotInheritable Class TrapSession
         Return allowed.Skip(1).Concat(allowed.Take(1)).ToArray()
     End Function
 
+    'Lists the payload blocks belonging to one trap save area, excluding access trailers.
     Friend Shared Function AreaBlocks(area As Integer) As Integer()
         Return Enumerable.Range(If(area = 0, 8, 36), 28).Where(Function(b) b Mod 4 <> 3).ToArray()
     End Function
+    'Collects a trap area's payload and decrypts its nonzero blocks when requested.
     Private Shared Function ReadRegion(bytes As Byte(), area As Integer, encrypted As Boolean) As Byte()
         Dim result As New Collections.Generic.List(Of Byte)
         For Each block As Integer In AreaBlocks(area)
@@ -181,6 +197,7 @@ Friend NotInheritable Class TrapSession
         Next
         Return result.ToArray()
     End Function
+    'Derives a block-specific AES key from the header and transforms one payload block.
     Private Shared Function Crypt(bytes As Byte(), block As Integer, data As Byte(), encrypt As Boolean) As Byte()
         Dim material As Byte() = bytes.Take(32).Concat(New Byte() {CByte(block)}).Concat(Encoding.ASCII.GetBytes(" Copyright (C) 2010 Activision. All Rights Reserved. ")).ToArray()
         Using hash As MD5 = MD5.Create(), cipher As System.Security.Cryptography.Aes = System.Security.Cryptography.Aes.Create()
@@ -192,20 +209,25 @@ Friend NotInheritable Class TrapSession
             End Using
         End Using
     End Function
+    'Checks the primary villain record's checksums before exposing its contents.
     Private Shared Function ValidPrimary(r As Byte()) As Boolean
         Dim h As Byte() = r.Take(16).ToArray()
         h(14) = 5 : h(15) = 0
         Return Word(r, 14) = Crc(h) AndAlso Word(r, 12) = Crc(r.Skip(16).Take(48).ToArray())
     End Function
+    'Checks the complete trap region, including cached data beyond the primary record.
     Private Shared Function ValidRegion(r As Byte()) As Boolean
         Return ValidPrimary(r) AndAlso Word(r, 10) = Crc(r.Skip(64).ToArray())
     End Function
+    'Reads a two-byte little-endian value from the supplied byte array.
     Private Shared Function Word(b As Byte(), offset As Integer) As Integer
         Return CInt(b(offset)) Or (CInt(b(offset + 1)) << 8)
     End Function
+    'Stores a two-byte little-endian value in the supplied byte array.
     Private Shared Sub PutWord(b As Byte(), offset As Integer, value As Integer)
         b(offset) = CByte(value And 255) : b(offset + 1) = CByte(value >> 8)
     End Sub
+    'Calculates the CRC-16 checksum used to validate or rebuild save records.
     Private Shared Function Crc(b As Byte()) As Integer
         Dim value As Integer = &HFFFF
         For Each octet As Byte In b

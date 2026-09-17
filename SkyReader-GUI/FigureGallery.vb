@@ -3,15 +3,16 @@ Option Explicit On
 
 Imports System.IO
 
-'Independent artwork catalog, generated from the supplied Figures lists.
-'Browsing never calls the figure parser or changes Developer selection/state.
+'independent artwork catalog
 Friend NotInheritable Class FigureGallery
     Private Shared ReadOnly catalog As Dictionary(Of String, List(Of String)) = LoadCatalog()
     Friend Shared ReadOnly Games As String() = {"Spyro's Adventure", "Giants", "Swap Force", "Trap Team", "SuperChargers", "Imaginators"}
 
+    'keeps this shared helper from being instantiated.
     Private Sub New()
     End Sub
 
+    'builds the game to name catalog for the artwork browsing that some of the pages have
     Private Shared Function LoadCatalog() As Dictionary(Of String, List(Of String))
         Dim result As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
         result.Add("Spyro's Adventure", New List(Of String) From {
@@ -524,6 +525,9 @@ Friend NotInheritable Class FigureGallery
         Return result
     End Function
 
+    'Yes, i know there are a ton more, but I did not feel like adding art for abolsutely everything as of this point
+
+    'returns browsing names from the category requested
     Friend Shared Function Names(game As String) As List(Of String)
         Dim namesVar As List(Of String) = Nothing
         If catalog.TryGetValue(game, namesVar) Then Return New List(Of String)(namesVar)

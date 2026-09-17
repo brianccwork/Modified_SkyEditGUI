@@ -1,6 +1,10 @@
 ﻿Imports System.ComponentModel
 Imports SkyReader_GUI.DeviceManagement
 Imports SkyReader_GUI.FigureIO
+
+'NOTE: A lot of methods in this file are no longer used, but still went through and documented for archival purposes
+
+
 'TODO Chart
 'Fix Trap CRC
 
@@ -55,6 +59,7 @@ Public Class frmMain
 #Region " File Read/Write "
 
 
+    'Opens the raw-buffer export operation from the Developer button.
     Private Sub btnRaw_Click(sender As Object, e As EventArgs) Handles btnRaw.Click
         Raw_Write()
     End Sub
@@ -80,10 +85,12 @@ Public Class frmMain
         Figures.SelectFigure()
     End Sub
     'Set the Bytes here, whenever I figure it out.
+    'Updates the selected hat through the existing hat helper, UNTESTED thats why I havent migrated it to the main UI
     Private Sub cmbHat_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbHat.SelectedIndexChanged
         Hats.SelectHat()
     End Sub
     'Dim CMB As Integer = 0
+    'Rebuilds the Developer character list and editing controls for the selected game or figure type.
     Private Sub cmbGame_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbGame.SelectedIndexChanged
         lstCharacters.Items.Clear()
         chkSerial.Enabled = True
@@ -170,6 +177,8 @@ Public Class frmMain
         'lstCharacters.SelectedIndex = 0
     End Sub
     'Hats don't need these Controls.
+
+    'Disables the Developer value-editing controls for unsupported or unavailable data.
     Sub Disable_Controls()
         numGold.Enabled = False
         numLevel.Enabled = False
@@ -183,6 +192,7 @@ Public Class frmMain
         txtName.Enabled = False
     End Sub
 
+    'Re-enables the Developer value controls before applying figure-specific restrictions.
     Sub Enable_Controls()
         numGold.Enabled = True
         numLevel.Enabled = True
@@ -194,6 +204,9 @@ Public Class frmMain
         cmbHat.Enabled = True
         txtName.Enabled = True
     End Sub
+
+    'Limits the Developer controls to the supported Sensei editing surface.
+    'Useful for early version where I was nervous of people corrupting their figures
     Public Sub ApplySenseiUi()
         'Senseis only expose the controls that are safe for Sensei gold and level edits.
         If FigureIO.blnSensei = True Then
@@ -214,6 +227,7 @@ Public Class frmMain
             SaldeStatus.Text = "Special NFC figure detected. Safe mode only writes Gold and Level."
         End If
     End Sub
+    'Initializes the Developer lists, controls, and starting status when the form loads.
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SaldeStatus.Text = "Ready"
         cmbGame.SelectedIndex = 0
@@ -232,22 +246,27 @@ Public Class frmMain
 #End Region
 
 #Region " Menu "
+    'Opens a figure dump through the shared file loading routine.
     Private Sub OpenToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenToolStripMenuItem.Click
         'Goes to FigureIO to Load File
         Load_File()
     End Sub
 
+    'Exports an edited encrypted dump through the Developer file workflow.
     Private Sub Save_Enc_ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles Save_Enc_ToolStripMenuItem.Click
         Write_Encrypted_Figure()
     End Sub
+    'Exports an edited decrypted dump through the Developer file workflow.
     Private Sub SaveDecryptedToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles Save_Dec_ToolStripMenuItem.Click
         Write_Decrypted_Figure()
     End Sub
+    'Closes the Developer window through its normal closing handlers.
     Private Sub CloseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CloseToolStripMenuItem.Click
         Close()
     End Sub
 
 
+    'Starts the Developer worker that reads the first figure from the portal.
     Private Sub ReadSkylanderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ReadSkylanderToolStripMenuItem.Click
         If bgReadPortal.IsBusy = False Then
             bgReadPortal.RunWorkerAsync()
@@ -256,6 +275,7 @@ Public Class frmMain
             Exit Sub
         End If
     End Sub
+    'Prepares and encrypts the Developer buffer before starting the first figure write worker.
     Private Sub WriteSkylanderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles WriteSkylanderToolStripMenuItem.Click
         If lstCharacters.SelectedIndex = -1 Then
             SaldeStatus.Text = "No figure Selected"
@@ -278,6 +298,7 @@ Public Class frmMain
     End Sub
 
     'I may want see/check for a Swap Force Figure.
+    'starts the Developer worker that reads the second figure slot.
     Private Sub ReadSecondFigureToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ReadSecondFigureToolStripMenuItem.Click
         If bgReadPortalDuo.IsBusy = False Then
             bgReadPortalDuo.RunWorkerAsync()
@@ -286,6 +307,7 @@ Public Class frmMain
             Exit Sub
         End If
     End Sub
+    'Prepares and encrypts the Developer buffer before starting the second figure write worker.
     Private Sub WriteSecondFigureToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles WriteSecondFigureToolStripMenuItem.Click
         If lstCharacters.SelectedIndex = -1 Then
             SaldeStatus.Text = "No figure Selected"
@@ -329,6 +351,7 @@ Public Class frmMain
             MessageBox.Show("Connect to Portal failed: " & ex.Message & vbCrLf & "Check portal_debug.log in the EXE folder.")
         End Try
     End Sub
+    'NO LONGER WORKING same as vehicles - Opens the original trap editor for a selected trap.
     Private Sub TrapsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TrapsToolStripMenuItem.Click
         If cmbGame.SelectedItem <> "Traps" Then
             SaldeStatus.Text = "Please Read a Trap Figure in First."
@@ -339,12 +362,14 @@ Public Class frmMain
         Hide()
     End Sub
 
+    'NO LONGER WORKING yeah its a bummer - Opens the original vehicle editor from the Developer menu.
     Private Sub VehiclesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles VehiclesToolStripMenuItem.Click
         Dim frmVehicles As New frmVehicles
         Hide()
         frmVehicles.Show()
     End Sub
 
+    'NOT WORKING - Opens the original crystal editor when the selected category permits it.
     Private Sub CrystalsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CrystalsToolStripMenuItem.Click
         If cmbGame.SelectedItem <> "Imaginators Crystals" Then
             Exit Sub
@@ -356,6 +381,7 @@ Public Class frmMain
 
 
     Dim blnClear As Boolean = False
+    'Clears the Developer data and selections through the existing reset workflow.
     Private Sub ClearToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ClearToolStripMenuItem.Click
         blnClear = True
         Array.Clear(WholeFile, 0, WholeFile.Length)
@@ -411,15 +437,18 @@ Public Class frmMain
         MyBase.WndProc(m)
     End Sub
 
+    'Runs the original first figure portal read on its background worker.
     Private Sub BgReadPortal_DoWork(sender As Object, e As DoWorkEventArgs) Handles bgReadPortal.DoWork
         Portal.ReadPortal()
     End Sub
 
+    'Updates the status and parses the first figure buffer after the read worker finishes.
     Private Sub bgReadPortal_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgReadPortal.RunWorkerCompleted
         SaldeStatus.Text = "Figure Read from Portal"
         Parse_Figure()
     End Sub
 
+    'Runs the original first-figure portal write on its background worker.
     Private Sub BgWritePortal_DoWork(sender As Object, e As DoWorkEventArgs) Handles bgWritePortal.DoWork
 
         SaldeStatus.Text = "Writing to Portal"
@@ -427,31 +456,38 @@ Public Class frmMain
         Portal.Portal_Write()
     End Sub
 
+    'Updates the Developer status when the first figure write worker finishes.
     Private Sub bgWritePortal_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgWritePortal.RunWorkerCompleted
         SaldeStatus.Text = "Figure written to Portal"
     End Sub
 
+    'Runs the original second figure portal read on its background worker.
     Private Sub bgReadPortalDuo_DoWork(sender As Object, e As DoWorkEventArgs) Handles bgReadPortalDuo.DoWork
         Portal.Portal_Duo_Read()
     End Sub
+    'Updates the status and parses the second figure buffer when its read worker finishes.
     Private Sub bgReadPortalDuo_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgReadPortalDuo.RunWorkerCompleted
         SaldeStatus.Text = "Figure Read from Portal"
         Parse_Figure()
     End Sub
 
+    'Runs the original second figure write on its background worker.
     Private Sub bgWritePortalDuo_DoWork(sender As Object, e As DoWorkEventArgs) Handles bgWritePortalDuo.DoWork
         Portal.Portal_Duo_Write()
         'write data to skylander in portal
     End Sub
     'Disable the Portal Menu Controls except for Connect.
     'This is done when the Portal is Removed
+    'Disables portal actions when the connected device is no longer usable.
     Public Sub lockPortalControls()
         DisablePortalControls()
     End Sub
+    'Disables encrypted export and the Developer portal actions.
     Sub DisableControls()
         Save_Enc_ToolStripMenuItem.Enabled = False
         DisablePortalControls()
     End Sub
+    'Disables first and second figure read and write menu actions.
     Sub DisablePortalControls()
         ReadSkylanderToolStripMenuItem.Enabled = False
         WriteSkylanderToolStripMenuItem.Enabled = False
@@ -459,6 +495,7 @@ Public Class frmMain
         WriteSecondFigureToolStripMenuItem.Enabled = False
     End Sub
 
+    'Enables the Developer first and second figure portal actions.
     Public Sub unlockPortalControls()
         'SaldeStatus.Text = "Unlocked"
         ReadSkylanderToolStripMenuItem.Enabled = True
@@ -468,6 +505,7 @@ Public Class frmMain
     End Sub
 #End Region
 
+    'Asks before resetting the displayed progression values and applying them to the shared buffer.
     Private Sub BtnClear_Click(sender As Object, e As EventArgs) Handles btnReset.Click
 
         Dim result As Integer = MessageBox.Show("Are you sure you want to Reset this Figure?", "Reset Figure?", MessageBoxButtons.YesNo)
@@ -484,6 +522,7 @@ Public Class frmMain
         End If
     End Sub
 
+    'Displays the current header character and variant bytes for inspection.
     Private Sub btnShowData_Click(sender As Object, e As EventArgs) Handles btnShowData.Click
         'Figures.Figure()
         'MessageBox.Show("Header Bytes: " & WholeFile(&H10).ToString("X2") + WholeFile(&H11).ToString("X2"))
@@ -493,10 +532,12 @@ Public Class frmMain
 
 
 
+    'Clears the displayed identity byte inspection text.
     Private Sub btnClearData_Click(sender As Object, e As EventArgs) Handles btnClearData.Click
         lblData.Text = "Data: "
     End Sub
 
+    'Checks the trap category before opening the original trap editor and hiding Developer.
     Private Sub btnTraps_Click(sender As Object, e As EventArgs) Handles btnTraps.Click
         If cmbGame.SelectedItem <> "Traps" Then
             SaldeStatus.Text = "Please Read a Trap Figure in First."
@@ -508,6 +549,7 @@ Public Class frmMain
     End Sub
 
 
+    'Opens the original vehicle window and hides Developer.
     Private Sub btnVehicles_Click(sender As Object, e As EventArgs) Handles btnVehicles.Click
         Dim frmVehicles As New frmVehicles
         Hide()
@@ -515,6 +557,7 @@ Public Class frmMain
 
     End Sub
 
+    'Opens the original crystal window only for the crystal category.
     Private Sub btnCrystals_Click(sender As Object, e As EventArgs) Handles btnCrystals.Click
         If cmbGame.SelectedItem <> "Imaginators Crystals" Then
             Exit Sub
@@ -525,12 +568,14 @@ Public Class frmMain
     End Sub
 
     ReadOnly frmArea As New frmArea
+    'Shows the existing save-area inspection window.
     Private Sub btnArea_Click(sender As Object, e As EventArgs) Handles btnArea.Click
         frmArea.Visible = True
         frmArea.Show()
     End Sub
 
 #Region "Rainbow!"
+    'Toggles the portal color timer when a portal is connected.
     Private Sub btnRainbow_Click(sender As Object, e As EventArgs) Handles btnRainbow.Click
         'We do a Rainbow function.  Because Debugging can be fun.
         If Portal.blnPortal = False Then
@@ -545,6 +590,7 @@ Public Class frmMain
         End If
     End Sub
     Shared random As New Random()
+    'Sends a randomly chosen RGB color to the connected portal.
     Private Sub tmrRainbow_Tick(sender As Object, e As EventArgs) Handles tmrRainbow.Tick
         random.Next()
         Dim Red As Byte = random.Next(0, 255)
@@ -553,6 +599,7 @@ Public Class frmMain
         Portal.Portal_Rainbow(Red, Blue, Green)
     End Sub
 
+    'Displays the number of entries in the Developer game list for debugging.
     Private Sub btnGame_Click(sender As Object, e As EventArgs) Handles btnGame.Click
         MessageBox.Show(cmbGame.Items.Count)
     End Sub

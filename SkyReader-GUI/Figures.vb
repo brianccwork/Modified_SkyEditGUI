@@ -9,12 +9,14 @@ Public Class Figures
     Public Shared CharacterVariant(1) As Byte
 
 
+    'Loads the two original Developer save counters from the shared figure buffer.
     Shared Sub Area0orArea1()
         '"Use Area 0" Marker &H089
         '"Use Area 1" Marker &H249
         Area0 = WholeFile(&H89)
         Area1 = WholeFile(&H249)
     End Sub
+    'Increments both Developer counters and copies them into the main and extended regions.
     Shared Sub SetArea0AndArea1()
 
         If Area0 <> &HFF Then
@@ -36,6 +38,7 @@ Public Class Figures
         WholeFile(&H2D2) = Area1
     End Sub
     Shared blnNoCode As Boolean = False
+    'enables or disables Developer writing according to whether the selected identity is recognized.
     Shared Sub DetermineWrite()
         If blnNoCode = True Then
             DisableWrite()
@@ -44,12 +47,14 @@ Public Class Figures
         End If
     End Sub
     Shared blnBottomFigure As Boolean = False
+    'Retains the existing bottom-half placeholder without performing an edit.
     Shared Sub BottomFigure()
         If blnBottomFigure = True Then
 
         End If
     End Sub
 
+    'Disables Developer exports and portal writes for an unavailable figure identity.
     Shared Sub DisableWrite()
         frmMain.SaldeStatus.Text = "Error.  Character ID and Variant ID Unavailable."
         frmMain.Save_Enc_ToolStripMenuItem.Enabled = False
@@ -57,6 +62,8 @@ Public Class Figures
         frmMain.WriteSkylanderToolStripMenuItem.Enabled = False
         frmMain.WriteSecondFigureToolStripMenuItem.Enabled = False
     End Sub
+
+    'Enables Developer exports and allows portal writes when a portal is connected.
     Shared Sub EnableWrite()
         frmMain.SaldeStatus.Text = "Ready"
         frmMain.Save_Enc_ToolStripMenuItem.Enabled = True
@@ -67,8 +74,9 @@ Public Class Figures
         End If
     End Sub
 #Region " Write Methods "
+    'Applies selected character and variant bytes while respecting the existing figure restrictions.
     Shared Sub EditCharacterIDVariant()
-        'Senseis and special Gold/XP-only figures must never have
+        'Senseis and special Gold/Level only figures must never have
         'Character ID / Variant ID rewritten.
         If blnSensei = True OrElse blnGoldXpOnlyFigure = True Then
             Exit Sub
@@ -86,8 +94,10 @@ Public Class Figures
         WholeFile(&H1C) = CharacterVariant(0)
         WholeFile(&H1D) = CharacterVariant(1)
     End Sub
+
+    'Writes the legacy sector access-control settings into the Developer buffer.
     Shared Sub Fixing_Bytes()
-        'NEW: Senseis must keep their current signature/access bytes exactly as they were read.
+        'Senseis must keep their current signature/access bytes exactly as they were read.
         If blnSensei = True Then
             Exit Sub
         End If
@@ -197,6 +207,7 @@ Public Class Figures
 
 
     End Sub
+    'Maps the selected game and catalog name to the character and variant byte arrays.
     Shared Sub SelectFigure()
         blnNoCode = False
         'MessageBox.Show("Var: " & Figures.Var)
@@ -4142,6 +4153,7 @@ Public Class Figures
 #Region " Determine Figure's ID and Variant"
     'Mostly Complete.  Missing Imaginators, Items, Traps and Adventure Packs
 
+    'Matches scanned identity bytes to the game category and Developer catalog entry.
     Public Shared Sub FigureItOut()
         'MessageBox.Show(Var & " " & Fig)
         If Var = "0000" Then
@@ -5661,7 +5673,7 @@ Public Class Figures
         ElseIf Var = "0F45" Then
             'Instant character variants use 0F45.
             'The uploaded Instant vehicle dumps also use 0F45, so route those
-            'vehicle Character IDs through the vehicle editor instead of Gold/XP.
+            'vehicle Character IDs through the vehicle editor instead of Gold/Level.
             Select Case Fig
                 Case "610D"
                     frmMain.cmbGame.SelectedItem = "SuperChargers"
@@ -6392,11 +6404,13 @@ Public Class Figures
         'Else frmMain.lstCharacters.SelectedIndex = -1
         'End If
     End Sub
+    'Reads character and variant header bytes and starts catalog identification.
     Shared Sub GetFigureID_AlterEgo_Variant()
         Fig = WholeFile(&H10).ToString("X2") + WholeFile(&H11).ToString("X2")
         Var = WholeFile(&H1C).ToString("X2") + WholeFile(&H1D).ToString("X2")
         FigureItOut()
     End Sub
+    'Displays the stored figure and variant strings for debugging.
     Shared Sub Figure()
         MessageBox.Show(Fig & " Figure " & Var & " Variant")
         'MessageBox.Show(Var & " Variant")
@@ -6405,6 +6419,7 @@ Public Class Figures
 
 #Region " List Fill Methods "
     'Sorted Alphabetically
+    'Fills the Developer character list with the supported Spyro Adventure entries.
     Shared Sub SpyroAdventure()
         frmMain.lstCharacters.Items.Add("Bash")
         frmMain.lstCharacters.Items.Add("Boomer")
@@ -6469,6 +6484,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Silver Dino-Rang")
         frmMain.lstCharacters.Items.Add("Silver Eruptor")
     End Sub
+    'Fills the Developer character list with the supported Giants entries.
     Shared Sub Giants()
         frmMain.lstCharacters.Items.Add("Bouncer")
         frmMain.lstCharacters.Items.Add("Chill")
@@ -6562,6 +6578,7 @@ Public Class Figures
         'Prototype/test character included with this Giants dump batch.
         frmMain.lstCharacters.Items.Add("Debug Minion")
     End Sub
+    'Fills the Developer character list with the supported Swap Force entries.
     Shared Sub SwapForce()
         frmMain.lstCharacters.Items.Add("Anchors Away Gill Grunt")
         frmMain.lstCharacters.Items.Add("Boom Jet (Bottom)")
@@ -6690,6 +6707,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Template Template Top")
         frmMain.lstCharacters.Items.Add("Template Template Bottom")
     End Sub
+    'Fills the Developer character list with the supported Trap Team entries.
     Shared Sub TrapTeam()
         frmMain.lstCharacters.Items.Add("Barkley")
         frmMain.lstCharacters.Items.Add("Bat Spin")
@@ -6779,6 +6797,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Clear Short Cut")
         frmMain.lstCharacters.Items.Add("Clear Tuff Luck")
     End Sub
+    'Fills the Developer character list with the supported Super Chargers entries.
     Shared Sub SuperChargers()
         frmMain.lstCharacters.Items.Add("--Characters--")
         frmMain.lstCharacters.Items.Add("Astroblast")
@@ -6838,6 +6857,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Sea Trophy")
         frmMain.lstCharacters.Items.Add("Sky Trophy")
     End Sub
+    'Fills the Developer character list with the supported Imaginators entries.
     Shared Sub Imaginators()
         'Characters
         frmMain.lstCharacters.Items.Add("Air Strike")
@@ -6893,6 +6913,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Wolfgang")
     End Sub
 
+    'Fills the Developer character list with the supported Traps entries.
     Shared Sub Traps()
         frmMain.lstCharacters.Items.Add("--Air--")
         frmMain.lstCharacters.Items.Add("Breezy Bird (Toucan)")
@@ -6965,6 +6986,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("The Kaos Trap")
         frmMain.lstCharacters.Items.Add("Ultimate Kaos Trap")
     End Sub
+    'Fills the Developer character list with the supported Vehicles entries.
     Shared Sub Vehicles()
         frmMain.lstCharacters.Items.Add("--Land Vehicles--")
         frmMain.lstCharacters.Items.Add("Barrel Blaster")
@@ -7009,6 +7031,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Instant Stealth Stinger")
         frmMain.lstCharacters.Items.Add("Sun Runner")
     End Sub
+    'Fills the Developer character list with the supported Crystals entries.
     Shared Sub Crystals()
         'Creation Crystal shapes use distinct variant IDs within each element.
         frmMain.lstCharacters.Items.Add("Air Crystal")
@@ -7059,7 +7082,9 @@ Public Class Figures
         'frmMain.lstCharacters.Items.Add("Legendary Magic Lantern")
     End Sub
     'These Items are mostly, universal.
-    'As such, not going to restrict them based on game.
+    'As such, not going to restrict them based on game
+    '.
+    'Fills the Developer character list with the supported Items entries.
     Shared Sub Items()
         frmMain.lstCharacters.Items.Add("--Adventures--")
         frmMain.lstCharacters.Items.Add("Anvil Rain")
@@ -7101,6 +7126,7 @@ Public Class Figures
         frmMain.lstCharacters.Items.Add("Gold Imaginite Mystery Chest")
         frmMain.lstCharacters.Items.Add("Silver Imaginite Mystery Chest")
     End Sub
+    'Fills the Developer character list with the supported Adventure Packs entries.
     Shared Sub AdventurePacks()
         'The Commented out Adventure Packs, are unlocked via figure not Item.
         frmMain.lstCharacters.Items.Add("--Adventures--")

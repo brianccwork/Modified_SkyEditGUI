@@ -6,6 +6,7 @@ Imports System.Diagnostics
 Public Class frmPortalHelp
     Inherits Form
 
+    'Builds the help page
     Public Sub New()
         Text = "Help Portal - Portal Connection Issues"
         Name = "frmPortalHelp"
@@ -67,6 +68,7 @@ Public Class frmPortalHelp
         SimpleUi.StyleButtons(Me)
     End Sub
 
+    'Adds a wrapped instruction card to the Help Portal guide.
     Private Shared Sub AddCard(guide As TableLayoutPanel, title As String, body As String)
         Dim card As New SkyTextCard With {.Dock = DockStyle.Top, .Text = title & vbCrLf & body,
             .Font = SimpleUi.Body, .BackColor = SkyAssets.Panel, .ForeColor = SkyAssets.Ink,
@@ -77,6 +79,7 @@ Public Class frmPortalHelp
         guide.Controls.Add(card, 0, row)
     End Sub
 
+    'Opens the official Zadig website in the default browser and reports launch failures.
     Private Sub OpenZadig(sender As Object, e As EventArgs)
         Try
             Process.Start(New ProcessStartInfo("https://zadig.akeo.ie/") With {.UseShellExecute = True})
@@ -86,10 +89,11 @@ Public Class frmPortalHelp
     End Sub
 End Class
 
-'One keyboard-accessible button: the icon and its caption share the click target.
+'Provides the compact Help Portal button and its accessibility description.
 Friend Class SkyHelpShortcut
     Inherits Button
 
+    'caption
     Friend Sub New()
         Text = "Help Portal"
         AccessibleName = "Help Portal"
@@ -104,22 +108,24 @@ Friend Class SkyHelpShortcut
 
 End Class
 
-'Keep scroll copying on an opaque surface; transparent ancestors otherwise
-'repaint the fixed shattered background at stale child coordinates.
+'Keeps Help Portal scrolling on an opaque buffered surface to avoid stale background pixels, this used to be sooo buggy
 Friend Class SkyHelpViewport
     Inherits Panel
 
+    'Enables buffered painting on an opaque background for the scrolling instructions.
     Friend Sub New()
         SetStyle(ControlStyles.UserPaint Or ControlStyles.AllPaintingInWmPaint Or
                  ControlStyles.OptimizedDoubleBuffer Or ControlStyles.ResizeRedraw, True)
         BackColor = SkyAssets.Panel
     End Sub
 
+    'clears pale pixels after scrollbar movement
     Protected Overrides Sub OnScroll(e As ScrollEventArgs)
         MyBase.OnScroll(e)
         Invalidate(True)
     End Sub
 
+    ' child repaint after wheel scrolling
     Protected Overrides Sub OnMouseWheel(e As MouseEventArgs)
         MyBase.OnMouseWheel(e)
         'Mouse-wheel scrolling does not always raise Scroll in WinForms.

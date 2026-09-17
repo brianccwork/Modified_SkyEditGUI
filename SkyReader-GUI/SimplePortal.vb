@@ -7,10 +7,10 @@ Imports System.Linq
 Imports System.Threading
 Imports System.Threading.Tasks
 
-'Uses the existing portal discovery and HID report format. No background worker
+'Uses the existing portal connection and HID report format. No background worker
 'touches the default Developer form. Requests are bounded and replies checked.
 Friend NotInheritable Class SimplePortal
-    'Only the two established vehicle payload regions; no identity/access blocks.
+    'Only the two established vehicle payload regions no identity/access blocks.
     Friend Shared ReadOnly Property VehicleBlocks As Integer()
         Get
             Return Enumerable.Range(8, 14).Concat(Enumerable.Range(36, 14)).Where(Function(block) block Mod 4 <> 3).ToArray()
@@ -24,9 +24,11 @@ Friend NotInheritable Class SimplePortal
         End Get
     End Property
 
+    'Keeps this shared helper from being instantiated.
     Private Sub New()
     End Sub
 
+    'Closes any previous connection and asks the HID layer to find an asynchronous portal handle.
     Friend Shared Function Connect() As Boolean
         Disconnect()
         frmMain.EnsureEditorInitialized()
@@ -35,12 +37,14 @@ Friend NotInheritable Class SimplePortal
                Not Portal.portalHandle.IsInvalid AndAlso Not Portal.portalHandle.IsClosed
     End Function
 
+    'Closes portal communication and clears the connection flags.
     Friend Shared Sub Disconnect()
         hidControl.CloseCommunications(Portal.portalHandle)
         Portal.blnPortal = False
         Portal.BlnPortalUsed = False
     End Sub
 
+    'Submits an HID output report and rejects a missing, closed, or failed portal connection.
     Private Shared Sub Send(report As Byte())
         If Not Portal.blnPortal OrElse Portal.portalHandle Is Nothing OrElse
            Portal.portalHandle.IsInvalid OrElse Portal.portalHandle.IsClosed Then
@@ -51,6 +55,7 @@ Friend NotInheritable Class SimplePortal
         End If
     End Sub
 
+    'Resets and activates the portal with bounded delays before reading its slots.
     Private Shared Async Function ActivateAsync(token As CancellationToken) As Task
         Dim report(32) As Byte
         hidControl.flushHid(Portal.portalHandle)
@@ -63,6 +68,7 @@ Friend NotInheritable Class SimplePortal
         Await Task.Delay(500, token)
     End Function
 
+    'Waits for a matching command, slot, and block reply and rejects timeout or failed-read responses.
     Private Shared Async Function ReplyAsync(command As Byte, slot As Integer, block As Integer, token As CancellationToken) As Task(Of Byte())
         Using timeout As CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token)
             timeout.CancelAfter(2500)
@@ -79,6 +85,7 @@ Friend NotInheritable Class SimplePortal
         End Using
     End Function
 
+    'Requests one 16-byte block from the specified portal slot.
     Private Shared Async Function ReadBlockAsync(slot As Integer, block As Integer, token As CancellationToken) As Task(Of Byte())
         Dim request(32) As Byte
         request(1) = &H51
@@ -113,22 +120,26 @@ Friend NotInheritable Class SimplePortal
         End Using
     End Function
 
+    'Recognizes the supported Swap Force top-half ID range in the unencrypted header.
     Friend Shared Function IsSwapTop(data As Byte()) As Boolean
         Dim id As Integer = CInt(data(&H10)) Or (CInt(data(&H11)) << 8)
         Return id >= 2000 AndAlso id <= 2015
     End Function
 
+    'Recognizes the supported Swap Force bottom-half ID range in the unencrypted header.
     Private Shared Function IsSwapBottom(data As Byte()) As Boolean
         Dim id As Integer = CInt(data(&H10)) Or (CInt(data(&H11)) << 8)
         Return id >= 1000 AndAlso id <= 1015
     End Function
 
+    'eads the first two blocks used to identify a figure before and during an operation.
     Private Shared Async Function HeaderAsync(slot As Integer, token As CancellationToken) As Task(Of Byte())
         Dim first As Byte() = Await ReadBlockAsync(slot, 0, token)
         Dim second As Byte() = Await ReadBlockAsync(slot, 1, token)
         Return first.Concat(second).ToArray()
     End Function
 
+    'Selects one unambiguous figure and reads an assembled swapper's bottom before choosing its top.
     Private Shared Async Function SelectSlotAsync(token As CancellationToken) As Task(Of Integer)
         Dim slots As Integer() = Await PresentSlotsAsync(token)
         If slots.Length = 0 Then Throw New IOException("No figure was found. Press (Connect Portal) again, then place one figure on the portal and read again.")
@@ -151,11 +162,12 @@ Friend NotInheritable Class SimplePortal
         End If
         If slots.Length = 1 AndAlso Not IsSwapBottom(headers(slots(0))) Then Return slots(0)
         If slots.All(Function(slot) IsSwapBottom(headers(slot))) Then
-            Throw New IOException("Only a Swap Force bottom half was detected. Attach the top half and read again. Gold, XP and Level are stored on the top half.")
+            Throw New IOException("Only a Swap Force bottom half was detected. Attach the top half and read again. Gold and Level are stored on the top half.")
         End If
         Throw New IOException("More than one figure was detected. Leave only one figure (or one assembled Swap Force figure) on the portal and read again.")
     End Function
 
+    'Reads all 64 blocks and checks that the identity stayed the same throughout the scan.
     Private Shared Async Function ReadSlotAsync(slot As Integer, token As CancellationToken) As Task(Of Byte())
         Dim header As Byte() = Await HeaderAsync(slot, token)
         Dim data(1023) As Byte
@@ -170,15 +182,17 @@ Friend NotInheritable Class SimplePortal
         Return data
     End Function
 
+    'Activates the portal, resolves a suitable slot, and reads a complete figure dump.
     Friend Shared Async Function ReadFigureAsync(token As CancellationToken) As Task(Of Byte())
         Await ActivateAsync(token)
         Dim slot As Integer = Await SelectSlotAsync(token)
         Return Await ReadSlotAsync(slot, token)
     End Function
 
+    'Rechecks the scanned data, restricts changed blocks, and verifies each portal write and final readback.
     Friend Shared Async Function SaveAsync(original As Byte(), updated As Byte(), token As CancellationToken, Optional vehicle As Boolean = False, Optional initializeLegacy As Boolean = False) As Task(Of Byte())
         If original Is Nothing OrElse updated Is Nothing OrElse original.Length <> 1024 OrElse updated.Length <> 1024 Then Throw New InvalidDataException("Invalid figure data.")
-        If IsSwapBottom(original) Then Throw New InvalidDataException("Gold, XP and Level must be written to the Swap Force top half.")
+        If IsSwapBottom(original) Then Throw New InvalidDataException("Gold and Level must be written to the Swap Force top half.")
         'Resolve the current slot again. Slot numbers may change across activation.
         'Do not reset or change slots after this preflight, including verification.
         Await ActivateAsync(token)
@@ -188,7 +202,7 @@ Friend NotInheritable Class SimplePortal
             Throw New IOException("The figure or its data changed. Read the figure again before saving.")
         End If
 
-        'Only these four blocks contain the existing Gold/EXP fields and their
+        'Only these four blocks contain the existing Gold/Level fields and their
         'mirrored sequence/checksum bytes. Never write identity or signature data.
         Dim allowed As Integer() = If(vehicle, VehicleBlocks, New Integer() {8, 17, 36, 45})
         If Not vehicle Then
@@ -232,6 +246,7 @@ Friend NotInheritable Class SimplePortal
         If Not verified.SequenceEqual(updated) Then Throw New IOException("The saved figure did not match the requested changes. Read it again.")
         Return verified
     End Function
+    'Uses the trap specific write set and checks identity and readback throughout the save.
     Friend Shared Async Function SaveTrapAsync(original As Byte(), updated As Byte(), token As CancellationToken) As Task(Of Byte())
         Dim trap As New TrapSession(original)
         'niche case

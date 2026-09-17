@@ -4,9 +4,10 @@ Option Explicit On
 Imports System.IO
 Imports System.Linq
 
-'Bridges the simple page to the established figure parser and Gold/EXP writers.
+'Bridges the simple page to the established figure parser and Gold/Level writers.
 'Artwork browsing never calls SelectFigure and never changes this session.
 Friend NotInheritable Class SimpleFigureSession
+    'returns a cloned copy of the scanned bytes so callers cannot overwrite the stored snapshot.
     Friend Property Original As Byte()
         Get
             Return If(raw Is Nothing, Nothing, DirectCast(raw.Clone(), Byte()))
@@ -16,21 +17,35 @@ Friend NotInheritable Class SimpleFigureSession
         End Set
     End Property
     Private raw As Byte()
+    'Records whether the scanned figure uses the vehicle data layout.
     Friend ReadOnly Property IsVehicle As Boolean
+    'Records whether the scanned figure needs the separate Sensei rules.
     Friend ReadOnly Property IsSensei As Boolean
+    'Records whether the loaded data failed the applicable editor safety checks.
     Friend ReadOnly Property IsUnsafe As Boolean
     Private ReadOnly vehicleMode As Boolean
+    'Allows an otherwise unchanged save when legacy initialization metadata still needs repair. (Keep an eye on this NOTE)
     Friend ReadOnly Property NeedsChecksumRepair As Boolean
+    'Records whether regular plaintext payload must be encrypted before a portal write.
     Friend ReadOnly Property RequiresFullEncryption As Boolean
+    'Indicates whether the current page is allowed to modify the scanned figure.
     Friend ReadOnly Property CanEdit As Boolean
+    'Stores the scanned catalog name independently of browsed artwork.
     Friend ReadOnly Property FigureName As String
+    'Stores the game category determined from the scanned figure.
     Friend ReadOnly Property GameName As String
+    'Stores the loaded Gold or Gearbits value shown by the simplified page.
     Friend ReadOnly Property GoldValue As Decimal
+    'Stores the loaded level shown by the simplified page.
     Friend ReadOnly Property LevelValue As Decimal
+    'Stores the allowed Gold or Gearbits limit for the loaded figure.
     Friend ReadOnly Property GoldMaximum As Decimal
+    'tores the level limit used to configure the page input.
     Friend ReadOnly Property LevelMaximum As Decimal
+    'Stores the identified category names available to the session.
     Friend ReadOnly Property Catalog As New List(Of String)
 
+    'Parses a scanned snapshot, applies type-specific validation, and records its values and edit limits.
     Friend Sub New(bytes As Byte(), Optional editVehicle As Boolean = False)
         vehicleMode = editVehicle
         If bytes Is Nothing OrElse bytes.Length <> 1024 Then Throw New InvalidDataException("Read a valid figure first.")
@@ -96,6 +111,7 @@ Friend NotInheritable Class SimpleFigureSession
         If Not Catalog.Contains(FigureName) Then Catalog.Insert(0, FigureName)
     End Sub
 
+    'Decodes validated regular character data and updates the shared buffer and checksum indicators.
     Private Shared Sub DecodeRegular(bytes As Byte())
         Dim encrypted As Boolean
         FigureIO.WholeFile = RegularCharacterData.Decode(bytes, encrypted)
@@ -103,6 +119,7 @@ Friend NotInheritable Class SimpleFigureSession
         CRC16CCITT.Checksums()
     End Sub
 
+    'Builds a verified type specific save from the scanned snapshot without using gallery selections as data.
     Friend Function BuildSave(gold As Decimal, level As Decimal) As Byte()
         If Not CanEdit Then Throw New InvalidOperationException("This figure cannot be edited on this page.")
         If gold < 0 OrElse gold > GoldMaximum OrElse level < 1 OrElse level > LevelMaximum Then
@@ -147,7 +164,7 @@ Friend NotInheritable Class SimpleFigureSession
             If level <> LevelValue OrElse NeedsChecksumRepair Then
                 Exp.WriteEXP()
             End If
-            'Both Gold/XP copies are updated in place. Preserve the independent
+            'Both Gold/Level copies are updated in place. Preserve the independent
             'region counters so unrelated progress never switches to an older copy.
             If IsSensei Then Figures.SetArea0AndArea1()
             CRC16CCITT.WriteCheckSums()
@@ -191,6 +208,7 @@ Friend NotInheritable Class RegularCharacterData
     Private Shared ReadOnly ExtraBlocks As Integer() = {17, 18, 20, 21}
     Private Shared ReadOnly Levels As Integer() = {0, 1000, 2200, 3800, 6000, 9000, 13000, 18200, 24800, 33000, 42700, 53900, 66600, 80800, 96500, 113700, 132400, 152600, 174300, 197500}
 
+    'Calculates the CRC-16 checksum used to validate or rebuild save records.
     Private Shared Function Crc(data As Byte()) As UShort
         Dim value As Integer = &HFFFF
         For Each item In data
@@ -202,10 +220,12 @@ Friend NotInheritable Class RegularCharacterData
         Return CUShort(value)
     End Function
 
+    'Collects the specified 16-byte payload blocks into one contiguous record.
     Private Shared Function Blocks(data As Byte(), indices As IEnumerable(Of Integer)) As Byte()
         Return indices.SelectMany(Function(block) data.Skip(block * 16).Take(16)).ToArray()
     End Function
 
+    'Derives a block-specific AES key from the header and transforms one payload block.
     Private Shared Function Crypt(data As Byte(), block As Integer, encrypt As Boolean) As Byte()
         Dim magic = System.Text.Encoding.ASCII.GetBytes(" Copyright (C) 2010 Activision. All Rights Reserved. ")
         Using hash = System.Security.Cryptography.MD5.Create(), cipher = System.Security.Cryptography.Aes.Create()
@@ -218,6 +238,7 @@ Friend NotInheritable Class RegularCharacterData
         End Using
     End Function
 
+    'Checks main and extended record checksums while allowing genuinely empty records.
     Private Shared Function Valid(data As Byte()) As Boolean
         For Each shift In New Integer() {0, 28}
             Dim main = Blocks(data, MainBlocks.Select(Function(block) block + shift))
@@ -238,6 +259,7 @@ Friend NotInheritable Class RegularCharacterData
         Return True
     End Function
 
+    'Tests plaintext and decrypted candidates and rejects damaged or ambiguous regular character encoding.
     Friend Shared Function Decode(raw As Byte(), ByRef encrypted As Boolean) As Byte()
         If raw Is Nothing OrElse raw.Length <> 1024 Then Throw New InvalidDataException("Read a complete character first.")
         Dim decoded = DirectCast(raw.Clone(), Byte())
@@ -254,6 +276,7 @@ Friend NotInheritable Class RegularCharacterData
         Return If(encrypted, decoded, DirectCast(raw.Clone(), Byte()))
     End Function
 
+    'Chooses the active main or extended copy, defaulting to the opposite copy for a blank first save.
     Private Shared Function Active(data As Byte(), blockA As Integer, blockB As Integer, sequence As Integer) As Integer
         Dim a = data.Skip(blockA * 16).Take(16).Any(Function(value) value <> 0)
         Dim b = data.Skip(blockB * 16).Take(16).Any(Function(value) value <> 0)
@@ -263,12 +286,14 @@ Friend NotInheritable Class RegularCharacterData
         Return 0
     End Function
 
+    'Checks that the active record marks extended data as present and contains an extended header.
     Friend Shared Function Initialized(data As Byte()) As Boolean
         Dim main = &H80 + Active(data, 8, 36, 9) * &H1C0
         Dim extra = &H110 + Active(data, 17, 45, 2) * &H1C0
         Return data(main + &H16) <> 0 AndAlso data.Skip(extra).Take(16).Any(Function(value) value <> 0)
     End Function
 
+    'Returns the payload blocks permitted for this session's next save.
     Friend Shared Function WriteBlocks(raw As Byte()) As Integer()
         Dim encrypted As Boolean
         Dim data = Decode(raw, encrypted)
@@ -278,6 +303,7 @@ Friend NotInheritable Class RegularCharacterData
         Return MainBlocks.Select(Function(block) block + mainShift).Concat(ExtraBlocks.Select(Function(block) block + extraShift)).ToArray()
     End Function
 
+    'Copies active regular records to alternate slots, updates Gold/Level and metadata, and verifies the encrypted result.
     Friend Shared Function Save(raw As Byte(), gold As Decimal, level As Decimal) As Byte()
         If gold <> Decimal.Truncate(gold) OrElse gold < 0 OrElse gold > 65000 OrElse level <> Decimal.Truncate(level) OrElse level < 1 OrElse level > 20 Then Throw New ArgumentOutOfRangeException("Gold/Level")
         Dim encrypted As Boolean

@@ -6,15 +6,18 @@ Friend NotInheritable Class TrapCatalog
     Friend Shared ReadOnly Names As String() = {"Empty", "Chompy Mage", "Dr. Krankcase", "Wolfgang", "Chef Pepper Jack", "Nightshade", "Luminous", "Golden Queen", "Dreamcatcher", "Gulper", "Kaos", "Cuckoo Clocker", "Buzzer Beak", "Shield Shredder", "Cross Crow", "Bone Chompy", "Brawl and Chain", "Bomb Shell", "Masker Mind", "Chill Bill", "Sheep Creep", "Shrednaught", "Chomp Chest", "Broccoli Guy", "Rage Mage", "Lob Goblin", "Chompy", "Fisticuffs", "Trolling Thunder", "Hood Sickle", "Bruiser Cruiser", "Brawlrus", "Tussle Sprout", "Krankenstein", "Scrap Shooter", "Slobber Trap", "Grinnade", "Bad Juju", "Blaster-Tron", "Tae Kwon Crow", "Pain-Yatta", "Smoke Scream", "Eye Five", "Grave Clobber", "Threatpack", "Mab Lobs", "Eye Scream"}
     Friend Shared ReadOnly Elements As Integer() = {0, 217, 214, 213, 215, 218, 219, 216, 212, 211, 220, 217, 212, 217, 211, 213, 211, 210, 213, 211, 217, 214, 216, 217, 210, 219, 217, 218, 214, 213, 214, 214, 216, 212, 215, 211, 215, 212, 219, 218, 210, 215, 219, 216, 211, 214, 218}
     Friend Shared ReadOnly Variants As New Dictionary(Of Integer, String) From {{13, "Riot Shield Shredder"}, {16, "Outlaw Brawl and Chain"}, {21, "Steampunk Shrednaught"}, {23, "Steamed Broccoli Guy"}, {25, "Rebel Lob Goblin"}, {32, "Red Hot Tussle Sprout"}}
+    'Returns the element label associated with the supplied catalog ID.
     Friend Shared Function ElementName(id As Integer) As String
         If id < 210 OrElse id > 220 Then Return "Unknown"
         Return {"Magic", "Water", "Air", "Undead", "Tech", "Fire", "Earth", "Life", "Dark", "Light", "Kaos"}(id - 210)
     End Function
+    'Returns the primary or supported variant villain name for the stored ID.
     Friend Shared Function VillainName(id As Integer, variantValue As Boolean) As String
         If id < 0 OrElse id >= Names.Length Then Return "Unknown villain (" & id & ")"
         If variantValue AndAlso Variants.ContainsKey(id) Then Return Variants(id)
         Return Names(id)
     End Function
+    'Checks whether a villain belongs to the scanned trap's element.
     Friend Shared Function Compatible(id As Integer, trapId As Integer) As Boolean
         Return id > 0 AndAlso id < Elements.Length AndAlso Elements(id) = trapId
     End Function
@@ -79,6 +82,8 @@ Friend NotInheritable Class TrapCatalog
         {"213:13316", "Legendary Spirit Sphere (Undead Orb)"},
         {"220:13599", "Ultimate Kaos Trap (Dark Edition Variant)"}
     }
+
+    'Combines the trap ID and variant value into a recognized trap name or fallback label.
     Friend Shared Function TrapName(id As Integer, variantValue As Integer) As String
         Dim key As String = id & ":" & variantValue
         If Shapes.ContainsKey(key) Then Return Shapes(key)

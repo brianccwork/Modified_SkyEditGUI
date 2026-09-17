@@ -11,18 +11,15 @@ Public Class FigureIO
     Public Shared File As String
 
 
-    'These three are the Unique trio.  They are not like other figures
+    'These four are the Unique trio.  They are not like other figures
     Public Shared blnTrap As Boolean = False
     Public Shared BlnVehicle As Boolean = False
     Public Shared blnCrystal As Boolean = False
     Public Shared blnSensei As Boolean = False
-    'Special character dumps that should only expose Gold/XP editing.
+    'Special character dumps that should only expose Gold/Level editing.
     Public Shared blnGoldXpOnlyFigure As Boolean = False
 
-    'Call all the Functions for the Figure, when relevant.
-    'TODO:
-    'Improve Figure Identification and Handling.
-
+    'reads a selected dump file and passes its contents to the Developer parser.
     Public Shared Sub Load_File()
         Dim result As DialogResult = frmMain.ofdSky.ShowDialog()
         If result = DialogResult.OK Then
@@ -67,6 +64,8 @@ Public Class FigureIO
 
         Parse_Figure()
     End Sub
+
+    'Identifies the figure, detects encoding, validates checksums, and populates the appropriate editor controls.
     Public Shared Sub Parse_Figure(Optional openEditors As Boolean = True)
         'We set the Decrypted Flag here
         blnEncrypted = False
@@ -84,11 +83,11 @@ Public Class FigureIO
         Figures.GetFigureID_AlterEgo_Variant()
 
         'FigureItOut() has now identified the game/type.
-        'These special character variants use the normal Gold/EXP layout, but should not
+        'These special character variants use the normal Gold/level layout, but should not
         'receive unrelated nickname/hat/ownership/identity writes.
         blnGoldXpOnlyFigure = IsGoldXpOnlyFigure()
 
-        'Determine Sensei status before EXP/Gold parsing.
+        'Determine Sensei status before Level/Gold parsing.
         'Exp.GetEXP() needs this flag to use the Sensei layout.
         blnSensei = IsSenseiFigure()
 
@@ -108,7 +107,7 @@ Public Class FigureIO
         End If
 
         'Calculate the Checksums
-        'Does NOT handle Traps or Crystals, yet.
+        'Does NOT handle Traps or Crystals, yet. NOTE by BC: It is handling Traps now.
         CRC16CCITT.Checksums()
         'Determine if we are going to use Area 0 or Area 1
         Figures.Area0orArea1()
@@ -153,7 +152,7 @@ Public Class FigureIO
         'Get the Current Gold values for Areas A and B.  Show the Larger Value.
         Gold.GetGold()
 
-        'Get EXP
+        'Get EXP/Level
         Exp.GetEXP()
 
         'Get the Current Heroic Challenges value for Areas A and B.  Show the Larger Value.
@@ -186,6 +185,7 @@ Public Class FigureIO
         End If
     End Sub
 
+    'Recognizes the supported Sensei identity range before applying Sensei-specific editing rules.
     Public Shared Function IsSenseiFigure() As Boolean
         If blnTrap = True OrElse BlnVehicle = True OrElse blnCrystal = True Then
             Return False
@@ -198,6 +198,8 @@ Public Class FigureIO
         Return False
     End Function
 
+    'Identifies special characters that must avoid unrelated Developer field edits.
+    'Special cases, this can be worked out, but as of this point im just going to leave this in here, if it aint broken dont fix it
     Public Shared Function IsGoldXpOnlyFigure() As Boolean
         'VVind-Up
         If Figures.Var = "0424" AndAlso Figures.Fig = "C30B" Then
@@ -206,7 +208,7 @@ Public Class FigureIO
 
         'Trap Team and SuperChargers Instant character variants.
         'Instant Hot Streak, Stealth Stinger, and Dive Bomber are vehicles
-        'and must use the vehicle editor instead of Gold/EXP.
+        'and must use the vehicle editor instead of Gold/Level.
         If Figures.Var = "0F45" Then
             Select Case Figures.Fig
                 Case "DC01", "CE01", "610D", "540D", "570D"
@@ -219,10 +221,11 @@ Public Class FigureIO
 
     'Write_Data write's Data to the Figures.
     'Note that Traps, Vehicles and Crystals do NOT use this because they have their own Editor that is used.
+    'Applies the Developer controls to the shared buffer and rebuilds the applicable metadata and checksums.
     Public Shared Sub Write_Data()
         If BlnVehicle = False And blnTrap = False And blnCrystal = False Then
             If blnGoldXpOnlyFigure = True Then
-                'Special NFC character variants: only Gold and EXP are intentionally editable.
+                'Special NFC character variants: only Gold and Level are intentionally editable.
                 Exp.WriteEXP()
                 Gold.WriteGold()
             ElseIf blnSensei = True Then
@@ -322,6 +325,9 @@ Public Class FigureIO
         'Fix the Checksums.
         CRC16CCITT.WriteCheckSums()
     End Sub
+
+
+    'Applies Developer edits and saves the resulting plaintext dump to a chosen file.
     Public Shared Sub Write_Decrypted_Figure()
         'Save As
         Dim dialog As New SaveFileDialog With {
@@ -347,6 +353,7 @@ Public Class FigureIO
         End If
     End Sub
 
+    'Applies Developer edits, exports encrypted bytes, and decrypts the buffer again afterward.
     Public Shared Sub Write_Encrypted_Figure()
         'Save As
         Dim dialog As New SaveFileDialog With {
@@ -376,6 +383,7 @@ Public Class FigureIO
         End If
     End Sub
 
+    'Saves the current buffer as-is to a user selected dump file.
     Public Shared Sub Raw_Write()
         'Save As
         Dim dialog As New SaveFileDialog With {
@@ -394,8 +402,9 @@ Public Class FigureIO
             fs.Close()
         End If
     End Sub
-    'We Put Decryption and Encrytion in this Module due to being Relevant to Figure I/O
+    'Decryption and Encrytion are in here in this Module due to being Relevant to Figure I/O
 
+    'Decrypts the old/legacy payload blocks in the shared buffer using their header-derived AES keys.
     Public Shared Sub Decrypt()
         'Get Header Bytes
         AES.Header()
@@ -524,6 +533,7 @@ Public Class FigureIO
         'We get Nickname here, to see if it's still Encrypted.
         Nickname.GetNickname()
     End Sub
+    'encrypts the old/legacy payload blocks in the shared buffer while leaving header and trailer blocks outside the loop.
     Public Shared Sub Encrypt()
         'Get Header Bytes
         AES.Header()
@@ -650,8 +660,9 @@ Public Class FigureIO
         Loop
     End Sub
 
+    'Using legacy character data  to decide whether the buffer appears encrypted.
     Public Shared Function Enc_Fig()
-        'We do a special Check for Bytes Being Set in the wrong places.
+        'special Check for Bytes Being Set in the wrong places.
         'Check 0x150 through 0x15F
         'Check 0x310 through 0x31F
         '336 = 150
@@ -674,6 +685,8 @@ Public Class FigureIO
         Loop
         Return False
     End Function
+
+    'Uses the trap data to decide whether the buffer appears encrypted.
     Public Shared Function Enc_Trap()
         'We do a Clean Check for If the Trap is Encrypted, by checking places we KNOW should be blank.
         'Special Byte Data Writes
@@ -712,6 +725,7 @@ Public Class FigureIO
         Loop
         Return False
     End Function
+    'Uses the vehicle-data heuristic to decide whether the buffer appears encrypted.
     Public Shared Function Enc_Veh()
         'We do a Clean Check for If the Vehicle is Encrypted, by checking places we KNOW should be blank.
         'Special Byte Data Checks

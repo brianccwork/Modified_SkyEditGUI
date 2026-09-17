@@ -74,7 +74,7 @@ Module hidControl
                                 DeviceManagement.DebugWrite(
                                     "Attributes VID=" & MyHid.DeviceAttributes.VendorID.ToString() &
                                     " PID=" & MyHid.DeviceAttributes.ProductID.ToString())
-
+                                'This handling came in help for debugging etc
                                 'Confirm the device really is the expected Skylanders portal.
                                 If MyHid.DeviceAttributes.VendorID = 5168 AndAlso MyHid.DeviceAttributes.ProductID = 336 Then
                                     myDeviceDetected = True
@@ -188,7 +188,7 @@ Module hidControl
         HidD_FlushQueue(hidHandle)
     End Sub
 
-    'Check whether a Windows device-change message belongs to the currently connected portal.
+    'Check whether a Windows device change message belongs to the currently connected portal.
     Public Function checkDevice(ByRef m As Message) As Boolean
         Try
             If String.IsNullOrEmpty(myDevicePathName) Then
