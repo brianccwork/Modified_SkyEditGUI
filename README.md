@@ -24,12 +24,6 @@ Use Zadig --> WinUSB --> Device Manager --> Update Driver [Tutorial inside Progr
 # Skylander Editor SkyGUI
 Everything in this first section of the README contains changes, additions, and notes for this modified version of the project. Below this section is hegyak's original README.
 
-ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
-
-ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
-
-ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
-
 This program only works with Non-Xbox Skylander Portals
 
 ## Resources and Information Used for Development
@@ -52,12 +46,15 @@ https://github.com/Texthead1/Skylanders-Portal-IDs
 - XMcacutt
 - pyrofersprojects
 
+For their research, teaching, and documentation regarding Skylanders and community projects.
+
 ### Source Credits:
 - [Skylandeer](https://www.youtube.com/@theSkylandeer) - Blue Shattered Trap Team background
 - Motion Vision - Animated Cloud background
 - Activision Skylanders - Icons, and Logo
 - fruitsnack and Sobersu's for the Skylander Icons displayed on the portal
 
+For their assets used in creating a visually appealing UI for the application.
 
 ## MASSIVE REDESEIGN AND UPDATE 9/16/2026
 - NEW Skylanders UI
@@ -69,11 +66,11 @@ https://github.com/Texthead1/Skylanders-Portal-IDs
 - Expandable Preview lists to see possible figures.
 
 - Regular Character Gold and XP Save Updates
-  - Big thanks to NefariousTechSupport, reading through the Runes project and using the given context from my research has helped tremendously at understanding and setting up a consistently working Gold and XP save.
+  - Consistent Gold and level read/writes.
 
 - Swap Force Character Handling
   - The simplified editor supports reading an assembled Swap Force figure by reading the bottom half and then the top half during one read operation.
-  - Gold, XP, and Level edits target the top half. Bottom-only reads and ambiguous combinations of figures are rejected.
+  - Gold, and Level edits target the top half. Bottom-only reads and ambiguous combinations of figures are rejected.
   - The Developer/Advanced editor retains its separate first/second figure controls. The simplified editor resolves the target portal slot again before saving.
 
 - Trap Villain Workshop
