@@ -268,7 +268,7 @@ Public Class frmModifier
         If session.IsSensei Then FigureWarnings.ShowWarning(Me, "Sensei initialization", FigureWarnings.SenseiText)
         If session.IsUnsafe Then
             Dim message As String = If(session.IsVehicle,
-                "This vehicle has uninitialized or unsafe save data. Keep a backup. Initialize it in Skylanders SuperChargers and collect Gearbits, then read it again. If recovery requires an in-game reset, remember that resetting clears progress.",
+                "This vehicle has uninitialized or unsafe save data. Keep a backup. Initialize it in Skylanders SuperChargers and collect at least 1 Gearbits, then read it again. If recovery requires an in-game reset, remember that resetting clears progress.",
                 FigureWarnings.UnsafeText)
             FigureWarnings.ShowWarning(Me, If(session.IsVehicle, "Vehicle unsafe to write", "Skylander corrupted or unsafe to write"), message)
         End If
