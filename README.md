@@ -1,3 +1,26 @@
+# How to Use: SkyGUI - A Skylander Figure Editor
+- Run SkyReader-GUI.exe
+- Supports Non-Xbox 360 Portal 
+- Types of figures handled:
+  - Cores (Gold/XP)
+  - Giants (Gold/XP)
+  - Swappers (Gold/XP)
+  - Trap Masters (Gold/XP)
+  - Superchargers (Gold/XP)
+  - Chases (Gold/XP)
+  - Senseis (Gold/XP with Minor adjustments to process)
+  - Vehicles (Gearbits)
+  - Traps (Input Villian, Evolved, and Variants!)
+
+ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
+
+ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
+
+ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
+
+### Struggling with setting up your Non-Xbox Portal?
+Use Zadig --> WinUSB --> Device Manager --> Update Driver [Tutorial inside Program, or online Youtube video work as well!]
+
 # Skylander Editor SkyGUI
 Everything in this first section of the README contains changes, additions, and notes for this modified version of the project. Below this section is hegyak's original README.
 
@@ -10,7 +33,6 @@ ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
 This program only works with Non-Xbox Skylander Portals
 
 ## Resources and Information Used for Development
-
 https://github.com/Texthead1/Riches  
 https://github.com/NefariousTechSupport/Runes  
 https://github.com/xMcacutt/SkanderNET  
@@ -30,7 +52,7 @@ https://github.com/Texthead1/Skylanders-Portal-IDs
 - XMcacutt
 - pyrofersprojects
 
-### Credits:
+### Source Credits:
 - Skylandeer - Shattered Trap Team background
 - Motion Vision - Animated Cloud background
 - Activision Skylanders - Icons, Logo, and UI details
