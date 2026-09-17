@@ -53,9 +53,9 @@ https://github.com/Texthead1/Skylanders-Portal-IDs
 - pyrofersprojects
 
 ### Source Credits:
-- Skylandeer - Shattered Trap Team background
+- [Skylandeer](https://www.youtube.com/@theSkylandeer) - Blue Shattered Trap Team background
 - Motion Vision - Animated Cloud background
-- Activision Skylanders - Icons, Logo, and UI details
+- Activision Skylanders - Icons, and Logo
 
 ## MASSIVE REDESEIGN AND UPDATE 9/16/2026
 - NEW Skylanders UI
@@ -86,6 +86,11 @@ https://github.com/Texthead1/Skylanders-Portal-IDs
 - Help Portal and Connection Troubleshooting
   - Added a compact Help Portal button at the top left. The help page includes an official Zadig website button and step-by-step portal driver instructions.
   - Connection failure messages remind users that only non-Xbox portals are supported and point them to Help Portal.
+
+#### Future Plans
+- Imaginators Implementation
+- Code Optimization and Cleanup
+- New UI Features or Community Requests?
 
 ### Older Changes
 - Sensei Gold and Level modifier now accepts Heartbreaker Buckshot
