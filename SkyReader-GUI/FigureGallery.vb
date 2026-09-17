@@ -532,3 +532,69 @@ Friend NotInheritable Class FigureGallery
         Return New List(Of String)()
     End Function
 End Class
+
+'Presents independent collapsible game sections; selection is artwork only and never changes tag data.
+Friend Class SkyGameBrowser
+    Inherits UserControl
+    Private ReadOnly stack As New TableLayoutPanel With {.Dock = DockStyle.Top, .AutoSize = True, .ColumnCount = 1, .Margin = New Padding(0)}
+    Friend Property SelectedGame As String
+    Friend Property SelectedFigure As String
+    Friend Event PreviewChanged As EventHandler
+
+    Friend Sub New()
+        DoubleBuffered = True
+        AutoScroll = True
+        BackColor = SkyAssets.Panel
+        stack.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100))
+        Controls.Add(stack)
+    End Sub
+
+    'Populates all sections in the collapsed state, with a separately scrollable list under each heading.
+    Friend Sub LoadCatalog()
+        SuspendLayout()
+        For Each game As String In FigureGallery.Games.Concat(New String() {"Vehicles"})
+            Dim title As String = game
+            Dim section As New TableLayoutPanel With {.Dock = DockStyle.Top, .AutoSize = True, .ColumnCount = 1, .Margin = New Padding(2, 1, 2, 1)}
+            section.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100))
+            Dim header As New Button With {.Text = title & "  +", .Dock = DockStyle.Top, .Height = CInt(32 * DeviceDpi / 96.0F), .Font = SkyAssets.UiFont(7.0F),
+                .FlatStyle = FlatStyle.Flat, .BackColor = GameColor(title), .ForeColor = If(title = "Imaginators", Color.White, Color.Black), .UseVisualStyleBackColor = False}
+            header.FlatAppearance.BorderSize = 0
+            Dim entries As New ListBox With {.Dock = DockStyle.Top, .Height = CInt(180 * DeviceDpi / 96.0F), .Font = SkyAssets.UiFont(7.0F),
+                .BackColor = SkyAssets.White, .ForeColor = Color.Black, .BorderStyle = BorderStyle.None, .IntegralHeight = False, .Visible = False, .HorizontalScrollbar = True}
+            entries.Items.AddRange(FigureGallery.Names(title).Cast(Of Object)().ToArray())
+            AddHandler header.Resize, Sub(sender, e) SkyPolish.RoundControl(header, 10)
+            AddHandler header.Click, Sub(sender, e)
+                                         entries.Visible = Not entries.Visible
+                                         header.Text = title & If(entries.Visible, "  −", "  +")
+                                     End Sub
+            AddHandler entries.MouseMove, Sub(sender, e)
+                                              Dim index As Integer = entries.IndexFromPoint(e.Location)
+                                              If index >= 0 AndAlso index <> entries.SelectedIndex Then entries.SelectedIndex = index
+                                          End Sub
+            AddHandler entries.SelectedIndexChanged, Sub(sender, e)
+                                                         If entries.SelectedIndex < 0 Then Return
+                                                         SelectedGame = title
+                                                         SelectedFigure = CStr(entries.SelectedItem)
+                                                         RaiseEvent PreviewChanged(Me, EventArgs.Empty)
+                                                     End Sub
+            section.Controls.Add(header, 0, 0)
+            section.Controls.Add(entries, 0, 1)
+            stack.Controls.Add(section, 0, stack.RowCount)
+            stack.RowCount += 1
+        Next
+        ResumeLayout(True)
+    End Sub
+
+    'COLOR PICKER FOR THE DROPDOWNS
+    Private Shared Function GameColor(game As String) As Color
+        Select Case game
+            Case "Spyro's Adventure" : Return Color.FromArgb(0, 255, 26)
+            Case "Giants" : Return Color.FromArgb(253, 155, 20)
+            Case "Swap Force" : Return Color.FromArgb(82, 207, 224)
+            Case "Trap Team" : Return Color.FromArgb(254, 60, 57)
+            Case "SuperChargers" : Return Color.FromArgb(249, 240, 0)
+            Case "Imaginators" : Return Color.FromArgb(18, 33, 123)
+            Case Else : Return Color.FromArgb(188, 96, 222)
+        End Select
+    End Function
+End Class

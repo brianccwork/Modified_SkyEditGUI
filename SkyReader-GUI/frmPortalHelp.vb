@@ -30,6 +30,8 @@ Public Class frmPortalHelp
         Dim title As Label = SimpleUi.Caption("Portal Connection Issues")
         title.Font = SimpleUi.Heading
         title.AutoSize = False
+        title.BackColor = SkyAssets.Panel
+        SkyElevation.CompactTitle(title)
         page.Controls.Add(title, 0, 0)
 
         Dim viewport As New SkyHelpViewport With {.Dock = DockStyle.Fill, .AutoScroll = True, .BackColor = SkyAssets.Panel}

@@ -15,7 +15,7 @@ Public Class frmModifier
     Private ReadOnly status As Label = SimpleUi.Caption("Connect your portal, then read a figure.")
     Private ReadOnly previewName As Label = SimpleUi.Caption("Current Scanned Figure on Portal of Power")
     Private ReadOnly imageBox As New SkyPortalPreview()
-    Private ReadOnly gallery As New TreeView()
+    Private ReadOnly gallery As New SkyGameBrowser()
     Private ReadOnly waiting As PictureBox = SkyDecor.Badge("Waiting.ico")
     Private ReadOnly connectionHelp As Label = SimpleUi.Caption("Only Non-Xbox Portals are Compatible with the Program." & vbCrLf &
         "If you are struggling connecting please follow the Zadig process in the Main Menu, Help Portal option.")
@@ -110,9 +110,6 @@ Public Class frmModifier
         gallery.Font = SimpleUi.Body
         gallery.BackColor = SkyAssets.Panel
         gallery.ForeColor = SkyAssets.Ink
-        gallery.BorderStyle = BorderStyle.None
-        gallery.HideSelection = False
-        gallery.ShowNodeToolTips = True
         browser.Controls.Add(previewName, 0, 0)
         browser.Controls.Add(imageBox, 0, 1)
         browser.Controls.Add(gallery, 0, 2)
@@ -147,8 +144,9 @@ Public Class frmModifier
         AddHandler readButton.Click, AddressOf ReadFigure
         AddHandler saveButton.Click, AddressOf SaveFigure
         AddHandler backButton.Click, Sub(sender, e) Close()
-        AddHandler gallery.AfterSelect, Sub(sender, e) ShowPreview(Me, EventArgs.Empty)
-        AddHandler gallery.NodeMouseHover, AddressOf HoverFigure
+        AddHandler gallery.PreviewChanged, Sub(sender, e)
+                                               If Not busy AndAlso session Is Nothing Then ShowPreview(Me, EventArgs.Empty)
+                                           End Sub
         SimpleUi.StyleButtons(Me)
         LoadGallery(Me, EventArgs.Empty)
         RefreshActions()
@@ -274,29 +272,8 @@ Public Class frmModifier
 
     'Builds the expandable game and figure list used for pre-scan artwork browsing.
     Private Sub LoadGallery(sender As Object, e As EventArgs)
-        gallery.BeginUpdate()
-        Try
-            gallery.Nodes.Clear()
-            Dim root As TreeNode = gallery.Nodes.Add("Browse possible figures (expand)")
-            For Each game As String In FigureGallery.Games.Concat(New String() {"Vehicles"})
-                Dim group As TreeNode = root.Nodes.Add(game)
-                For Each caption As String In FigureGallery.Names(game)
-                    Dim figure As TreeNode = group.Nodes.Add(caption)
-                    figure.Tag = game
-                    figure.ToolTipText = "Hover to preview before scanning a figure."
-                Next
-            Next
-            root.Expand()
-        Finally
-            gallery.EndUpdate()
-        End Try
+        gallery.LoadCatalog()
         ShowPreview(Me, EventArgs.Empty)
-    End Sub
-
-    'Selects hovered gallery entries only when no scanned figure is pinned to the preview.
-    Private Sub HoverFigure(sender As Object, e As TreeNodeMouseHoverEventArgs)
-        If busy OrElse session IsNot Nothing OrElse e.Node.Tag Is Nothing Then Return
-        gallery.SelectedNode = e.Node
     End Sub
 
     'Displays scanned artwork or the currently browsed preview and disposes the previous image.
@@ -305,11 +282,11 @@ Public Class frmModifier
         If session IsNot Nothing Then
             previewName.Text = "Current Scanned Figure on Portal of Power" & vbCrLf & session.FigureName
             imageBox.Image = artwork.Load(If(session.IsVehicle, "Vehicles", session.GameName), session.FigureName)
-        ElseIf gallery.SelectedNode IsNot Nothing AndAlso gallery.SelectedNode.Tag IsNot Nothing Then
-            previewName.Text = "Preview: " & gallery.SelectedNode.Text & vbCrLf & "No scanned figure. Hover the list to preview artwork."
-            imageBox.Image = artwork.Load(CStr(gallery.SelectedNode.Tag), gallery.SelectedNode.Text)
+        ElseIf gallery.SelectedFigure IsNot Nothing Then
+            previewName.Text = "Preview: " & gallery.SelectedFigure & vbCrLf & "No scanned figure. Hover the list to preview artwork."
+            imageBox.Image = artwork.Load(gallery.SelectedGame, gallery.SelectedFigure)
         Else
-            previewName.Text = "Current Scanned Figure on Portal of Power" & vbCrLf & "No scanned figure. Expand the list and hover a name to preview."
+            previewName.Text = "Current Scanned Figure on Portal of Power" & vbCrLf & "No scanned figure. Expand a game and hover a name to preview."
             imageBox.Image = Nothing
         End If
         If old IsNot Nothing Then old.Dispose()

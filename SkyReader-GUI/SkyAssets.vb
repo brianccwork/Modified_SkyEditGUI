@@ -3,10 +3,12 @@ Option Explicit On
 
 Imports System.Drawing.Text
 Imports System.IO
+Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
 
 'Assets are optional at build time. Keep the font collection alive for all UI fonts.
 Friend NotInheritable Class SkyAssets
+    Friend Shared ReadOnly SaveGreen As Color = Color.FromArgb(83, 194, 39)
     Friend Shared ReadOnly Panel As Color = Color.FromArgb(218, 220, 224)
     Friend Shared ReadOnly Ink As Color = Color.Black
     Friend Shared ReadOnly Dark As Color = Color.FromArgb(158, 160, 164)
@@ -100,4 +102,46 @@ Friend NotInheritable Class SkyAssets
         End Try
         Return Nothing
     End Function
+    Private Shared installed As Boolean
+    Private Shared pointer As Cursor
+    Private Shared ReadOnly cursorControls As New ConditionalWeakTable(Of Control, Object)()
+
+    'Loads the cursor once and applies it to client controls on this application's UI thread.
+    Friend Shared Sub InstallCursor()
+        If installed Then Return
+        installed = True
+        Try
+            Dim path As String = SkyAssets.AssetPath("Mega chonk.cur")
+            If path IsNot Nothing Then pointer = New Cursor(path)
+            AddHandler Application.ApplicationExit, Sub(sender, e)
+                                                        RemoveHandler Application.Idle, AddressOf ApplyCursorToWindows
+                                                        If pointer IsNot Nothing Then pointer.Dispose()
+                                                    End Sub
+        Catch ex As Exception
+            Diagnostics.Debug.WriteLine("UI cursor: " & ex.Message)
+        End Try
+        AddHandler Application.Idle, AddressOf ApplyCursorToWindows
+    End Sub
+
+    'Includes newly opened dialogs and controls
+    Private Shared Sub ApplyCursorToWindows(sender As Object, e As EventArgs)
+        For Each window As Form In Application.OpenForms
+            AttachCursor(window)
+        Next
+    End Sub
+
+    Private Shared Sub AttachCursor(control As Control)
+        Dim marker As Object = Nothing
+        If cursorControls.TryGetValue(control, marker) Then Return
+        cursorControls.Add(control, New Object())
+        If pointer IsNot Nothing Then control.Cursor = pointer
+        AddHandler control.CursorChanged, Sub(sender, e)
+                                              If pointer IsNot Nothing AndAlso control.Cursor IsNot pointer Then control.Cursor = pointer
+                                          End Sub
+        AddHandler control.ControlAdded, Sub(sender, e) AttachCursor(e.Control)
+        For Each child As Control In control.Controls
+            AttachCursor(child)
+        Next
+    End Sub
+
 End Class

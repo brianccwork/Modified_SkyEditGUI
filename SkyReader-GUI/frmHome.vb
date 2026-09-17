@@ -8,6 +8,7 @@ Public Class frmHome
 
     'Builds the landing layout, navigation buttons, and third-party image disclaimer.
     Public Sub New()
+        SkyAssets.InstallCursor()
         Text = "Skylander Editor"
         Name = "frmHome"
         SkyAssets.ApplyWindowIcon(Me)
@@ -106,13 +107,12 @@ Public Class frmHome
 
     'Initializes and opens the original Developer editor from the landing page.
     Private Sub OpenDeveloper(sender As Object, e As EventArgs)
-        frmMain.EnsureEditorInitialized()
         If Not Portal.blnPortal Then frmMain.lockPortalControls()
         RemoveHandler frmMain.FormClosed, AddressOf ReturnHome
         AddHandler frmMain.FormClosed, AddressOf ReturnHome
         frmMain.Show()
-        frmMain.Activate()
         Hide()
+        frmMain.Activate()
     End Sub
 
     'Displays the startup responsibility warning once for this home window.

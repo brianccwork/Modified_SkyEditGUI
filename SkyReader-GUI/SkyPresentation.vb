@@ -92,11 +92,18 @@ Friend NotInheritable Class SkyPresentation
         Dim scale As Single = button.DeviceDpi / 96.0F
         Dim hover As Boolean = button.Enabled AndAlso button.ClientRectangle.Contains(button.PointToClient(Control.MousePosition))
         Dim down As Boolean = hover AndAlso (Control.MouseButtons And MouseButtons.Left) <> MouseButtons.None
-        g.Clear(SkyAssets.Sand)
-        Using texture As New TextureBrush(sandTexture, WrapMode.Tile)
-            g.FillRectangle(texture, button.ClientRectangle)
-        End Using
-        Using tint As New SolidBrush(Color.FromArgb(If(down, 55, If(hover, 28, If(button.Enabled, 0, 95))), If(down, SkyAssets.Dark, SkyAssets.White)))
+        'Give Save Changes and Save Villain the greeeen
+        If button.Text.Replace("&", "").Trim().Equals("Save Changes", StringComparison.OrdinalIgnoreCase) OrElse
+            button.Text.Replace("&", "").Trim().Equals("Save Villain", StringComparison.OrdinalIgnoreCase) Then
+            g.Clear(SkyAssets.SaveGreen)
+        Else
+            g.Clear(SkyAssets.Sand)
+            Using texture As New TextureBrush(sandTexture, WrapMode.Tile)
+                g.FillRectangle(texture, button.ClientRectangle)
+            End Using
+        End If
+        'this is how you control the buttons down, hover, relaxed, and awaiting shades.
+        Using tint As New SolidBrush(Color.FromArgb(If(down, 55, If(hover, 28, If(button.Enabled, 0, 20))), If(down, SkyAssets.Dark, SkyAssets.White)))
             g.FillRectangle(tint, button.ClientRectangle)
         End Using
         'Draw soft concentric strokes inside the region so the parent never clips the glow.
@@ -315,26 +322,28 @@ Friend Class SkyPortalPreview
         'Anchor against the rendered image, not its letterboxed allocation.
         Dim figureTop As Single = If(AnchorFigureToPortal, Math.Max(0, fittedPortal.Y + fittedPortal.Height * 0.35F - diameter), Height * 0.03F)
         Dim figureBounds As New RectangleF((Width - diameter) / 2, figureTop, diameter, diameter)
-        If Image Is Nothing Then
-            'Always show an icon, even when neither figure artwork nor ERROR PNG exists.
-            Using fill As New SolidBrush(SkyAssets.Sand), rim As New Pen(SkyAssets.Ink, 2)
-                g.FillEllipse(fill, figureBounds)
-                g.DrawEllipse(rim, figureBounds)
-            End Using
-            TextRenderer.DrawText(g, "?", SimpleUi.Heading, Rectangle.Round(figureBounds), SkyAssets.Ink,
-                TextFormatFlags.HorizontalCenter Or TextFormatFlags.VerticalCenter)
-            Return
-        End If
+        'Use the default portal artwork when there is no figure image, without owning the cached asset.
+        Dim displayImage As Image = If(Image, SkyDecor.Asset("PortalPlaceholder.png"))
+        If displayImage Is Nothing Then Return
         Dim state As Drawing2D.GraphicsState = g.Save()
         Try
             Using circle As New GraphicsPath()
                 circle.AddEllipse(figureBounds)
                 g.SetClip(circle)
-                DrawFit(g, Image, figureBounds)
+                DrawFit(g, displayImage, figureBounds)
             End Using
         Finally
             g.Restore(state)
         End Try
+        'Add a four pixel black border to the placeholder only.
+        If Image Is Nothing Then
+            Dim thickness As Single = 5.0F * DeviceDpi / 96.0F
+            Dim bounds As RectangleF = figureBounds
+            bounds.Inflate(-thickness / 2, -thickness / 2)
+            Using border As New Pen(Color.Black, thickness)
+                g.DrawEllipse(border, bounds)
+            End Using
+        End If
         'Do not call PictureBox.OnPaint: it would paint the image a second time.
     End Sub
 
