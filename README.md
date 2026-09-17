@@ -56,6 +56,8 @@ https://github.com/Texthead1/Skylanders-Portal-IDs
 - [Skylandeer](https://www.youtube.com/@theSkylandeer) - Blue Shattered Trap Team background
 - Motion Vision - Animated Cloud background
 - Activision Skylanders - Icons, and Logo
+- fruitsnack and Sobersu's for the Skylander Icons displayed on the portal
+
 
 ## MASSIVE REDESEIGN AND UPDATE 9/16/2026
 - NEW Skylanders UI
@@ -89,6 +91,8 @@ https://github.com/Texthead1/Skylanders-Portal-IDs
 
 #### Future Plans
 - Imaginators Implementation
+- Some bugs regarding the images displayed
+- SFX for buttons and UI
 - Code Optimization and Cleanup
 - New UI Features or Community Requests?
 
