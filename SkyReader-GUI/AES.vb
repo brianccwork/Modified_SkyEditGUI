@@ -41,10 +41,10 @@ Public Class AES
 
     'Get the Header
     Shared Sub Header()
-		AES.Padding = PaddingMode.Zeros
-		AES.Mode = CipherMode.ECB
+        AES.Padding = PaddingMode.Zeros
+        AES.Mode = CipherMode.ECB
 
-		Dim Counter As Integer = 0  'Necessary to add one to the Byte array Offset
+        Dim Counter As Integer = 0  'Necessary to add one to the Byte array Offset
         'Dim HeadByteCounter As Integer = 0
         'Go up to 0x21 to get all 32 Bytes of Header
         Do Until Counter = 32
@@ -91,19 +91,19 @@ Public Class AES
 
     'Calculate MD5
     Public Shared Function CalculateMD5Hash(ByVal input As Byte()) As Byte()
-		Dim md5 As MD5 = MD5.Create()
-		Dim hash As Byte() = md5.ComputeHash(input)
-		Return hash
-	End Function
+        Dim md5 As MD5 = MD5.Create()
+        Dim hash As Byte() = md5.ComputeHash(input)
+        Return hash
+    End Function
 
-	'Return a Hex String from Byte Array.
-	Public Shared Function ByteArrayToString(ba As Byte()) As String
-		Dim hex As New StringBuilder(ba.Length * 2)
-		For Each b As Byte In ba
-			hex.AppendFormat("{0:x2}", b)
-		Next
-		Return hex.ToString()
-	End Function
+    'Return a Hex String from Byte Array.
+    Public Shared Function ByteArrayToString(ba As Byte()) As String
+        Dim hex As New StringBuilder(ba.Length * 2)
+        For Each b As Byte In ba
+            hex.AppendFormat("{0:x2}", b)
+        Next
+        Return hex.ToString()
+    End Function
 
     'This Generates the Bytes from the Hex String.
     Public Shared Function StringToByteArray(s As String) As Byte()

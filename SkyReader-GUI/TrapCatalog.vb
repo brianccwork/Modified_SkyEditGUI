@@ -1,7 +1,5 @@
 Option Strict On
 Option Explicit On
-Imports System.Collections.Generic
-Imports System.Linq
 Friend NotInheritable Class TrapCatalog
     Friend Shared ReadOnly Names As String() = {"Empty", "Chompy Mage", "Dr. Krankcase", "Wolfgang", "Chef Pepper Jack", "Nightshade", "Luminous", "Golden Queen", "Dreamcatcher", "Gulper", "Kaos", "Cuckoo Clocker", "Buzzer Beak", "Shield Shredder", "Cross Crow", "Bone Chompy", "Brawl and Chain", "Bomb Shell", "Masker Mind", "Chill Bill", "Sheep Creep", "Shrednaught", "Chomp Chest", "Broccoli Guy", "Rage Mage", "Lob Goblin", "Chompy", "Fisticuffs", "Trolling Thunder", "Hood Sickle", "Bruiser Cruiser", "Brawlrus", "Tussle Sprout", "Krankenstein", "Scrap Shooter", "Slobber Trap", "Grinnade", "Bad Juju", "Blaster-Tron", "Tae Kwon Crow", "Pain-Yatta", "Smoke Scream", "Eye Five", "Grave Clobber", "Threatpack", "Mab Lobs", "Eye Scream"}
     Friend Shared ReadOnly Elements As Integer() = {0, 217, 214, 213, 215, 218, 219, 216, 212, 211, 220, 217, 212, 217, 211, 213, 211, 210, 213, 211, 217, 214, 216, 217, 210, 219, 217, 218, 214, 213, 214, 214, 216, 212, 215, 211, 215, 212, 219, 218, 210, 215, 219, 216, 211, 214, 218}

@@ -1,11 +1,7 @@
 Option Strict On
 Option Explicit On
-
-Imports System.Collections.Generic
 Imports System.IO
-Imports System.Linq
 Imports System.Threading
-Imports System.Threading.Tasks
 
 'Uses the existing portal connection and HID report format. No background worker
 'touches the default Developer form. Requests are bounded and replies checked.

@@ -78,9 +78,9 @@ Friend NotInheritable Class SkyDecor
     Friend Shared Sub WarningOnCard(card As Control)
         card.Padding = New Padding(card.Padding.Left, card.Padding.Top, card.Padding.Right + 48, card.Padding.Bottom)
         AddHandler card.Paint, Sub(sender, e)
-            Dim size As Integer = CInt(32 * card.DeviceDpi / 96.0F)
-            Dim warning As Image = Asset("Warning.ico")
-            If warning IsNot Nothing Then e.Graphics.DrawImage(warning, card.Width - size - 10, 10, size, size)
-        End Sub
+                                   Dim size As Integer = CInt(32 * card.DeviceDpi / 96.0F)
+                                   Dim warning As Image = Asset("Warning.ico")
+                                   If warning IsNot Nothing Then e.Graphics.DrawImage(warning, card.Width - size - 10, 10, size, size)
+                               End Sub
     End Sub
 End Class

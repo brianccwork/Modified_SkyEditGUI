@@ -1,8 +1,6 @@
 Option Strict On
 Option Explicit On
 
-Imports System.IO
-
 'independent artwork catalog
 Friend NotInheritable Class FigureGallery
     Private Shared ReadOnly catalog As Dictionary(Of String, List(Of String)) = LoadCatalog()

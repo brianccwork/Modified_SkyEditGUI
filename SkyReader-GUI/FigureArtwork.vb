@@ -2,7 +2,6 @@ Option Strict On
 Option Explicit On
 
 Imports System.IO
-Imports System.Linq
 Imports System.Text.RegularExpressions
 
 Friend NotInheritable Class FigureArtwork

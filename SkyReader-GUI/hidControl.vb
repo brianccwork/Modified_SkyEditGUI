@@ -1,10 +1,10 @@
 ﻿Option Explicit On
 
-Imports Microsoft.Win32.SafeHandles
-Imports SkyReader_GUI.Hid
-Imports SkyReader_GUI.FileIO
-Imports System.Runtime.InteropServices
 Imports System.IO
+Imports System.Runtime.InteropServices
+Imports Microsoft.Win32.SafeHandles
+Imports SkyReader_GUI.FileIO
+Imports SkyReader_GUI.Hid
 
 Module hidControl
 

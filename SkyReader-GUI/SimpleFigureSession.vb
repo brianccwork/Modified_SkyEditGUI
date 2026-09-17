@@ -2,7 +2,6 @@ Option Strict On
 Option Explicit On
 
 Imports System.IO
-Imports System.Linq
 
 'Bridges the simple page to the established figure parser and Gold/Level writers.
 'Artwork browsing never calls SelectFigure and never changes this session.

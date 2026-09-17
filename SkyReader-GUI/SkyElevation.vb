@@ -1,8 +1,8 @@
 Option Strict On
 Option Explicit On
 
-Imports System.Runtime.CompilerServices
 Imports System.Drawing.Drawing2D
+Imports System.Runtime.CompilerServices
 
 Friend NotInheritable Class SkyElevation
     Private Shared ReadOnly raised As New ConditionalWeakTable(Of Control, Object)()

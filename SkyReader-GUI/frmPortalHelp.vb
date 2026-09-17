@@ -1,8 +1,6 @@
 Option Strict On
 Option Explicit On
 
-Imports System.Diagnostics
-
 Public Class frmPortalHelp
     Inherits Form
 

@@ -1,10 +1,7 @@
 'Applies the runtime theme, layout adjustments, and custom painting to original Developer windows.
 Option Explicit On
 Option Strict On
-
-Imports System.Drawing
 Imports System.Drawing.Drawing2D
-Imports System.Windows.Forms
 
 'Presentation only. Existing controls, their parents and their data are retained.
 'Change this palette to update every editor together.

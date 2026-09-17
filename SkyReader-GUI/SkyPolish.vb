@@ -23,22 +23,22 @@ Friend NotInheritable Class SkyPolish
         'Measure after DPI scaling and font inheritance. Warning text is a label,
         'not an editable/scrollable native text field.
         AddHandler window.Shown, Sub(sender, e)
-            Dim scale As Single = window.DeviceDpi / 96.0F
-            Dim work As Rectangle = Screen.FromControl(window).WorkingArea
-            Dim width As Integer = Math.Min(CInt(760 * scale), work.Width - CInt(48 * scale))
-            window.ClientSize = New Size(Math.Max(320, width), window.ClientSize.Height)
-            window.PerformLayout()
-            Dim textWidth As Integer = Math.Max(120, body.Width)
-            Dim bodySize As Size = body.GetPreferredSize(New Size(textWidth, 0))
-            Dim titleSize As Size = heading.GetPreferredSize(New Size(Math.Max(120, heading.Width), 0))
-            Dim layout As TableLayoutPanel = DirectCast(body.Parent, TableLayoutPanel)
-            layout.RowStyles(0).Height = Math.Max(CInt(60 * scale), titleSize.Height + heading.Margin.Vertical)
-            Dim height As Integer = CInt(layout.RowStyles(0).Height + layout.RowStyles(2).Height) +
-                bodySize.Height + body.Margin.Vertical + layout.Padding.Vertical + CInt(24 * scale)
-            window.ClientSize = New Size(window.ClientSize.Width, Math.Max(CInt(260 * scale), height))
-            window.Location = New Point(work.Left + (work.Width - window.Width) \ 2,
-                work.Top + Math.Max(0, (work.Height - window.Height) \ 2))
-        End Sub
+                                     Dim scale As Single = window.DeviceDpi / 96.0F
+                                     Dim work As Rectangle = Screen.FromControl(window).WorkingArea
+                                     Dim width As Integer = Math.Min(CInt(760 * scale), work.Width - CInt(48 * scale))
+                                     window.ClientSize = New Size(Math.Max(320, width), window.ClientSize.Height)
+                                     window.PerformLayout()
+                                     Dim textWidth As Integer = Math.Max(120, body.Width)
+                                     Dim bodySize As Size = body.GetPreferredSize(New Size(textWidth, 0))
+                                     Dim titleSize As Size = heading.GetPreferredSize(New Size(Math.Max(120, heading.Width), 0))
+                                     Dim layout As TableLayoutPanel = DirectCast(body.Parent, TableLayoutPanel)
+                                     layout.RowStyles(0).Height = Math.Max(CInt(60 * scale), titleSize.Height + heading.Margin.Vertical)
+                                     Dim height As Integer = CInt(layout.RowStyles(0).Height + layout.RowStyles(2).Height) +
+                                         bodySize.Height + body.Margin.Vertical + layout.Padding.Vertical + CInt(24 * scale)
+                                     window.ClientSize = New Size(window.ClientSize.Width, Math.Max(CInt(260 * scale), height))
+                                     window.Location = New Point(work.Left + (work.Width - window.Width) \ 2,
+                                         work.Top + Math.Max(0, (work.Height - window.Height) \ 2))
+                                 End Sub
     End Sub
 End Class
 
