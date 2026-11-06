@@ -43,6 +43,7 @@ Friend NotInheritable Class SkyPresentation
         Dim marker As Object = Nothing
         If styled.TryGetValue(button, marker) Then Return
         styled.Add(button, New Object())
+        SkySounds.AttachButton(button)
         SkyElevation.Attach(button)
         button.FlatStyle = FlatStyle.Flat
         button.FlatAppearance.BorderSize = 0

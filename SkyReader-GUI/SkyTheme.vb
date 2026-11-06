@@ -203,6 +203,7 @@ Friend NotInheritable Class SkyTheme
     Private Shared Sub StyleMenuItems(items As ToolStripItemCollection)
         For Each item As ToolStripItem In items
             item.Font = BodyFont
+            SkySounds.AttachMenuItem(item)
             Dim dropdown As ToolStripDropDownItem = TryCast(item, ToolStripDropDownItem)
             If dropdown IsNot Nothing AndAlso dropdown.HasDropDownItems Then
                 dropdown.DropDown.BackColor = Surface

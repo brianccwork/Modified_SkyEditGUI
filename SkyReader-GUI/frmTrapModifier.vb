@@ -128,10 +128,12 @@ Public Class frmTrapModifier
     Private Sub ConnectPortal(sender As Object, e As EventArgs)
         ClearSession()
         Try
-            status.Text = If(SimplePortal.Connect(), "Portal connected. Place one trap in its trap slot and select Read trap.",
+            Dim connected As Boolean = SimplePortal.Connect()
+            SkySounds.Play(If(connected, SkySounds.ConnectPortal, SkySounds.ConnectPortalFail))
+            status.Text = If(connected, "Portal connected. Place one trap in its trap slot and select Read trap.",
                 "Portal not found. Only non-Xbox portals are compatible. Follow the Zadig instructions in Help Portal.")
         Catch ex As Exception
-            Failure(ex)
+            Failure(ex, SkySounds.ConnectPortalFail)
         End Try
         RefreshActions()
     End Sub
@@ -143,6 +145,8 @@ Public Class frmTrapModifier
         Try
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(40))
                 ShowSession(New TrapSession(Await SimplePortal.ReadFigureAsync(timeout.Token)))
+                SkySounds.Play(If(Not session.CanWrite OrElse Not String.IsNullOrEmpty(session.Notice),
+                                  SkySounds.ProblemNoticeRead, SkySounds.SuccessfulRead))
             End Using
         Catch ex As Exception
             Failure(ex)
@@ -201,6 +205,7 @@ Public Class frmTrapModifier
                 ShowSession(New TrapSession(saved))
             End Using
             status.Text = "Trap saved and verified. " & session.VillainName & If(session.Evolved, " - Evolved.", " - Not evolved.")
+            SkySounds.Play(SkySounds.SaveChanges)
         Catch ex As Exception
             Failure(ex)
         Finally
@@ -209,7 +214,8 @@ Public Class frmTrapModifier
     End Sub
 
     'Shows the trap operation error, clears stale session data, and updates available actions.
-    Private Sub Failure(ex As Exception)
+    Private Sub Failure(ex As Exception, Optional sound As String = SkySounds.ProblemNoticeRead)
+        SkySounds.Play(sound)
         ClearSession()
         status.Text = If(TypeOf ex Is OperationCanceledException, "The portal timed out. Reconnect and read the trap again.", ex.Message)
         FigureWarnings.ShowWarning(Me, "Trap operation interrupted", status.Text)

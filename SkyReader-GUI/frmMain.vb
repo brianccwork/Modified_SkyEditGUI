@@ -340,14 +340,17 @@ Public Class frmMain
 
             'Tell the user whether the portal connection succeeded.
             If Portal.blnPortal Then
+                SkySounds.Play(SkySounds.ConnectPortal)
                 MessageBox.Show("Portal connected. Check portal_debug.log if you want the full trace.")
             Else
+                SkySounds.Play(SkySounds.ConnectPortalFail)
                 MessageBox.Show("Portal not found. Check portal_debug.log in the EXE folder.")
             End If
 
         Catch ex As Exception
             'Log the exception so portal connection issues can be traced later. SOOO helpful for me
             DeviceManagement.DebugWrite("ConnectToPortalToolStripMenuItem_Click() exception: " & ex.ToString())
+            SkySounds.Play(SkySounds.ConnectPortalFail)
             MessageBox.Show("Connect to Portal failed: " & ex.Message & vbCrLf & "Check portal_debug.log in the EXE folder.")
         End Try
     End Sub
@@ -444,8 +447,10 @@ Public Class frmMain
 
     'Updates the status and parses the first figure buffer after the read worker finishes.
     Private Sub bgReadPortal_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgReadPortal.RunWorkerCompleted
+        If PortalWorkerFailed(e) Then Return
         SaldeStatus.Text = "Figure Read from Portal"
         Parse_Figure()
+        PlayReadResult()
     End Sub
 
     'Runs the original first-figure portal write on its background worker.
@@ -458,7 +463,9 @@ Public Class frmMain
 
     'Updates the Developer status when the first figure write worker finishes.
     Private Sub bgWritePortal_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgWritePortal.RunWorkerCompleted
+        If PortalWorkerFailed(e) Then Return
         SaldeStatus.Text = "Figure written to Portal"
+        SkySounds.Play(SkySounds.SaveChanges)
     End Sub
 
     'Runs the original second figure portal read on its background worker.
@@ -467,14 +474,38 @@ Public Class frmMain
     End Sub
     'Updates the status and parses the second figure buffer when its read worker finishes.
     Private Sub bgReadPortalDuo_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgReadPortalDuo.RunWorkerCompleted
+        If PortalWorkerFailed(e) Then Return
         SaldeStatus.Text = "Figure Read from Portal"
         Parse_Figure()
+        PlayReadResult()
     End Sub
 
     'Runs the original second figure write on its background worker.
     Private Sub bgWritePortalDuo_DoWork(sender As Object, e As DoWorkEventArgs) Handles bgWritePortalDuo.DoWork
         Portal.Portal_Duo_Write()
         'write data to skylander in portal
+    End Sub
+
+    Private Sub bgWritePortalDuo_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgWritePortalDuo.RunWorkerCompleted
+        If PortalWorkerFailed(e) Then Return
+        SaldeStatus.Text = "Figure written to Portal"
+        SkySounds.Play(SkySounds.SaveChanges)
+    End Sub
+
+    'A failed or cancelled worker must not announce a successful read or save.
+    Private Function PortalWorkerFailed(e As RunWorkerCompletedEventArgs) As Boolean
+        If e.Error Is Nothing AndAlso Not e.Cancelled Then Return False
+        SaldeStatus.Text = If(e.Error Is Nothing, "Portal operation cancelled.", e.Error.Message)
+        SkySounds.Play(SkySounds.ProblemNoticeRead)
+        Return True
+    End Function
+
+    Private Sub PlayReadResult()
+        Dim notice As Boolean = Portal.blnAccess OrElse lstCharacters.SelectedItem Is Nothing OrElse FigureIO.blnSensei
+        If Not FigureIO.blnTrap AndAlso Not FigureIO.BlnVehicle AndAlso Not FigureIO.blnCrystal Then
+            notice = notice OrElse FigureWarnings.HasUnsafeCharacterData()
+        End If
+        SkySounds.Play(If(notice, SkySounds.ProblemNoticeRead, SkySounds.SuccessfulRead))
     End Sub
     'Disable the Portal Menu Controls except for Connect.
     'This is done when the Portal is Removed

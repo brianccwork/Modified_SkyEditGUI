@@ -10,7 +10,6 @@ Friend NotInheritable Class FigureArtwork
     Private ReadOnly editionPaths As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
 
     'Finds the Images directory and indexes PNG paths for exact and edition-insensitive matching.
-    'This has bugs that I will come back to fix hopefully idk.
     Friend Sub New()
         Dim directory As DirectoryInfo = New DirectoryInfo(Application.StartupPath)
         For depth As Integer = 0 To 4
@@ -44,10 +43,10 @@ Friend NotInheritable Class FigureArtwork
     'Normalizes artwork names, spelling differences, and word order for filename matching.
     '(At first I wasnt doing this, but idk anymore, ran into too many bugs so i just had this done)
     Friend Shared Function Normalize(name As String) As String
-        Dim value As String = name.ToLowerInvariant()
+        Dim value As String = name.Trim().ToLowerInvariant()
         value = Regex.Replace(value.Normalize(System.Text.NormalizationForm.FormD), "\p{Mn}", "")
-        value = Regex.Replace(value, "^(sobersu|fruitsnack)'s\s+", "")
-        value = Regex.Replace(value, "_logo(?:_v\d+)?$", "")
+        value = Regex.Replace(value, "^(sobersu|fruitsnack|cha0s)'s\s+", "")
+        value = Regex.Replace(value, "[_\s]+logo(?:[_\s]+v\d+)?$", "")
         value = Regex.Replace(value, "_(giant|mini)$", "")
         value = Regex.Replace(value, "_lc$", " lightcore")
         value = Regex.Replace(value, "_series(\d+)$", " series $1")
@@ -59,6 +58,11 @@ Friend NotInheritable Class FigureArtwork
         'Hyphens and apostrophes 
         value = value.Replace("jet vac", "jetvac").Replace("dive clops", "diveclops")
         value = value.Replace("eye brawl", "eyebrawl").Replace("ro bow", "robow")
+        'These supplied filenames differ from the catalog; keep each alias specific to its variant.
+        value = value.Replace("pumpkin eyebrawl giant", "pumpkin eyebrawl")
+        value = value.Replace("employee edition prism break", "employee edition lightcore prism break")
+        value = value.Replace("white flocked prism break", "white flocked lightcore prism break")
+        value = value.Replace("sprintime trigger happy", "springtime trigger happy")
         Return String.Join(" ", value.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries).OrderBy(Function(word) word, StringComparer.Ordinal))
     End Function
 

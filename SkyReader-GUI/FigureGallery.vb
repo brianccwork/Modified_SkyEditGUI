@@ -559,6 +559,7 @@ Friend Class SkyGameBrowser
             Dim header As New Button With {.Text = title & "  +", .Dock = DockStyle.Top, .Height = CInt(32 * DeviceDpi / 96.0F), .Font = SkyAssets.UiFont(7.0F),
                 .FlatStyle = FlatStyle.Flat, .BackColor = GameColor(title), .ForeColor = If(title = "Imaginators", Color.White, Color.Black), .UseVisualStyleBackColor = False}
             header.FlatAppearance.BorderSize = 0
+            SkySounds.AttachButton(header)
             Dim entries As New ListBox With {.Dock = DockStyle.Top, .Height = CInt(180 * DeviceDpi / 96.0F), .Font = SkyAssets.UiFont(7.0F),
                 .BackColor = SkyAssets.White, .ForeColor = Color.Black, .BorderStyle = BorderStyle.None, .IntegralHeight = False, .Visible = False, .HorizontalScrollbar = True}
             entries.Items.AddRange(FigureGallery.Names(title).Cast(Of Object)().ToArray())

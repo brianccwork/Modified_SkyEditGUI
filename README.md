@@ -56,6 +56,10 @@ For their research, teaching, and documentation regarding Skylanders and communi
 
 For their assets used in creating a visually appealing UI for the application.
 
+## Update 11/5/2026
+- Images for Chases in both SSA and SG
+- SFX have been added to the application
+
 ## MASSIVE REDESEIGN AND UPDATE 9/16/2026
 - NEW Skylanders UI
   - Added a main menu with Skylanders XP and Gold Modifier, Traps, Vehicles, Advanced, and Imaginators. Advanced opens the original Developer editor. The separate Imaginators page is still in development.
@@ -88,10 +92,8 @@ For their assets used in creating a visually appealing UI for the application.
 
 #### Future Plans
 - Imaginators Implementation
-- Some bugs regarding the images displayed
-- SFX for buttons and UI
-- Code Optimization and Cleanup
-- New UI Features or Community Requests?
+- Attempt to get rid of as many placeholder images as possible
+- New UI Features?
 
 ### Older Changes
 - Sensei Gold and Level modifier now accepts Heartbreaker Buckshot

@@ -175,14 +175,16 @@ Public Class frmModifier
             If SimplePortal.Connect() Then
                 connectionFailed = False
                 status.Text = "Portal connected. Place one figure on it, then select Read figure."
+                SkySounds.Play(SkySounds.ConnectPortal)
             Else
                 connectionFailed = True
                 connectionHelp.Visible = True
                 status.Text = "Portal not found."
-                MessageBox.Show(Me, "No portal was found. Connect your portal and try again.", "Connect portal", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                SkySounds.Play(SkySounds.ConnectPortalFail)
+                MessageBox.Show(Me, "No portal was found. Connect your portal and try again.", "Connect portal", MessageBoxButtons.OK)
             End If
         Catch ex As Exception
-            FailOperation(ex)
+            FailOperation(ex, SkySounds.ConnectPortalFail)
         Finally
             busy = False
             RefreshActions()
@@ -201,6 +203,8 @@ Public Class frmModifier
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(30))
                 Dim bytes As Byte() = Await SimplePortal.ReadFigureAsync(timeout.Token)
                 DisplaySession(New SimpleFigureSession(bytes, vehicleMode))
+                SkySounds.Play(If(session.IsUnsafe OrElse session.IsSensei OrElse Not session.CanEdit,
+                                  SkySounds.ProblemNoticeRead, SkySounds.SuccessfulRead))
                 ShowFigureWarnings()
             End Using
         Catch ex As Exception
@@ -230,6 +234,7 @@ Public Class frmModifier
                 DisplaySession(New SimpleFigureSession(verified, vehicleMode))
             End Using
             status.Text = If(vehicleMode, "Gearbits saved and read back successfully.", "Level and Gold saved and read back successfully.")
+            SkySounds.Play(SkySounds.SaveChanges)
         Catch ex As Exception
             FailOperation(ex)
         Finally
@@ -294,7 +299,8 @@ Public Class frmModifier
     End Sub
 
     'reports a failed or timed-out operation and clears stale editor session state.
-    Private Sub FailOperation(ex As Exception)
+    Private Sub FailOperation(ex As Exception, Optional sound As String = SkySounds.ProblemNoticeRead)
+        SkySounds.Play(sound)
         SimplePortal.Disconnect()
         connectionFailed = True
         connectionHelp.Visible = True

@@ -187,6 +187,7 @@
     <Compile Include="SkyMessageBox.vb" />
     <Compile Include="SkyPolish.vb" />
     <Compile Include="SkyPresentation.vb" />
+    <Compile Include="SkySounds.vb" />
     <Compile Include="SkyTheme.Forms.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -246,6 +247,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skylanders.ico" />
+    <Content Include="Images\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SFX\**\*.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\SFX\**\*.mp3" Condition="!Exists('SFX')">
+      <Link>SFX\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

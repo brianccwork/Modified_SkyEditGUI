@@ -35,6 +35,7 @@ Public Class FigureIO
         Catch ex As Exception
             'frmLog.rtxLog.Text = frmLog.rtxLog.Text & Date.Now & "Unable to Open " & File
             'frmLog.Show()
+            SkySounds.Play(SkySounds.ProblemNoticeRead)
             Exit Sub
         End Try
 
@@ -43,6 +44,7 @@ Public Class FigureIO
             'SWAP
             'MessageBox.Show("Sorry, this program does not handle a Maxlander Swap Force Dump.")
             frmMain.SaldeStatus.Text = "Sorry, this program does not handle a Maxlander Swap Force Dump."
+            SkySounds.Play(SkySounds.ProblemNoticeRead)
             'frmLog.rtxLog.Text = frmLog.rtxLog.Text & Date.Now & "Sorry, this program does not handle a Maxlander Swap Force Dump."
             'frmLog.Show()
             Exit Sub
@@ -50,6 +52,7 @@ Public Class FigureIO
             'frmLog.rtxLog.Text = frmLog.rtxLog.Text & Date.Now & "The Figure must be 1 Kilobyte."
             'frmLog.Show()
             frmMain.SaldeStatus.Text = "The Figure must be 1 Kilobyte."
+            SkySounds.Play(SkySounds.ProblemNoticeRead)
             fs.Close()
             Exit Sub
         End If
@@ -63,6 +66,11 @@ Public Class FigureIO
         fs.Close() ' close the FileStream
 
         Parse_Figure()
+        Dim notice As Boolean = blnSensei OrElse frmMain.lstCharacters.SelectedItem Is Nothing
+        If Not blnTrap AndAlso Not BlnVehicle AndAlso Not blnCrystal Then
+            notice = notice OrElse FigureWarnings.HasUnsafeCharacterData()
+        End If
+        SkySounds.Play(If(notice, SkySounds.ProblemNoticeRead, SkySounds.SuccessfulRead))
     End Sub
 
     'Identifies the figure, detects encoding, validates checksums, and populates the appropriate editor controls.
@@ -350,6 +358,7 @@ Public Class FigureIO
             fs.Write(WholeFile, 0, WholeFile.Length)
             fs.Flush()
             fs.Close()
+            SkySounds.Play(SkySounds.SaveChanges)
         End If
     End Sub
 
@@ -380,6 +389,7 @@ Public Class FigureIO
             fs.Close()
             'We Decrypt after we are done.
             Decrypt()
+            SkySounds.Play(SkySounds.SaveChanges)
         End If
     End Sub
 
@@ -400,6 +410,7 @@ Public Class FigureIO
             fs.Write(WholeFile, 0, WholeFile.Length)
             fs.Flush()
             fs.Close()
+            SkySounds.Play(SkySounds.SaveChanges)
         End If
     End Sub
     'Decryption and Encrytion are in here in this Module due to being Relevant to Figure I/O
