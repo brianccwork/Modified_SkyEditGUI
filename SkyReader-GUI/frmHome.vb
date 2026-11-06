@@ -8,6 +8,7 @@ Public Class frmHome
 
     'Builds the landing layout, navigation buttons, and third-party image disclaimer.
     Public Sub New()
+        SkySounds.Initialize()
         SkyAssets.InstallCursor()
         Text = "Skylander Editor"
         Name = "frmHome"
@@ -36,6 +37,9 @@ Public Class frmHome
         Dim help As New SkyHelpShortcut With {.Size = New Size(116, 76), .Anchor = AnchorStyles.Top Or AnchorStyles.Left, .Margin = New Padding(4, 4, 8, 10)}
         header.Controls.Add(help, 0, 0)
         AddHandler help.Click, AddressOf OpenPortalHelp
+        Dim volume As New SkyVolumeShortcut With {.Size = New Size(76, 76),
+            .Anchor = AnchorStyles.Top Or AnchorStyles.Right, .Margin = New Padding(8, 4, 4, 10)}
+        header.Controls.Add(volume, 2, 0)
         page.Controls.Add(header, 0, 0)
         Dim logo As New PictureBox With {.Dock = DockStyle.Fill, .Image = SkyAssets.Logo,
             .SizeMode = PictureBoxSizeMode.Zoom, .BackColor = Color.Transparent, .Margin = New Padding(20, 0, 20, 0)}
@@ -160,5 +164,83 @@ Public Class frmHome
         closingApplication = True
         SimplePortal.Disconnect()
         MyBase.OnFormClosing(e)
+    End Sub
+End Class
+
+
+'Icon-only home shortcut. The normal button painter must not add a caption or sand tile.
+Friend NotInheritable Class SkyVolumeShortcut
+    Inherits Button
+
+    Private ReadOnly icons As Image() = {SkyDecor.Asset("FullVolume.png"), SkyDecor.Asset("MediumVolume.png"),
+        SkyDecor.Asset("LowVolume.png"), SkyDecor.Asset("SilentVolume.png")}
+
+    Friend Sub New()
+        Name = "btnVolume"
+        Text = String.Empty
+        AccessibleRole = AccessibleRole.PushButton
+        SetStyle(ControlStyles.SupportsTransparentBackColor Or ControlStyles.UserPaint Or
+                 ControlStyles.AllPaintingInWmPaint Or ControlStyles.OptimizedDoubleBuffer, True)
+        BackColor = Color.Transparent
+        FlatStyle = FlatStyle.Flat
+        FlatAppearance.BorderSize = 0
+        FlatAppearance.MouseOverBackColor = Color.Transparent
+        FlatAppearance.MouseDownBackColor = Color.Transparent
+        Cursor = Cursors.Hand
+        TabStop = True
+        UpdateDescription()
+    End Sub
+
+    Protected Overrides Sub OnClick(e As EventArgs)
+        SkySounds.CycleVolume()
+        UpdateDescription()
+        Invalidate()
+        'Preview the new level; Silent stops any currently playing effect and stays silent.
+        SkySounds.PlayRandomButton()
+        MyBase.OnClick(e)
+    End Sub
+
+    Private Sub UpdateDescription()
+        AccessibleName = "Sound volume: " & SkySounds.CurrentVolume.ToString()
+        AccessibleDescription = "Change sound volume. Cycles Medium, Low, Silent, Full."
+    End Sub
+
+    Protected Overrides Sub OnPaint(e As PaintEventArgs)
+        Dim scale As Single = DeviceDpi / 96.0F
+        Dim side As Integer = Math.Max(1, Math.Min(CInt(48 * scale), Math.Min(Width, Height) - CInt(12 * scale)))
+        Dim bounds As New Rectangle((Width - side) \ 2, (Height - side) \ 2, side, side)
+        Dim icon As Image = icons(CInt(SkySounds.CurrentVolume))
+        e.Graphics.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
+        If icon IsNot Nothing Then
+            e.Graphics.DrawImage(icon, bounds)
+        Else
+            'Keep the shortcut usable if optional UI images are absent from a release.
+            DrawSpeaker(e.Graphics, bounds)
+        End If
+        If Focused AndAlso ShowFocusCues Then ControlPaint.DrawFocusRectangle(e.Graphics, Rectangle.Inflate(ClientRectangle, -4, -4))
+    End Sub
+
+    Private Sub DrawSpeaker(g As Graphics, bounds As Rectangle)
+        Dim state As Drawing2D.GraphicsState = g.Save()
+        Try
+            g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+            g.TranslateTransform(bounds.X, bounds.Y)
+            g.ScaleTransform(bounds.Width / 48.0F, bounds.Height / 48.0F)
+            Using fill As New SolidBrush(SkyAssets.Ink), pen As New Pen(SkyAssets.Ink, 2.5F)
+                g.FillPolygon(fill, New PointF() {New PointF(5, 18), New PointF(13, 18), New PointF(23, 9),
+                    New PointF(23, 39), New PointF(13, 30), New PointF(5, 30)})
+                If SkySounds.CurrentVolume = SkySounds.VolumeLevel.Silent Then
+                    g.DrawLine(pen, 30, 18, 42, 30)
+                    g.DrawLine(pen, 30, 30, 42, 18)
+                Else
+                    Dim arcs As Integer = 3 - CInt(SkySounds.CurrentVolume)
+                    For index As Integer = 0 To arcs - 1
+                        g.DrawArc(pen, 21 - index * 5, 16 - index * 6, 14 + index * 12, 16 + index * 12, -55, 110)
+                    Next
+                End If
+            End Using
+        Finally
+            g.Restore(state)
+        End Try
     End Sub
 End Class

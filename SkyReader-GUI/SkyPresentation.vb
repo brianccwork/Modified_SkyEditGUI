@@ -40,6 +40,7 @@ Friend NotInheritable Class SkyPresentation
 
     'Applies shared button styling and registers the repaint handlers used for interaction feedback.
     Friend Shared Sub StyleButton(button As Button)
+        If TypeOf button Is SkyVolumeShortcut Then Return
         Dim marker As Object = Nothing
         If styled.TryGetValue(button, marker) Then Return
         styled.Add(button, New Object())
