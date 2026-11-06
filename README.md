@@ -52,7 +52,7 @@ For their research, teaching, and documentation regarding Skylanders and communi
 - [Skylandeer](https://www.youtube.com/@theSkylandeer) - Blue Shattered Trap Team background
 - Motion Vision - Animated Cloud background
 - Activision Skylanders - Icons, and Logo
-- fruitsnack and Sobersu's for the Skylander Icons displayed on the portal
+- fruitsnack, Cha0s, and Sobersu's for the Skylander Icons displayed on the portal
 
 For their assets used in creating a visually appealing UI for the application.
 
