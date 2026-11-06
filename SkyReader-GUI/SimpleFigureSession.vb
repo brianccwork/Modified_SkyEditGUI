@@ -22,7 +22,12 @@ Friend NotInheritable Class SimpleFigureSession
     Friend ReadOnly Property IsSensei As Boolean
     'Records whether the loaded data failed the applicable editor safety checks.
     Friend ReadOnly Property IsUnsafe As Boolean
+    Friend ReadOnly Property IsPreviewOnly As Boolean
+    Friend ReadOnly Property Identity As ScannedFigureInfo
     Private ReadOnly vehicleMode As Boolean
+    Private ReadOnly crystal As CrystalSession
+    Friend ReadOnly Property IsCrystal As Boolean
+    Friend ReadOnly Property Notice As String
     'Allows an otherwise unchanged save when legacy initialization metadata still needs repair. (Keep an eye on this NOTE)
     Friend ReadOnly Property NeedsChecksumRepair As Boolean
     'Records whether regular plaintext payload must be encrypted before a portal write.
@@ -45,9 +50,40 @@ Friend NotInheritable Class SimpleFigureSession
     Friend ReadOnly Property Catalog As New List(Of String)
 
     'Parses a scanned snapshot, applies type-specific validation, and records its values and edit limits.
-    Friend Sub New(bytes As Byte(), Optional editVehicle As Boolean = False)
+    Friend Sub New(bytes As Byte(), Optional editVehicle As Boolean = False, Optional editCrystal As Boolean = False)
         vehicleMode = editVehicle
         If bytes Is Nothing OrElse bytes.Length <> 1024 Then Throw New InvalidDataException("Read a valid figure first.")
+        If editCrystal AndAlso editVehicle Then Throw New ArgumentException("Select one editor mode.")
+        Original = DirectCast(bytes.Clone(), Byte())
+        Identity = New ScannedFigureInfo(bytes)
+        Dim currentEditor As FigureEditorKind = If(editCrystal, FigureEditorKind.Crystals,
+            If(editVehicle, FigureEditorKind.Vehicles, FigureEditorKind.Skylanders))
+        If Not Identity.Matches(currentEditor) Then
+            IsPreviewOnly = True
+            FigureName = Identity.FigureName
+            GameName = Identity.GameName
+            IsVehicle = Identity.Editor = FigureEditorKind.Vehicles
+            IsCrystal = Identity.Editor = FigureEditorKind.Crystals
+            GoldMaximum = 65000D
+            LevelMaximum = 20D
+            LevelValue = 1D
+            Notice = Identity.ReadOnlyMessage
+            Return
+        End If
+        If editCrystal Then
+            crystal = New CrystalSession(bytes)
+            IsCrystal = True
+            Original = DirectCast(bytes.Clone(), Byte())
+            FigureName = crystal.FigureName
+            GameName = "Imaginators Crystals"
+            GoldValue = crystal.GoldValue
+            LevelValue = crystal.LevelValue
+            GoldMaximum = 65535D
+            LevelMaximum = CrystalSession.MaximumLevel
+            CanEdit = crystal.CanEdit
+            Notice = crystal.Notice
+            Return
+        End If
         frmMain.EnsureEditorInitialized()
         Original = DirectCast(bytes.Clone(), Byte())
         FigureIO.WholeFile = DirectCast(bytes.Clone(), Byte())
@@ -124,6 +160,8 @@ Friend NotInheritable Class SimpleFigureSession
         If gold < 0 OrElse gold > GoldMaximum OrElse level < 1 OrElse level > LevelMaximum Then
             Throw New ArgumentOutOfRangeException("The requested values are outside this editor's limits.")
         End If
+        If gold <> Decimal.Truncate(gold) OrElse level <> Decimal.Truncate(level) Then Throw New ArgumentOutOfRangeException("Use whole Gold/Level values.")
+        If IsCrystal Then Return crystal.BuildSave(gold, If(level <> LevelValue, CType(CInt(level), Integer?), Nothing))
         If gold = GoldValue AndAlso level = LevelValue AndAlso Not NeedsChecksumRepair Then Return Original
 
         If Not IsVehicle AndAlso Not IsSensei AndAlso GameName <> "Imaginators" Then

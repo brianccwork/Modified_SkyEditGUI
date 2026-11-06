@@ -40,7 +40,6 @@ Friend NotInheritable Class SkyPresentation
 
     'Applies shared button styling and registers the repaint handlers used for interaction feedback.
     Friend Shared Sub StyleButton(button As Button)
-        If TypeOf button Is SkyVolumeShortcut Then Return
         Dim marker As Object = Nothing
         If styled.TryGetValue(button, marker) Then Return
         styled.Add(button, New Object())
@@ -272,6 +271,20 @@ Public Class SkyCloudForm
             bufferDirty = False
         End If
         e.Graphics.DrawImageUnscaled(frameBuffer, 0, 0)
+    End Sub
+
+    'Draw just the cloud at the shortcut's actual window coordinates, never sibling controls.
+    Friend Sub PaintCloudBehind(control As Control, graphics As Graphics)
+        Dim origin As Point = PointToClient(control.PointToScreen(Point.Empty))
+        Dim state As GraphicsState = graphics.Save()
+        Try
+            graphics.TranslateTransform(-origin.X, -origin.Y)
+            Using args As New PaintEventArgs(graphics, New Rectangle(origin, control.ClientSize))
+                OnPaintBackground(args)
+            End Using
+        Finally
+            graphics.Restore(state)
+        End Try
     End Sub
 
     'Stops animation and releases the timer, frame buffer, GIF, and retained image stream.

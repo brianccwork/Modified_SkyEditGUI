@@ -118,14 +118,16 @@ Friend NotInheritable Class SimplePortal
 
     'Recognizes the supported Swap Force top-half ID range in the unencrypted header.
     Friend Shared Function IsSwapTop(data As Byte()) As Boolean
+        If data Is Nothing OrElse data.Length < 18 Then Return False
         Dim id As Integer = CInt(data(&H10)) Or (CInt(data(&H11)) << 8)
-        Return id >= 2000 AndAlso id <= 2015
+        Return ScannedFigureInfo.IsTopId(id)
     End Function
 
     'Recognizes the supported Swap Force bottom-half ID range in the unencrypted header.
     Private Shared Function IsSwapBottom(data As Byte()) As Boolean
+        If data Is Nothing OrElse data.Length < 18 Then Return False
         Dim id As Integer = CInt(data(&H10)) Or (CInt(data(&H11)) << 8)
-        Return id >= 1000 AndAlso id <= 1015
+        Return ScannedFigureInfo.IsBottomId(id)
     End Function
 
     'eads the first two blocks used to identify a figure before and during an operation.
@@ -135,32 +137,49 @@ Friend NotInheritable Class SimplePortal
         Return first.Concat(second).ToArray()
     End Function
 
-    'Selects one unambiguous figure and reads an assembled swapper's bottom before choosing its top.
+    'Select the top directly: bottom payload readability must never gate top Gold/Level.
+    'Allow a short arrival window when only a bottom or no figure is initially reported.
     Private Shared Async Function SelectSlotAsync(token As CancellationToken) As Task(Of Integer)
-        Dim slots As Integer() = Await PresentSlotsAsync(token)
-        If slots.Length = 0 Then Throw New IOException("No figure was found. Press (Connect Portal) again, then place one figure on the portal and read again.")
-        Dim headers As New Dictionary(Of Integer, Byte())
-        For Each slot As Integer In slots
-            headers.Add(slot, Await HeaderAsync(slot, token))
-        Next
-        Dim tops As Integer() = slots.Where(Function(slot) IsSwapTop(headers(slot))).ToArray()
-        If tops.Length = 1 AndAlso (slots.Length = 1 OrElse
-           (slots.Length = 2 AndAlso slots.Any(Function(slot) IsSwapBottom(headers(slot))))) Then
-            'Match the working Developer sequence: finish reading the bottom, then
-            'read the top. Keep one activation so indices cannot reset between halves.
-            For Each bottom As Integer In slots.Where(Function(index) IsSwapBottom(headers(index)))
-                Dim bottomData As Byte() = Await ReadSlotAsync(bottom, token)
-                If Not headers(bottom).SequenceEqual(bottomData.Take(32)) Then
-                    Throw New IOException("The Swap Force bottom changed while reading. Read the figure again.")
+        Dim arrival As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
+        Do
+            Dim slots As Integer() = Await PresentSlotsAsync(token)
+            If slots.Length = 0 Then
+                If arrival.ElapsedMilliseconds < 1200 Then
+                    Await Task.Delay(120, token)
+                    Continue Do
                 End If
+                Throw New IOException("No figure was found. Reconnect the portal, place one figure on it, and read again.")
+            End If
+            Dim headers As New Dictionary(Of Integer, Byte())
+            Dim awaitingHeader As Boolean = False
+            For Each slot As Integer In slots
+                Try
+                    headers.Add(slot, Await HeaderAsync(slot, token))
+                Catch ex As IOException When arrival.ElapsedMilliseconds < 1200
+                    awaitingHeader = True
+                    Exit For
+                End Try
             Next
-            Return tops(0)
-        End If
-        If slots.Length = 1 AndAlso Not IsSwapBottom(headers(slots(0))) Then Return slots(0)
-        If slots.All(Function(slot) IsSwapBottom(headers(slot))) Then
-            Throw New IOException("Only a Swap Force bottom half was detected. Attach the top half and read again. Gold and Level are stored on the top half.")
-        End If
-        Throw New IOException("More than one figure was detected. Leave only one figure (or one assembled Swap Force figure) on the portal and read again.")
+            If awaitingHeader Then
+                Await Task.Delay(120, token)
+                Continue Do
+            End If
+            Dim tops As Integer() = slots.Where(Function(slot) IsSwapTop(headers(slot))).ToArray()
+            If tops.Length = 1 AndAlso (slots.Length = 1 OrElse
+               (slots.Length = 2 AndAlso slots.Any(Function(slot) IsSwapBottom(headers(slot))))) Then
+                'An assembled swapper may expose two slots. Only the top's full dump is needed.
+                Return tops(0)
+            End If
+            If slots.Length = 1 Then
+                If IsSwapBottom(headers(slots(0))) AndAlso arrival.ElapsedMilliseconds < 1200 Then
+                    Await Task.Delay(120, token)
+                    Continue Do
+                End If
+                'A bottom-only scan is displayed read-only; every save path still rejects it.
+                Return slots(0)
+            End If
+            Throw New IOException("More than one figure was detected. Leave only one figure or one assembled Swap Force figure on the portal.")
+        Loop
     End Function
 
     'Reads all 64 blocks and checks that the identity stayed the same throughout the scan.
@@ -242,6 +261,41 @@ Friend NotInheritable Class SimplePortal
         If Not verified.SequenceEqual(updated) Then Throw New IOException("The saved figure did not match the requested changes. Read it again.")
         Return verified
     End Function
+    'Writes one alternate CYOS record, committing its checksum/sequence header last.
+    Friend Shared Async Function SaveCrystalAsync(original As Byte(), updated As Byte(), token As CancellationToken) As Task(Of Byte())
+        Dim crystal As New CrystalSession(original)
+        Dim blocks As Integer() = crystal.WriteBlocks(updated)
+        If original.SequenceEqual(updated) Then Return DirectCast(original.Clone(), Byte())
+        Await ActivateAsync(token)
+        Dim slot As Integer = Await SelectSlotAsync(token)
+        Dim current As Byte() = Await ReadSlotAsync(slot, token)
+        If Not current.SequenceEqual(original) Then Throw New IOException("The crystal or its data changed. Read it again before saving.")
+
+        'The original snapshot remains in memory for comparison; no backup files are created.
+        For Each block As Integer In blocks
+            token.ThrowIfCancellationRequested()
+            Dim expected As Byte() = updated.Skip(block * 16).Take(16).ToArray()
+            If expected.SequenceEqual(original.Skip(block * 16).Take(16)) Then Continue For
+            Dim identity As Byte() = Await HeaderAsync(slot, token)
+            If Not identity.SequenceEqual(original.Take(32)) Then Throw New IOException("The crystal changed while saving. Read it again.")
+            Dim request(32) As Byte
+            request(1) = &H57
+            request(2) = CByte(&H20 Or slot)
+            request(3) = CByte(block)
+            Array.Copy(expected, 0, request, 4, 16)
+            Send(request)
+            Await ReplyAsync(&H57, slot, block, token)
+            Await Task.Delay(100, token)
+            Dim actual As Byte() = Await ReadBlockAsync(slot, block, token)
+            If Not actual.SequenceEqual(expected) Then Throw New IOException("Crystal write verification failed. Read the crystal again.")
+        Next
+        Dim verified As Byte() = Await ReadSlotAsync(slot, token)
+        If Not verified.SequenceEqual(updated) Then Throw New IOException("The saved crystal did not match the requested changes. Read it again.")
+        Dim check As New CrystalSession(verified)
+        If Not check.CanEdit Then Throw New InvalidDataException("The saved crystal failed CYOS validation. Read it again.")
+        Return verified
+    End Function
+
     'Uses the trap specific write set and checks identity and readback throughout the save.
     Friend Shared Async Function SaveTrapAsync(original As Byte(), updated As Byte(), token As CancellationToken) As Task(Of Byte())
         Dim trap As New TrapSession(original)

@@ -71,15 +71,15 @@ Public Class frmHome
         Dim traps As Button = SimpleUi.Action("Traps")
         Dim vehicles As Button = SimpleUi.Action("Vehicles")
         Dim developer As Button = SimpleUi.Action("Advanced")
-        Dim imaginators As Button = SimpleUi.Action("Imaginators")
+        Dim imaginators As Button = SimpleUi.Action("Imaginators / CYOS")
         AddHandler traps.Click, AddressOf OpenTraps
-        imaginators.Enabled = False
+        AddHandler imaginators.Click, AddressOf OpenImaginators
         buttons.Controls.Add(modifier, 0, 0)
         buttons.SetColumnSpan(modifier, 2)
         buttons.Controls.Add(traps, 0, 1)
         buttons.Controls.Add(vehicles, 1, 1)
         buttons.Controls.Add(developer, 0, 2)
-        buttons.Controls.Add(SkyDecor.Development(imaginators), 1, 2)
+        buttons.Controls.Add(imaginators, 1, 2)
         page.Controls.Add(buttons, 0, 2)
 
         Dim disclaimer As New SkyTextCard With {.Dock = DockStyle.Top,
@@ -143,6 +143,14 @@ Public Class frmHome
         Hide()
     End Sub
 
+    'Opens the dedicated Creation Crystal mode with the shared Gold/Level styling.
+    Private Sub OpenImaginators(sender As Object, e As EventArgs)
+        Dim editor As New frmModifier(False, True)
+        AddHandler editor.FormClosed, AddressOf ReturnHome
+        editor.Show()
+        Hide()
+    End Sub
+
     'Opens the simplified character Gold and Level editor.
     Private Sub OpenModifier(sender As Object, e As EventArgs)
         Dim modifier As New frmModifier()
@@ -168,9 +176,9 @@ Public Class frmHome
 End Class
 
 
-'Icon-only home shortcut. The normal button painter must not add a caption or sand tile.
+'Icon-only home shortcut. Draws directly over the cloud without native button theming.
 Friend NotInheritable Class SkyVolumeShortcut
-    Inherits Button
+    Inherits Control
 
     Private ReadOnly icons As Image() = {SkyDecor.Asset("FullVolume.png"), SkyDecor.Asset("MediumVolume.png"),
         SkyDecor.Asset("LowVolume.png"), SkyDecor.Asset("SilentVolume.png")}
@@ -182,13 +190,34 @@ Friend NotInheritable Class SkyVolumeShortcut
         SetStyle(ControlStyles.SupportsTransparentBackColor Or ControlStyles.UserPaint Or
                  ControlStyles.AllPaintingInWmPaint Or ControlStyles.OptimizedDoubleBuffer, True)
         BackColor = Color.Transparent
-        FlatStyle = FlatStyle.Flat
-        FlatAppearance.BorderSize = 0
-        FlatAppearance.MouseOverBackColor = Color.Transparent
-        FlatAppearance.MouseDownBackColor = Color.Transparent
+        SetStyle(ControlStyles.Selectable Or ControlStyles.StandardClick, True)
         Cursor = Cursors.Hand
         TabStop = True
         UpdateDescription()
+    End Sub
+
+    'A lightweight transparent control avoids native Button background/theme painting.
+    Protected Overrides Sub OnPaintBackground(e As PaintEventArgs)
+        Dim home As SkyCloudForm = TryCast(FindForm(), SkyCloudForm)
+        If home Is Nothing Then
+            MyBase.OnPaintBackground(e)
+        Else
+            home.PaintCloudBehind(Me, e.Graphics)
+        End If
+    End Sub
+
+    Protected Overrides Sub OnMouseDown(e As MouseEventArgs)
+        If e.Button = MouseButtons.Left Then Focus()
+        MyBase.OnMouseDown(e)
+    End Sub
+
+    Protected Overrides Sub OnKeyDown(e As KeyEventArgs)
+        If e.KeyCode = Keys.Space OrElse e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            OnClick(EventArgs.Empty)
+            Return
+        End If
+        MyBase.OnKeyDown(e)
     End Sub
 
     Protected Overrides Sub OnClick(e As EventArgs)
@@ -199,6 +228,27 @@ Friend NotInheritable Class SkyVolumeShortcut
         SkySounds.PlayRandomButton()
         MyBase.OnClick(e)
     End Sub
+
+    Protected Overrides Function CreateAccessibilityInstance() As AccessibleObject
+        Return New VolumeAccessibleObject(Me)
+    End Function
+
+    Private NotInheritable Class VolumeAccessibleObject
+        Inherits Control.ControlAccessibleObject
+        Private ReadOnly shortcut As SkyVolumeShortcut
+        Friend Sub New(owner As SkyVolumeShortcut)
+            MyBase.New(owner)
+            shortcut = owner
+        End Sub
+        Public Overrides ReadOnly Property DefaultAction As String
+            Get
+                Return "Change volume"
+            End Get
+        End Property
+        Public Overrides Sub DoDefaultAction()
+            If shortcut.Enabled Then shortcut.OnClick(EventArgs.Empty)
+        End Sub
+    End Class
 
     Private Sub UpdateDescription()
         AccessibleName = "Sound volume: " & SkySounds.CurrentVolume.ToString()

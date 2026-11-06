@@ -116,7 +116,6 @@ Friend NotInheritable Class SkySounds
     'Play on mouse-down, before navigation or expensive Click handlers run.
     'Click remains the fallback for keyboard, accessibility, and PerformClick activation.
     Friend Shared Sub AttachButton(button As Button)
-        If TypeOf button Is SkyVolumeShortcut Then Return
         Dim state As PressState = Nothing
         If attached.TryGetValue(button, state) Then Return
         attached.Add(button, New PressState())

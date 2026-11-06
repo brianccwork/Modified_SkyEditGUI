@@ -23,14 +23,17 @@ Public Class frmModifier
     Private connectionFailed As Boolean
     Private ReadOnly artwork As New FigureArtwork()
     Private ReadOnly vehicleMode As Boolean
+    Private ReadOnly crystalMode As Boolean
     Private session As SimpleFigureSession
     Private busy As Boolean
 
     'Builds the shared character or vehicle editor and connects its actions and preview events.
-    Public Sub New(Optional editVehicle As Boolean = False)
+    Public Sub New(Optional editVehicle As Boolean = False, Optional editCrystal As Boolean = False)
+        If editVehicle AndAlso editCrystal Then Throw New ArgumentException("Select one editor mode.")
         vehicleMode = editVehicle
+        crystalMode = editCrystal
         SimplePortal.Disconnect()
-        Text = If(vehicleMode, "SkyGUI - Vehicle Gearbits", "SkyGUI - Level and Gold Modifier")
+        Text = If(crystalMode, "SkyGUI - Imaginators / CYOS Gold and Level", If(vehicleMode, "SkyGUI - Vehicle Gearbits", "SkyGUI - Level and Gold Modifier"))
         Name = "frmModifier"
         SkyAssets.ApplyWindowIcon(Me)
         Font = SimpleUi.Body
@@ -55,7 +58,7 @@ Public Class frmModifier
         page.RowStyles.Add(New RowStyle(SizeType.Percent, 100))
         page.RowStyles.Add(New RowStyle(SizeType.AutoSize))
         page.RowStyles.Add(New RowStyle(SizeType.Absolute, 116))
-        Dim heading As Label = SimpleUi.Caption(If(vehicleMode, "Vehicle Gearbits", "Level and Gold Modifier"))
+        Dim heading As Label = SimpleUi.Caption(If(crystalMode, "Imaginators / CYOS Gold and Level", If(vehicleMode, "Vehicle Gearbits", "Level and Gold Modifier")))
         heading.Font = SimpleUi.Heading
         heading.AutoSize = False
         heading.BackColor = SkyAssets.Panel
@@ -77,7 +80,7 @@ Public Class frmModifier
         goldInput.Maximum = 65000
         goldInput.ThousandsSeparator = True
         levelInput.Minimum = 1
-        levelInput.Maximum = 20
+        levelInput.Maximum = If(crystalMode, CrystalSession.MaximumLevel, 20)
         For Each input As NumericUpDown In New NumericUpDown() {goldInput, levelInput}
             input.Font = SimpleUi.NumberFont
             input.BackColor = SkyAssets.Panel
@@ -87,7 +90,7 @@ Public Class frmModifier
         Next
         editor.Controls.Add(goldInput, 0, 4)
         If Not vehicleMode Then
-            editor.Controls.Add(SkyDecor.FieldLabel("Level", "XP.ico"), 0, 5)
+            editor.Controls.Add(SkyDecor.FieldLabel(If(crystalMode, "Level (Max: 80)", "Level"), "XP.ico"), 0, 5)
             editor.Controls.Add(levelInput, 0, 6)
         Else
             Dim hint As Label = SimpleUi.Caption("Gearbits range: 0 - 33,000")
@@ -197,14 +200,16 @@ Public Class frmModifier
         busy = True
         ClearSession()
         loadedName.Text = "Reading figure..."
-        status.Text = "Keep one figure on the portal. Swap Force: keep both halves assembled while the bottom and then the top are read."
+        status.Text = If(crystalMode, "Keep one Creation Crystal on the portal while its character is read.",
+            "Keep one figure on the portal. Swap Force: keep both halves assembled while the bottom and then the top are read.")
         RefreshActions()
         Try
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(30))
                 Dim bytes As Byte() = Await SimplePortal.ReadFigureAsync(timeout.Token)
-                DisplaySession(New SimpleFigureSession(bytes, vehicleMode))
-                SkySounds.Play(If(session.IsUnsafe OrElse session.IsSensei OrElse Not session.CanEdit,
-                                  SkySounds.ProblemNoticeRead, SkySounds.SuccessfulRead))
+                DisplaySession(New SimpleFigureSession(bytes, vehicleMode, crystalMode))
+                SkySounds.Play(If(session.IsPreviewOnly AndAlso session.Identity.IsKnown, SkySounds.SuccessfulRead,
+                    If(session.IsUnsafe OrElse session.IsSensei OrElse Not session.CanEdit,
+                       SkySounds.ProblemNoticeRead, SkySounds.SuccessfulRead)))
                 ShowFigureWarnings()
             End Using
         Catch ex As Exception
@@ -229,9 +234,18 @@ Public Class frmModifier
         Try
             Dim original As Byte() = session.Original
             Dim updated As Byte() = session.BuildSave(goldInput.Value, levelInput.Value)
+            If updated.SequenceEqual(original) Then
+                status.Text = "There are no changes to save."
+                Return
+            End If
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(60))
-                Dim verified As Byte() = Await SimplePortal.SaveAsync(original, updated, timeout.Token, vehicleMode, session.RequiresFullEncryption)
-                DisplaySession(New SimpleFigureSession(verified, vehicleMode))
+                Dim verified As Byte()
+                If crystalMode Then
+                    verified = Await SimplePortal.SaveCrystalAsync(original, updated, timeout.Token)
+                Else
+                    verified = Await SimplePortal.SaveAsync(original, updated, timeout.Token, vehicleMode, session.RequiresFullEncryption)
+                End If
+                DisplaySession(New SimpleFigureSession(verified, vehicleMode, crystalMode))
             End Using
             status.Text = If(vehicleMode, "Gearbits saved and read back successfully.", "Level and Gold saved and read back successfully.")
             SkySounds.Play(SkySounds.SaveChanges)
@@ -255,6 +269,12 @@ Public Class frmModifier
         ShowPreview(Me, EventArgs.Empty)
         status.Text = If(value.CanEdit, If(vehicleMode, "Vehicle loaded. Change Gearbits, then save.", "Figure loaded. Change Gold or Level, then save."),
             If(value.IsUnsafe, "Unsafe figure data. Saving is disabled. Please press Connect Portal and try again.", If(vehicleMode, "Read a supported vehicle to edit Gearbits.", "This figure is preview-only here. Use its matching editor if one exists on a different page.")))
+        If value.IsPreviewOnly Then
+            status.Text = value.Notice
+        ElseIf crystalMode Then
+            status.Text = If(value.CanEdit, "Imaginator loaded. Change Gold or Level, then save.",
+                "Create and save your Imaginator in-game, then read the crystal again.")
+        End If
         If value.CanEdit AndAlso SimplePortal.IsSwapTop(value.Original) Then
             status.Text = "Swap Force top half loaded. Gold, and Level changes save to the top; the bottom stays unchanged."
         End If
@@ -265,7 +285,11 @@ Public Class frmModifier
 
     'Displays the relevant unsafe data or Sensei initialization guidance for the loaded session.
     Private Sub ShowFigureWarnings()
-        If session Is Nothing Then Return
+        If session Is Nothing OrElse session.IsPreviewOnly Then Return
+        If crystalMode Then
+            If Not session.CanEdit Then FigureWarnings.ShowWarning(Me, "Creation Crystal initialization", session.Notice)
+            Return
+        End If
         If session.IsSensei Then FigureWarnings.ShowWarning(Me, "Sensei initialization", FigureWarnings.SenseiText)
         If session.IsUnsafe Then
             Dim message As String = If(session.IsVehicle,
@@ -277,7 +301,8 @@ Public Class frmModifier
 
     'Builds the expandable game and figure list used for pre-scan artwork browsing.
     Private Sub LoadGallery(sender As Object, e As EventArgs)
-        gallery.LoadCatalog()
+        gallery.LoadCatalog(If(crystalMode, ArtworkBrowserMode.Crystals,
+            If(vehicleMode, ArtworkBrowserMode.Vehicles, ArtworkBrowserMode.Skylanders)))
         ShowPreview(Me, EventArgs.Empty)
     End Sub
 
@@ -288,10 +313,15 @@ Public Class frmModifier
             previewName.Text = "Current Scanned Figure on Portal of Power" & vbCrLf & session.FigureName
             imageBox.Image = artwork.Load(If(session.IsVehicle, "Vehicles", session.GameName), session.FigureName)
         ElseIf gallery.SelectedFigure IsNot Nothing Then
-            previewName.Text = "Preview: " & gallery.SelectedFigure & vbCrLf & "No scanned figure. Hover the list to preview artwork."
+            previewName.Text = "Preview: " & gallery.SelectedFigure & vbCrLf &
+                If(crystalMode, "No scanned crystal. Hover a name to preview.", If(vehicleMode,
+                    "No scanned vehicle. Hover a name to preview.", "No scanned figure. Hover a name to preview."))
             imageBox.Image = artwork.Load(gallery.SelectedGame, gallery.SelectedFigure)
         Else
-            previewName.Text = "Current Scanned Figure on Portal of Power" & vbCrLf & "No scanned figure. Expand a game and hover a name to preview."
+            previewName.Text = "Current Scanned Figure on Portal of Power" & vbCrLf &
+                If(crystalMode, "No scanned crystal. Expand an element and hover a crystal to preview.",
+                    If(vehicleMode, "No scanned vehicle. Expand a vehicle category and hover a name to preview.",
+                        "No scanned figure. Expand a game and hover a name to preview."))
             imageBox.Image = Nothing
         End If
         If old IsNot Nothing Then old.Dispose()

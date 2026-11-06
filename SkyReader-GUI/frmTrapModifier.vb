@@ -144,9 +144,16 @@ Public Class frmTrapModifier
         busy = True : status.Text = "Reading trap. Keep it on the portal." : RefreshActions()
         Try
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(40))
-                ShowSession(New TrapSession(Await SimplePortal.ReadFigureAsync(timeout.Token)))
-                SkySounds.Play(If(Not session.CanWrite OrElse Not String.IsNullOrEmpty(session.Notice),
-                                  SkySounds.ProblemNoticeRead, SkySounds.SuccessfulRead))
+                Dim bytes As Byte() = Await SimplePortal.ReadFigureAsync(timeout.Token)
+                Dim identity As New ScannedFigureInfo(bytes)
+                If identity.Matches(FigureEditorKind.Traps) Then
+                    ShowSession(New TrapSession(bytes))
+                    SkySounds.Play(If(Not session.CanWrite OrElse Not String.IsNullOrEmpty(session.Notice),
+                                      SkySounds.ProblemNoticeRead, SkySounds.SuccessfulRead))
+                Else
+                    ShowPreviewOnly(identity)
+                    SkySounds.Play(If(identity.IsKnown, SkySounds.SuccessfulRead, SkySounds.ProblemNoticeRead))
+                End If
             End Using
         Catch ex As Exception
             Failure(ex)
@@ -154,6 +161,16 @@ Public Class frmTrapModifier
             busy = False : RefreshActions()
         End Try
     End Sub
+    'Display a recognized figure from another page without constructing a writable trap session.
+    Private Sub ShowPreviewOnly(identity As ScannedFigureInfo)
+        session = Nothing
+        summary.Text = "Loaded: " & identity.FigureName
+        status.Text = identity.ReadOnlyMessage
+        Dim old As Image = picture.Image
+        picture.Image = artwork.Load(identity.GameName, identity.FigureName)
+        If old IsNot Nothing Then old.Dispose()
+    End Sub
+
     'Loads the scanned trap's villain choices and flags into the workshop controls.
     Private Sub ShowSession(value As TrapSession)
         updating = True

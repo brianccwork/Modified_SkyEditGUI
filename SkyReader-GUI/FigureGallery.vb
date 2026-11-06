@@ -549,53 +549,62 @@ Friend Class SkyGameBrowser
         Controls.Add(stack)
     End Sub
 
-    'Populates all sections in the collapsed state, with a separately scrollable list under each heading.
-    Friend Sub LoadCatalog()
+    'Build only the sections relevant to this editor; all entries remain artwork-only.
+    Friend Sub LoadCatalog(Optional mode As ArtworkBrowserMode = ArtworkBrowserMode.Skylanders)
         SuspendLayout()
-        For Each game As String In FigureGallery.Games.Concat(New String() {"Vehicles"})
-            Dim title As String = game
-            Dim section As New TableLayoutPanel With {.Dock = DockStyle.Top, .AutoSize = True, .ColumnCount = 1, .Margin = New Padding(2, 1, 2, 1)}
-            section.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100))
-            Dim header As New Button With {.Text = title & "  +", .Dock = DockStyle.Top, .Height = CInt(32 * DeviceDpi / 96.0F), .Font = SkyAssets.UiFont(7.0F),
-                .FlatStyle = FlatStyle.Flat, .BackColor = GameColor(title), .ForeColor = If(title = "Imaginators", Color.White, Color.Black), .UseVisualStyleBackColor = False}
-            header.FlatAppearance.BorderSize = 0
-            SkySounds.AttachButton(header)
-            Dim entries As New ListBox With {.Dock = DockStyle.Top, .Height = CInt(180 * DeviceDpi / 96.0F), .Font = SkyAssets.UiFont(7.0F),
-                .BackColor = SkyAssets.White, .ForeColor = Color.Black, .BorderStyle = BorderStyle.None, .IntegralHeight = False, .Visible = False, .HorizontalScrollbar = True}
-            entries.Items.AddRange(FigureGallery.Names(title).Cast(Of Object)().ToArray())
-            AddHandler header.Resize, Sub(sender, e) SkyPolish.RoundControl(header, 10)
-            AddHandler header.Click, Sub(sender, e)
-                                         entries.Visible = Not entries.Visible
-                                         header.Text = title & If(entries.Visible, "  −", "  +")
-                                     End Sub
-            AddHandler entries.MouseMove, Sub(sender, e)
-                                              Dim index As Integer = entries.IndexFromPoint(e.Location)
-                                              If index >= 0 AndAlso index <> entries.SelectedIndex Then entries.SelectedIndex = index
-                                          End Sub
-            AddHandler entries.SelectedIndexChanged, Sub(sender, e)
-                                                         If entries.SelectedIndex < 0 Then Return
-                                                         SelectedGame = title
-                                                         SelectedFigure = CStr(entries.SelectedItem)
-                                                         RaiseEvent PreviewChanged(Me, EventArgs.Empty)
-                                                     End Sub
-            section.Controls.Add(header, 0, 0)
-            section.Controls.Add(entries, 0, 1)
-            stack.Controls.Add(section, 0, stack.RowCount)
-            stack.RowCount += 1
-        Next
-        ResumeLayout(True)
+        stack.SuspendLayout()
+        Try
+            For Each child As Control In stack.Controls.Cast(Of Control)().ToArray()
+                child.Dispose()
+            Next
+            stack.Controls.Clear()
+            stack.RowStyles.Clear()
+            stack.RowCount = 0
+            SelectedGame = Nothing
+            SelectedFigure = Nothing
+            For Each category As ArtworkBrowserSection In EditorArtworkCatalog.Sections(mode)
+                Dim title As String = category.Title
+                Dim game As String = category.Game
+                Dim section As New TableLayoutPanel With {.Dock = DockStyle.Top, .AutoSize = True,
+                    .ColumnCount = 1, .RowCount = 2, .Margin = New Padding(2, 1, 2, 1)}
+                section.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100))
+                section.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+                section.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+                Dim header As New Button With {.Text = title & "  +", .Dock = DockStyle.Top,
+                    .Height = CInt(32 * DeviceDpi / 96.0F), .Font = SkyAssets.UiFont(7.0F),
+                    .FlatStyle = FlatStyle.Flat, .BackColor = category.BackColor,
+                    .ForeColor = EditorArtworkCatalog.HeaderInk(category.BackColor), .UseVisualStyleBackColor = False}
+                header.FlatAppearance.BorderSize = 0
+                SkySounds.AttachButton(header)
+                Dim entries As New ListBox With {.Dock = DockStyle.Top, .Height = CInt(180 * DeviceDpi / 96.0F),
+                    .Font = SkyAssets.UiFont(7.0F), .BackColor = SkyAssets.White, .ForeColor = Color.Black,
+                    .BorderStyle = BorderStyle.None, .IntegralHeight = False, .Visible = False, .HorizontalScrollbar = True}
+                entries.Items.AddRange(category.Names.Cast(Of Object)().ToArray())
+                AddHandler header.Resize, Sub(sender, e) SkyPolish.RoundControl(header, 10)
+                AddHandler header.Click, Sub(sender, e)
+                                             entries.Visible = Not entries.Visible
+                                             header.Text = title & If(entries.Visible, "  −", "  +")
+                                         End Sub
+                AddHandler entries.MouseMove, Sub(sender, e)
+                                                  Dim index As Integer = entries.IndexFromPoint(e.Location)
+                                                  If index >= 0 AndAlso index <> entries.SelectedIndex Then entries.SelectedIndex = index
+                                              End Sub
+                AddHandler entries.SelectedIndexChanged, Sub(sender, e)
+                                                             If entries.SelectedIndex < 0 Then Return
+                                                             SelectedGame = game
+                                                             SelectedFigure = CStr(entries.SelectedItem)
+                                                             RaiseEvent PreviewChanged(Me, EventArgs.Empty)
+                                                         End Sub
+                section.Controls.Add(header, 0, 0)
+                section.Controls.Add(entries, 0, 1)
+                Dim row As Integer = stack.RowCount
+                stack.RowCount = row + 1
+                stack.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+                stack.Controls.Add(section, 0, row)
+            Next
+        Finally
+            stack.ResumeLayout(True)
+            ResumeLayout(True)
+        End Try
     End Sub
-
-    'COLOR PICKER FOR THE DROPDOWNS
-    Private Shared Function GameColor(game As String) As Color
-        Select Case game
-            Case "Spyro's Adventure" : Return Color.FromArgb(0, 255, 26)
-            Case "Giants" : Return Color.FromArgb(253, 155, 20)
-            Case "Swap Force" : Return Color.FromArgb(82, 207, 224)
-            Case "Trap Team" : Return Color.FromArgb(254, 60, 57)
-            Case "SuperChargers" : Return Color.FromArgb(249, 240, 0)
-            Case "Imaginators" : Return Color.FromArgb(18, 33, 123)
-            Case Else : Return Color.FromArgb(188, 96, 222)
-        End Select
-    End Function
 End Class

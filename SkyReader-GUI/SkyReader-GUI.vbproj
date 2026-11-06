@@ -104,9 +104,11 @@
     </Compile>
     <Compile Include="Challenges.vb" />
     <Compile Include="CRC16CCITT.vb" />
+    <Compile Include="CrystalSession.vb" />
     <Compile Include="DeviceManagement.vb" />
     <Compile Include="DeviceManagementDeclarations.vb" />
     <Compile Include="Exp.vb" />
+    <Compile Include="EditorArtworkCatalog.vb" />
     <Compile Include="FigureArtwork.vb" />
     <Compile Include="FigureGallery.vb" />
     <Compile Include="FigureIO.vb" />
@@ -177,6 +179,7 @@
     </Compile>
     <Compile Include="Nickname.vb" />
     <Compile Include="Portal.vb" />
+    <Compile Include="ScannedFigureInfo.vb" />
     <Compile Include="SimpleFigureSession.vb" />
     <Compile Include="SimplePortal.vb" />
     <Compile Include="SimpleUi.vb" />

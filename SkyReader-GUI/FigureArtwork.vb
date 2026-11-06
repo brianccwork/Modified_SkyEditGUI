@@ -23,7 +23,8 @@ Friend NotInheritable Class FigureArtwork
         Next
         If root Is Nothing Then Return
         Try
-            For Each file As String In IO.Directory.EnumerateFiles(root, "*.png", SearchOption.AllDirectories)
+            For Each file As String In IO.Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories).
+                Where(Function(path) {".png", ".jpg", ".jpeg"}.Contains(IO.Path.GetExtension(path).ToLowerInvariant()))
                 Dim relative As String = file.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
                 Dim game As String = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)(0)
                 Dim key As String = game & "/" & Normalize(Path.GetFileNameWithoutExtension(file))
@@ -45,7 +46,7 @@ Friend NotInheritable Class FigureArtwork
     Friend Shared Function Normalize(name As String) As String
         Dim value As String = name.Trim().ToLowerInvariant()
         value = Regex.Replace(value.Normalize(System.Text.NormalizationForm.FormD), "\p{Mn}", "")
-        value = Regex.Replace(value, "^(sobersu|fruitsnack|cha0s)'s\s+", "")
+        value = Regex.Replace(value, "^(sobersu|fruitsnack|cha0s|skylandersnfc)'s\s+", "")
         value = Regex.Replace(value, "[_\s]+logo(?:[_\s]+v\d+)?$", "")
         value = Regex.Replace(value, "_(giant|mini)$", "")
         value = Regex.Replace(value, "_lc$", " lightcore")
@@ -188,6 +189,13 @@ Friend NotInheritable Class FigureArtwork
 
     'Resolves the requested artwork through explicit mappings, indexed names, and the error-image fallback.
     Friend Function Load(gameName As String, figureName As String) As Image
+        If root IsNot Nothing Then
+            Dim explicitPath As String = EditorArtworkCatalog.RelativePath(gameName, figureName)
+            If explicitPath IsNot Nothing Then
+                Dim found As Image = TryLoad(Path.Combine(root, explicitPath.Replace("\"c, Path.DirectorySeparatorChar)))
+                If found IsNot Nothing Then Return found
+            End If
+        End If
         If gameName = "Traps" AndAlso root IsNot Nothing Then
             Dim relative As String = Nothing
             If TrapPaths.TryGetValue(figureName, relative) Then
