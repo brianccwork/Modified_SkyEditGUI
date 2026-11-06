@@ -58,6 +58,7 @@ For their assets used in creating a visually appealing UI for the application.
 
 ## Update 11/5/2026
 - Images for Chases in both SSA and SG
+- Images for Creation Crystals
 - SFX have been added to the application
 - Gold and Level Modification for initialized Imaginators / CYOS
 
@@ -92,9 +93,9 @@ For their assets used in creating a visually appealing UI for the application.
   - Connection failure messages remind users that only non-Xbox portals are supported and point them to Help Portal.
 
 #### Future Plans
-- Imaginators Implementation
 - Attempt to get rid of as many placeholder images as possible
 - New UI Features?
+- Further Testing on Crystals/Levels (To see up to 80)
 
 ### Older Changes
 - Sensei Gold and Level modifier now accepts Heartbreaker Buckshot
