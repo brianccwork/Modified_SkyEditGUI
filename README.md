@@ -52,13 +52,14 @@ For their research, teaching, and documentation regarding Skylanders and communi
 - [Skylandeer](https://www.youtube.com/@theSkylandeer) - Blue Shattered Trap Team background
 - Motion Vision - Animated Cloud background
 - Activision Skylanders - Icons, and Logo
-- fruitsnack, Cha0s, and Sobersu's for the Skylander Icons displayed on the portal
+- fruitsnack, Cha0s, SkylanderNFC and Sobersu's for the Skylander Icons displayed on the portal
 
 For their assets used in creating a visually appealing UI for the application.
 
 ## Update 11/5/2026
 - Images for Chases in both SSA and SG
 - SFX have been added to the application
+- Gold and Level Modification for initialized Imaginators / CYOS
 
 ## MASSIVE REDESEIGN AND UPDATE 9/16/2026
 - NEW Skylanders UI
