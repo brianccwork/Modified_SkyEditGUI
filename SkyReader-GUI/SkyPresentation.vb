@@ -122,13 +122,6 @@ Friend NotInheritable Class SkyPresentation
             End Using
         End Using
         Dim caption As Rectangle = Rectangle.Inflate(button.ClientRectangle, -CInt(10 * scale), -CInt(5 * scale))
-        If TypeOf button Is SkyInactiveButton Then
-            Dim iconSize As Integer = Math.Min(CInt(28 * scale), button.Height - CInt(16 * scale))
-            Dim iconBounds As New Rectangle(button.Width - iconSize - CInt(14 * scale), (button.Height - iconSize) \ 2, iconSize, iconSize)
-            Dim warning As Image = SkyDecor.Asset("Warning.ico")
-            If warning IsNot Nothing Then g.DrawImage(warning, iconBounds)
-            caption.Width = Math.Max(1, iconBounds.Left - caption.Left - CInt(8 * scale))
-        End If
         If TypeOf button Is SkyHelpShortcut Then
             Dim iconSize As Integer = CInt(26 * scale)
             Dim iconBounds As New Rectangle((button.Width - iconSize) \ 2, CInt(9 * scale), iconSize, iconSize)

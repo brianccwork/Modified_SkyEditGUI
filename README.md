@@ -8,7 +8,8 @@
   - Trap Masters (Gold/XP)
   - Superchargers (Gold/XP)
   - Chases (Gold/XP)
-  - Senseis (Gold/XP with Minor adjustments to process)
+  - Senseis (Gold/XP with minor adjustments to process)
+  - Imaginators/CYOS/Creation Crystals (Gold/XP after your Imaginator has been created)
   - Vehicles (Gearbits)
   - Traps (Input Villian, Evolved, and Variants!)
 
@@ -130,7 +131,7 @@ Gold and Level modifiers for Instant Super Shot Stealth Elf, Instant Dive Clops,
 
 ---
 
-# SkyEditGUI - Base Project, Now Archived
+# SkyEditGUI - Base Project, Now Archived Completely
 GUI Editor for MiFare based figures
 
 I am trying to create an All-in-One Editor for a game that uses MiFare based Figures.

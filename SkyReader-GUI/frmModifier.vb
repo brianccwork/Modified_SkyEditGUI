@@ -33,7 +33,7 @@ Public Class frmModifier
         vehicleMode = editVehicle
         crystalMode = editCrystal
         SimplePortal.Disconnect()
-        Text = If(crystalMode, "SkyGUI - Imaginators / CYOS Gold and Level", If(vehicleMode, "SkyGUI - Vehicle Gearbits", "SkyGUI - Level and Gold Modifier"))
+        Text = If(crystalMode, "SkyGUI - Imaginators / CYOS Gold and Level", If(vehicleMode, "SkyGUI - Vehicle Gearbits", "SkyGUI - Skylanders"))
         Name = "frmModifier"
         SkyAssets.ApplyWindowIcon(Me)
         Font = SimpleUi.Body
@@ -58,7 +58,7 @@ Public Class frmModifier
         page.RowStyles.Add(New RowStyle(SizeType.Percent, 100))
         page.RowStyles.Add(New RowStyle(SizeType.AutoSize))
         page.RowStyles.Add(New RowStyle(SizeType.Absolute, 116))
-        Dim heading As Label = SimpleUi.Caption(If(crystalMode, "Imaginators / CYOS Gold and Level", If(vehicleMode, "Vehicle Gearbits", "Level and Gold Modifier")))
+        Dim heading As Label = SimpleUi.Caption(If(crystalMode, "Imaginators / CYOS Gold and Level", If(vehicleMode, "Vehicle Gearbits", "Skylanders Gold and Level")))
         heading.Font = SimpleUi.Heading
         heading.AutoSize = False
         heading.BackColor = SkyAssets.Panel
@@ -158,8 +158,8 @@ Public Class frmModifier
     'Enables or disables page actions according to connection, loaded data, and operation state.
     Private Sub RefreshActions()
         connectButton.Enabled = Not busy
-        readButton.Enabled = Not busy AndAlso Portal.blnPortal
-        saveButton.Enabled = Not busy AndAlso Portal.blnPortal AndAlso session IsNot Nothing AndAlso session.CanEdit
+        readButton.Enabled = Not busy AndAlso SimplePortal.IsConnected
+        saveButton.Enabled = Not busy AndAlso SimplePortal.IsConnected AndAlso session IsNot Nothing AndAlso session.CanEdit
         goldInput.Enabled = saveButton.Enabled
         levelInput.Enabled = saveButton.Enabled
         backButton.Enabled = Not busy
@@ -201,7 +201,7 @@ Public Class frmModifier
         ClearSession()
         loadedName.Text = "Reading figure..."
         status.Text = If(crystalMode, "Keep one Creation Crystal on the portal while its character is read.",
-            "Keep one figure on the portal. Swap Force: keep both halves assembled while the bottom and then the top are read.")
+            "Keep one figure on the portal. Swap Force: place the top half, or the assembled figure on the portal. Gold and Level are read from the top.")
         RefreshActions()
         Try
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(30))
@@ -243,7 +243,7 @@ Public Class frmModifier
                 If crystalMode Then
                     verified = Await SimplePortal.SaveCrystalAsync(original, updated, timeout.Token)
                 Else
-                    verified = Await SimplePortal.SaveAsync(original, updated, timeout.Token, vehicleMode, session.RequiresFullEncryption)
+                    verified = Await SimplePortal.SaveAsync(original, updated, timeout.Token, vehicleMode)
                 End If
                 DisplaySession(New SimpleFigureSession(verified, vehicleMode, crystalMode))
             End Using
@@ -294,7 +294,7 @@ Public Class frmModifier
         If session.IsUnsafe Then
             Dim message As String = If(session.IsVehicle,
                 "This vehicle has uninitialized or unsafe save data. Keep a backup. Initialize it in Skylanders SuperChargers and collect at least 1 Gearbits, then read it again. If recovery requires an in-game reset, remember that resetting clears progress.",
-                FigureWarnings.UnsafeText)
+                If(String.IsNullOrEmpty(session.Notice), FigureWarnings.UnsafeText, session.Notice))
             FigureWarnings.ShowWarning(Me, If(session.IsVehicle, "Vehicle unsafe to write", "Skylander corrupted or unsafe to write"), message)
         End If
     End Sub
@@ -337,7 +337,7 @@ Public Class frmModifier
         ClearSession()
         loadedName.Text = "Read a figure to continue"
         status.Text = If(TypeOf ex Is OperationCanceledException, "The portal did not respond in time. Reconnect and read the figure again.", ex.Message)
-        DeviceManagement.DebugWrite("Simple modifier: " & ex.ToString())
+        PortalTransport.Log("Simple modifier: " & ex.ToString())
         FigureWarnings.ShowWarning(Me, If(TypeOf ex Is IO.InvalidDataException, "Figure unsafe to write", "Portal operation interrupted"), status.Text)
     End Sub
 

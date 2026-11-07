@@ -10,7 +10,7 @@ Public Class frmHome
     Public Sub New()
         SkySounds.Initialize()
         SkyAssets.InstallCursor()
-        Text = "Skylander Editor"
+        Text = "Skylanders Editor"
         Name = "frmHome"
         SkyAssets.ApplyWindowIcon(Me)
         Font = SimpleUi.Body
@@ -27,7 +27,7 @@ Public Class frmHome
             .ColumnCount = 1, .Padding = New Padding(24, 12, 24, 16), .BackColor = Color.Transparent}
         page.RowStyles.Add(New RowStyle(SizeType.Absolute, 140))
         page.RowStyles.Add(New RowStyle(SizeType.Absolute, 62))
-        page.RowStyles.Add(New RowStyle(SizeType.Absolute, 290))
+        page.RowStyles.Add(New RowStyle(SizeType.Absolute, 220))
         page.RowStyles.Add(New RowStyle(SizeType.AutoSize))
         Dim header As New SkyLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 3, .RowCount = 1,
             .BackColor = Color.Transparent, .Margin = New Padding(0)}
@@ -52,7 +52,7 @@ Public Class frmHome
         Else
             header.Controls.Add(logo, 1, 0)
         End If
-        Dim subtitle As Label = SimpleUi.Caption("Skylander Editor")
+        Dim subtitle As Label = SimpleUi.Caption("Skylanders Editor")
         subtitle.AutoSize = False
         subtitle.TextAlign = ContentAlignment.MiddleCenter
         subtitle.Font = SkyAssets.UiFont(23.0F)
@@ -60,26 +60,23 @@ Public Class frmHome
         subtitle.BackColor = Color.Transparent
         page.Controls.Add(subtitle, 0, 1)
 
-        Dim buttons As New SkyLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 2, .RowCount = 3,
+        Dim buttons As New SkyLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 2, .RowCount = 2,
             .BackColor = Color.Transparent, .Margin = New Padding(65, 8, 65, 8)}
         buttons.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 50))
         buttons.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 50))
-        For index As Integer = 0 To 2
-            buttons.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / 3.0F))
+        For index As Integer = 0 To 1
+            buttons.RowStyles.Add(New RowStyle(SizeType.Percent, 50.0F))
         Next
-        Dim modifier As Button = SimpleUi.Action("Skylanders Level and Gold Modifier")
+        Dim modifier As Button = SimpleUi.Action("Skylanders")
         Dim traps As Button = SimpleUi.Action("Traps")
         Dim vehicles As Button = SimpleUi.Action("Vehicles")
-        Dim developer As Button = SimpleUi.Action("Advanced")
         Dim imaginators As Button = SimpleUi.Action("Imaginators / CYOS")
         AddHandler traps.Click, AddressOf OpenTraps
         AddHandler imaginators.Click, AddressOf OpenImaginators
         buttons.Controls.Add(modifier, 0, 0)
-        buttons.SetColumnSpan(modifier, 2)
-        buttons.Controls.Add(traps, 0, 1)
-        buttons.Controls.Add(vehicles, 1, 1)
-        buttons.Controls.Add(developer, 0, 2)
-        buttons.Controls.Add(imaginators, 1, 2)
+        buttons.Controls.Add(traps, 1, 0)
+        buttons.Controls.Add(vehicles, 0, 1)
+        buttons.Controls.Add(imaginators, 1, 1)
         page.Controls.Add(buttons, 0, 2)
 
         Dim disclaimer As New SkyTextCard With {.Dock = DockStyle.Top,
@@ -87,7 +84,7 @@ Public Class frmHome
             .Font = SkyAssets.UiFont(8.5F), .TextAlign = ContentAlignment.MiddleCenter,
             .Margin = New Padding(12, 6, 12, 6), .Padding = New Padding(14, 10, 14, 10), .TabStop = False}
         disclaimer.Text = "Third-Party Images Disclaimer:" & vbCrLf &
-            "This spreadsheet includes images of Skylanders figures sourced from third-party websites and creators." & vbCrLf &
+            "This application includes images of Skylanders figures sourced from third-party websites and creators." & vbCrLf &
             "These images are not licensed under (CC BY-NC-ND 4.0) and are used here only for informational or reference purposes." & vbCrLf & vbCrLf &
             "Skylanders is a trademark of Activision." & vbCrLf &
             "This project is not affiliated with or endorsed by Activision." & vbCrLf &
@@ -97,7 +94,6 @@ Public Class frmHome
         Controls.Add(page)
         AddHandler modifier.Click, AddressOf OpenModifier
         AddHandler vehicles.Click, AddressOf OpenVehicles
-        AddHandler developer.Click, AddressOf OpenDeveloper
         SimpleUi.StyleButtons(Me)
     End Sub
 
@@ -109,22 +105,11 @@ Public Class frmHome
         Hide()
     End Sub
 
-    'Initializes and opens the original Developer editor from the landing page.
-    Private Sub OpenDeveloper(sender As Object, e As EventArgs)
-        If Not Portal.blnPortal Then frmMain.lockPortalControls()
-        RemoveHandler frmMain.FormClosed, AddressOf ReturnHome
-        AddHandler frmMain.FormClosed, AddressOf ReturnHome
-        frmMain.Show()
-        Hide()
-        frmMain.Activate()
-    End Sub
-
     'Displays the startup responsibility warning once for this home window.
     Protected Overrides Sub OnShown(e As EventArgs)
         MyBase.OnShown(e)
         FigureWarnings.ShowWarning(Me, "Edit Responsibly - BACKUP FIGURES",
-            "The user is responsible for any damage done to figures. Please edit and modify safely, and keep 
-            of your figures before making changes.")
+            "Keep a backup of your figures before making changes. Editing or resetting a figure can change or clear its progress.")
     End Sub
 
     'Opens the villain workshop and arranges to return home when it closes.
@@ -137,7 +122,7 @@ Public Class frmHome
 
     'Opens the simplified modifier in vehicle Gearbits mode.
     Private Sub OpenVehicles(sender As Object, e As EventArgs)
-        Dim editor As New frmModifier(True)
+        Dim editor As New frmModifier(editVehicle:=True)
         AddHandler editor.FormClosed, AddressOf ReturnHome
         editor.Show()
         Hide()
@@ -145,7 +130,7 @@ Public Class frmHome
 
     'Opens the dedicated Creation Crystal mode with the shared Gold/Level styling.
     Private Sub OpenImaginators(sender As Object, e As EventArgs)
-        Dim editor As New frmModifier(False, True)
+        Dim editor As New frmModifier(editCrystal:=True)
         AddHandler editor.FormClosed, AddressOf ReturnHome
         editor.Show()
         Hide()

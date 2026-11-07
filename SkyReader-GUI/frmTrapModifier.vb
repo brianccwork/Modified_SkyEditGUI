@@ -23,9 +23,9 @@ Public Class frmTrapModifier
 
     'Builds the trap workshop controls and wires its read, selection, and save events.
     'Initially, I actually was just going to integrate Textheads Revolve but once I spent time figuring out how the implementation
-    'for the villian variants works I ended up integrating both and calling it workshop.
+    'for the villain variants works I ended up integrating both and calling it workshop.
     Public Sub New()
-        Text = If(TrapFeatures.AllowAssignment, "Traps - Villain Workshop", "Traps - Evolution")
+        Text = "Traps - Villain Workshop"
         Name = "frmTrapModifier"
         Font = SimpleUi.Body
         BackColor = SkyAssets.Panel
@@ -44,9 +44,9 @@ Public Class frmTrapModifier
             .Padding = New Padding(16), .BackColor = Color.Transparent}
         page.RowStyles.Add(New RowStyle(SizeType.Absolute, 90))
         page.RowStyles.Add(New RowStyle(SizeType.Absolute, 82))
-        page.RowStyles.Add(New RowStyle(SizeType.Absolute, If(TrapFeatures.AllowAssignment, 570, 410)))
+        page.RowStyles.Add(New RowStyle(SizeType.Absolute, 570))
         page.RowStyles.Add(New RowStyle(SizeType.AutoSize))
-        Dim title As Label = SimpleUi.Caption(If(TrapFeatures.AllowAssignment, "Trap Villain Workshop", "Trap Villain Evolution"))
+        Dim title As Label = SimpleUi.Caption("Trap Villain Workshop")
         title.Font = SimpleUi.Heading
         title.BackColor = SkyAssets.Panel
         SkyElevation.CompactTitle(title)
@@ -66,11 +66,9 @@ Public Class frmTrapModifier
         summary.AutoSize = True
         summary.MaximumSize = New Size(550, 0)
         AddRow(card, summary)
-        If TrapFeatures.AllowAssignment Then
-            AddRow(card, SimpleUi.Caption("Villain:"))
-            choices.Margin = New Padding(8)
-            AddRow(card, choices)
-        End If
+        AddRow(card, SimpleUi.Caption("Villain:"))
+        choices.Margin = New Padding(8)
+        AddRow(card, choices)
         Dim options As New SkyLayoutPanel With {.Dock = DockStyle.Top, .AutoSize = True, .ColumnCount = 2}
         options.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 150))
         options.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100))
@@ -79,7 +77,6 @@ Public Class frmTrapModifier
         variantValue.Text = "Variant"
         options.Controls.Add(evolved, 0, 0)
         options.Controls.Add(variantValue, 1, 0)
-        variantValue.Visible = TrapFeatures.AllowAssignment
         AddRow(card, options)
         AddRow(card, saveButton, 88)
         content.Controls.Add(card, 0, 0)
@@ -114,12 +111,12 @@ Public Class frmTrapModifier
     'Enables or disables page actions according to connection, loaded data, and operation state.
     Private Sub RefreshActions()
         connectButton.Enabled = Not busy
-        readButton.Enabled = Not busy AndAlso Portal.blnPortal
+        readButton.Enabled = Not busy AndAlso SimplePortal.IsConnected
         backButton.Enabled = Not busy
-        Dim editable As Boolean = Not busy AndAlso Portal.blnPortal AndAlso session IsNot Nothing AndAlso session.CanWrite
-        evolved.Enabled = editable AndAlso (TrapFeatures.AllowAssignment OrElse session.VillainId <> 0)
-        choices.Enabled = editable AndAlso TrapFeatures.AllowAssignment
-        saveButton.Enabled = editable AndAlso If(TrapFeatures.AllowAssignment, choices.SelectedIndex >= 0, session.VillainId <> 0)
+        Dim editable As Boolean = Not busy AndAlso SimplePortal.IsConnected AndAlso session IsNot Nothing AndAlso session.CanWrite
+        evolved.Enabled = editable
+        choices.Enabled = editable
+        saveButton.Enabled = editable AndAlso choices.SelectedIndex >= 0
         variantValue.Enabled = choices.Enabled AndAlso choices.SelectedIndex >= 0 AndAlso TrapCatalog.Variants.ContainsKey(ids(choices.SelectedIndex))
         waiting.Visible = busy
     End Sub
@@ -175,7 +172,7 @@ Public Class frmTrapModifier
     Private Sub ShowSession(value As TrapSession)
         updating = True
         session = value
-        summary.Text = value.TrapName & vbCrLf & If(value.VillainId = 0, "Empty trap - No active villian yet inside.",
+        summary.Text = value.TrapName & vbCrLf & If(value.VillainId = 0, "Empty trap - No active villain yet inside.",
             "Current villain: " & value.VillainName & vbCrLf & If(value.Evolved, "Evolved", "Not evolved"))
         evolved.Checked = value.Evolved
         ids.Clear() : choices.Items.Clear()
@@ -186,7 +183,7 @@ Public Class frmTrapModifier
         Next
         choices.SelectedIndex = If(ids.Contains(value.VillainId), ids.IndexOf(value.VillainId), -1)
         variantValue.Checked = value.IsVariant
-        status.Text = If(String.IsNullOrEmpty(value.Notice), "Trap loaded. Choose a villain and options that villian may have, then select Save Villain.", value.Notice)
+        status.Text = If(String.IsNullOrEmpty(value.Notice), "Trap loaded. Choose a villain and options that villain may have, then select Save Villain.", value.Notice)
         updating = False
         RefreshPreview()
     End Sub
@@ -194,7 +191,7 @@ Public Class frmTrapModifier
     Private Sub RefreshPreview()
         If updating OrElse session Is Nothing Then Return
         Dim name As String = session.TrapName
-        If choices.SelectedIndex >= 0 AndAlso (session.VillainId <> 0 OrElse TrapFeatures.AllowAssignment) Then
+        If choices.SelectedIndex >= 0 Then
             name = TrapCatalog.VillainName(ids(choices.SelectedIndex), variantValue.Checked)
         End If
         Dim old As Image = picture.Image
@@ -214,8 +211,7 @@ Public Class frmTrapModifier
         If busy OrElse session Is Nothing OrElse Not session.CanWrite Then Return
         busy = True : RefreshActions()
         Try
-            Dim updated As Byte() = If(TrapFeatures.AllowAssignment,
-                session.BuildSelection(ids(choices.SelectedIndex), variantValue.Checked, evolved.Checked), session.BuildEvolution(evolved.Checked))
+            Dim updated = session.BuildSelection(ids(choices.SelectedIndex), variantValue.Checked, evolved.Checked)
             status.Text = "Writing and verifying the trap. Keep it on the portal."
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(60))
                 Dim saved As Byte() = Await SimplePortal.SaveTrapAsync(session.Original, updated, timeout.Token)

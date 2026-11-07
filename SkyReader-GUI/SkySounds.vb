@@ -30,7 +30,6 @@ Friend NotInheritable Class SkySounds
     Private Shared ReadOnly gate As New Object()
     Private Shared ReadOnly sounds As New Dictionary(Of String, CachedSound)(StringComparer.OrdinalIgnoreCase)
     Private Shared ReadOnly attached As New ConditionalWeakTable(Of Button, PressState)()
-    Private Shared ReadOnly attachedMenuItems As New ConditionalWeakTable(Of ToolStripItem, Object)()
     Private Shared initialized As Boolean
     Private Shared exiting As Boolean
     Private Const PlaybackFlags As UInteger = &H7UI 'SND_ASYNC Or SND_NODEFAULT Or SND_MEMORY
@@ -132,7 +131,7 @@ Friend NotInheritable Class SkySounds
         If e.Button <> MouseButtons.Left Then Return
         Dim button As Button = DirectCast(sender, Button)
         attached.GetOrCreateValue(button).PlayedOnPress = True
-        PlayClick(button.Text, button.Name)
+        PlayClick(button.Text)
     End Sub
 
     Private Shared Sub ButtonReleased(sender As Object, e As MouseEventArgs)
@@ -146,25 +145,10 @@ Friend NotInheritable Class SkySounds
             state.PlayedOnPress = False
             Return
         End If
-        PlayClick(button.Text, button.Name)
+        PlayClick(button.Text)
     End Sub
 
-    Friend Shared Sub AttachMenuItem(item As ToolStripItem)
-        If TypeOf item Is ToolStripSeparator Then Return
-        Dim dropdown As ToolStripDropDownItem = TryCast(item, ToolStripDropDownItem)
-        If dropdown IsNot Nothing AndAlso dropdown.HasDropDownItems Then Return
-        Dim marker As Object = Nothing
-        If attachedMenuItems.TryGetValue(item, marker) Then Return
-        attachedMenuItems.Add(item, New Object())
-        AddHandler item.Click, AddressOf MenuItemClicked
-    End Sub
-
-    Private Shared Sub MenuItemClicked(sender As Object, e As EventArgs)
-        Dim item As ToolStripItem = DirectCast(sender, ToolStripItem)
-        PlayClick(item.Text, item.Name)
-    End Sub
-
-    Private Shared Sub PlayClick(text As String, name As String)
+    Private Shared Sub PlayClick(text As String)
         Dim caption As String = text.Replace("&", "").Trim().ToLowerInvariant()
         Select Case caption
             Case "back", "go back", "back to home", "back to main menu", "close"
@@ -176,9 +160,7 @@ Friend NotInheritable Class SkySounds
                 If caption.StartsWith("connect", StringComparison.Ordinal) OrElse
                    caption.StartsWith("read", StringComparison.Ordinal) OrElse
                    caption.StartsWith("save", StringComparison.Ordinal) OrElse
-                   caption.StartsWith("write", StringComparison.Ordinal) OrElse
-                   name.Equals("btnRaw", StringComparison.OrdinalIgnoreCase) OrElse
-                   name.Equals("OpenToolStripMenuItem", StringComparison.OrdinalIgnoreCase) Then Return
+                   caption.StartsWith("write", StringComparison.Ordinal) Then Return
                 PlayRandomButton()
         End Select
     End Sub

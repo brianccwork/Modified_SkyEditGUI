@@ -71,9 +71,8 @@ Friend NotInheritable Class SkyAssets
         End SyncLock
     End Function
 
-    'Applies the optional balloon icon to non Developer windows and disposes the cloned icon with its owner.
+    'Applies the optional balloon icon to application windows and disposes the cloned icon with its owner.
     Friend Shared Sub ApplyWindowIcon(window As Form)
-        If TypeOf window Is frmMain Then Return
         Try
             Dim filename As String = AssetPath("Balloon_Icon.ico")
             If filename Is Nothing Then Return

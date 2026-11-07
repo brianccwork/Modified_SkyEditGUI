@@ -6,43 +6,66 @@ Imports System.Text.RegularExpressions
 
 Friend NotInheritable Class FigureArtwork
     Private ReadOnly root As String
-    Private ReadOnly paths As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
-    Private ReadOnly editionPaths As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
+    Private ReadOnly paths As Dictionary(Of String, List(Of String))
+    Private ReadOnly editionPaths As Dictionary(Of String, List(Of String))
+    Private Shared ReadOnly indexes As New Dictionary(Of String, ArtworkIndex)(StringComparer.OrdinalIgnoreCase)
 
-    'Finds the Images directory and indexes PNG paths for exact and edition-insensitive matching.
+    'Only file paths are shared, never disposable Image instances. An installed
+    'asset tree is stable during a run; restart after adding or renaming assets.
     Friend Sub New()
-        Dim directory As DirectoryInfo = New DirectoryInfo(Application.StartupPath)
+        Dim directory As New DirectoryInfo(Application.StartupPath)
         For depth As Integer = 0 To 4
-            If directory Is Nothing Then Exit For
-            Dim candidate As String = Path.Combine(directory.FullName, "Images")
+            Dim candidate = Path.Combine(directory.FullName, "Images")
             If IO.Directory.Exists(candidate) Then
-                root = candidate
+                root = Path.GetFullPath(candidate)
                 Exit For
             End If
             directory = directory.Parent
+            If directory Is Nothing Then Exit For
         Next
-        If root Is Nothing Then Return
-        Try
-            For Each file As String In IO.Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories).
-                Where(Function(path) {".png", ".jpg", ".jpeg"}.Contains(IO.Path.GetExtension(path).ToLowerInvariant()))
-                Dim relative As String = file.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                Dim game As String = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)(0)
-                Dim key As String = game & "/" & Normalize(Path.GetFileNameWithoutExtension(file))
-                If Not paths.ContainsKey(key) Then paths(key) = New List(Of String)()
-                paths(key).Add(file)
-                Dim editionKey As String = game & "/" & WithoutEdition(Normalize(Path.GetFileNameWithoutExtension(file)))
-                If Not editionPaths.ContainsKey(editionKey) Then editionPaths(editionKey) = New List(Of String)()
-                editionPaths(editionKey).Add(file)
-            Next
-        Catch ex As IOException
-            DeviceManagement.DebugWrite("Artwork index: " & ex.Message)
-        Catch ex As UnauthorizedAccessException
-            DeviceManagement.DebugWrite("Artwork index: " & ex.Message)
-        End Try
+        Dim index As ArtworkIndex = Nothing
+        If root Is Nothing Then
+            index = New ArtworkIndex(Nothing)
+        Else
+            SyncLock indexes
+                If Not indexes.TryGetValue(root, index) Then
+                    index = New ArtworkIndex(root)
+                    indexes.Add(root, index)
+                End If
+            End SyncLock
+        End If
+        paths = index.Paths
+        editionPaths = index.Editions
     End Sub
 
+    Private NotInheritable Class ArtworkIndex
+        Friend ReadOnly Paths As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
+        Friend ReadOnly Editions As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
+
+        Friend Sub New(root As String)
+            If root Is Nothing Then Return
+            Try
+                For Each filename In Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories).
+                    Where(Function(path) {".png", ".jpg", ".jpeg"}.Contains(IO.Path.GetExtension(path).ToLowerInvariant()))
+                    Dim relative = filename.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                    Dim game = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)(0)
+                    Dim name = Normalize(Path.GetFileNameWithoutExtension(filename))
+                    Dim key = game & "/" & name
+                    If Not Paths.ContainsKey(key) Then Paths(key) = New List(Of String)()
+                    Paths(key).Add(filename)
+                    key = game & "/" & WithoutEdition(name)
+                    If Not Editions.ContainsKey(key) Then Editions(key) = New List(Of String)()
+                    Editions(key).Add(filename)
+                Next
+            Catch ex As IOException
+                PortalTransport.Log("Artwork index: " & ex.Message)
+            Catch ex As UnauthorizedAccessException
+                PortalTransport.Log("Artwork index: " & ex.Message)
+            End Try
+        End Sub
+    End Class
+
     'Normalizes artwork names, spelling differences, and word order for filename matching.
-    '(At first I wasnt doing this, but idk anymore, ran into too many bugs so i just had this done)
     Friend Shared Function Normalize(name As String) As String
         Dim value As String = name.Trim().ToLowerInvariant()
         value = Regex.Replace(value.Normalize(System.Text.NormalizationForm.FormD), "\p{Mn}", "")

@@ -56,13 +56,13 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <OptionExplicit>Off</OptionExplicit>
+    <OptionExplicit>On</OptionExplicit>
   </PropertyGroup>
   <PropertyGroup>
     <OptionCompare>Binary</OptionCompare>
   </PropertyGroup>
   <PropertyGroup>
-    <OptionStrict>Off</OptionStrict>
+    <OptionStrict>On</OptionStrict>
   </PropertyGroup>
   <PropertyGroup>
     <OptionInfer>On</OptionInfer>
@@ -95,49 +95,17 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AES.vb" />
-    <Compile Include="Area.Designer.vb">
-      <DependentUpon>Area.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Area.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Challenges.vb" />
-    <Compile Include="CRC16CCITT.vb" />
+    <Compile Include="CharacterData.vb" />
     <Compile Include="CrystalSession.vb" />
-    <Compile Include="DeviceManagement.vb" />
-    <Compile Include="DeviceManagementDeclarations.vb" />
-    <Compile Include="Exp.vb" />
     <Compile Include="EditorArtworkCatalog.vb" />
     <Compile Include="FigureArtwork.vb" />
-    <Compile Include="FigureGallery.vb" />
-    <Compile Include="FigureIO.vb" />
-    <Compile Include="Figures.vb" />
+    <Compile Include="FigureData.vb" />
+    <Compile Include="FigureCatalog.vb" />
+    <Compile Include="FigureGallery.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="FigureWarnings.vb" />
-    <Compile Include="FileIODeclarations.vb" />
-    <Compile Include="frmCrystals.Designer.vb">
-      <DependentUpon>frmCrystals.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmCrystals.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="frmHome.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmLog.Designer.vb">
-      <DependentUpon>frmLog.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmLog.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmMain.Navigation.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmMain.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmMain.Designer.vb">
-      <DependentUpon>frmMain.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmModifier.vb">
@@ -149,41 +117,11 @@
     <Compile Include="frmTrapModifier.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmTraps.Designer.vb">
-      <DependentUpon>frmTraps.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmTraps.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Gold.vb" />
-    <Compile Include="Hats.vb" />
-    <Compile Include="Hero.vb" />
-    <Compile Include="hidControl.vb" />
-    <Compile Include="HidDeclarations.vb" />
-    <Compile Include="MiFare.vb" />
-    <Compile Include="My Project\AssemblyInfo.vb" />
-    <Compile Include="My Project\Application.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Application.myapp</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="My Project\Resources.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="My Project\Settings.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Nickname.vb" />
-    <Compile Include="Portal.vb" />
+    <Compile Include="PortalTransport.vb" />
     <Compile Include="ScannedFigureInfo.vb" />
     <Compile Include="SimpleFigureSession.vb" />
     <Compile Include="SimplePortal.vb" />
     <Compile Include="SimpleUi.vb" />
-    <Compile Include="Skills.vb" />
     <Compile Include="SkyAssets.vb" />
     <Compile Include="SkyDecor.vb" />
     <Compile Include="SkyElevation.vb" />
@@ -191,50 +129,22 @@
     <Compile Include="SkyPolish.vb" />
     <Compile Include="SkyPresentation.vb" />
     <Compile Include="SkySounds.vb" />
-    <Compile Include="SkyTheme.Forms.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SkyTheme.vb" />
-    <Compile Include="System_ID.vb" />
-    <Compile Include="Test.vb" />
-    <Compile Include="frmVehicles.Designer.vb">
-      <DependentUpon>frmVehicles.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmVehicles.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="TrapCatalog.vb" />
-    <Compile Include="TrapFeatures.vb" />
     <Compile Include="TrapSession.vb" />
-    <Compile Include="Web_Code.vb" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Area.resx">
-      <DependentUpon>Area.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmCrystals.resx">
-      <DependentUpon>frmCrystals.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmLog.resx">
-      <DependentUpon>frmLog.vb</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmMain.resx">
-      <DependentUpon>frmMain.vb</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmTraps.resx">
-      <DependentUpon>frmTraps.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmVehicles.resx">
-      <DependentUpon>frmVehicles.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="My Project\Resources.resx">
-      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
-      <CustomToolNamespace>My.Resources</CustomToolNamespace>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="My Project\Resources.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="My Project\Application.myapp">
@@ -247,6 +157,9 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
+    <None Include="Archived\**\*" />
+    <None Include="PATCH_NOTES.md" />
+    <None Include="Tests\**\*" Exclude="Tests\bin\**\*;Tests\obj\**\*" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skylanders.ico" />

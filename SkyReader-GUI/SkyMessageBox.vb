@@ -9,13 +9,6 @@ Friend NotInheritable Class MessageBox
     End Sub
 
     'Displays a themed message dialog while returning the expected DialogResult to the caller.
-    Friend Shared Function Show(text As String, Optional caption As String = "Skylander Editor",
-                                Optional buttons As MessageBoxButtons = MessageBoxButtons.OK,
-                                Optional icon As MessageBoxIcon = MessageBoxIcon.None) As DialogResult
-        Return Show(Form.ActiveForm, text, caption, buttons, icon)
-    End Function
-
-    'Displays a themed message dialog while returning the expected DialogResult to the caller.
     Friend Shared Function Show(owner As IWin32Window, text As String, caption As String,
                                 Optional buttons As MessageBoxButtons = MessageBoxButtons.OK,
                                 Optional icon As MessageBoxIcon = MessageBoxIcon.None) As DialogResult

@@ -2,8 +2,6 @@ Option Strict On
 Option Explicit On
 
 Imports System.IO
-Imports System.Security.Cryptography
-Imports System.Text
 
 'Creation Crystal Gold/Level editing, independent of the legacy form/global buffer.
 'Layout references: the supplied SkylanderFormat.md CYOS section, Portal-To-Unity
@@ -50,13 +48,13 @@ Friend NotInheritable Class CrystalSession
     Friend Sub New(bytes As Byte())
         If bytes Is Nothing OrElse bytes.Length <> 1024 Then Throw New InvalidDataException("Read a complete 1024-byte Creation Crystal first.")
         raw = DirectCast(bytes.Clone(), Byte())
-        Dim id As Integer = Word(raw, &H10)
+        Dim id As Integer = FigureData.Word(raw, &H10)
         If raw(&H12) <> 0 OrElse raw(&H13) <> 0 OrElse id < 680 OrElse id > 689 OrElse
-           (Word(raw, &H1C) >> 12) <> 5 OrElse (Word(raw, &H1C) And &H200) = 0 Then
+           (FigureData.Word(raw, &H1C) >> 12) <> 5 OrElse (FigureData.Word(raw, &H1C) And &H200) = 0 Then
             Throw New InvalidDataException("This page edits Creation Crystals. Place a Creation Crystal containing an Imaginator on the portal.")
         End If
-        FigureName = EditorArtworkCatalog.CrystalName(id, Word(raw, &H1C), Elements(id - 680) & " Crystal")
-        If (raw(0) Xor raw(1) Xor raw(2) Xor raw(3)) <> raw(4) OrElse Crc(raw.Take(30).ToArray()) <> Word(raw, 30) Then
+        FigureName = EditorArtworkCatalog.CrystalName(id, FigureData.Word(raw, &H1C), Elements(id - 680) & " Crystal")
+        If (raw(0) Xor raw(1) Xor raw(2) Xor raw(3)) <> raw(4) OrElse FigureData.Crc(raw.Take(30).ToArray()) <> FigureData.Word(raw, 30) Then
             Throw New InvalidDataException("The crystal's serial or header could not be verified. Writing is disabled.")
         End If
         For block As Integer = 3 To 63 Step 4
@@ -103,7 +101,7 @@ Friend NotInheritable Class CrystalSession
         End If
         record = DirectCast(If(activeArea = 0, areaA, areaB).Clone(), Byte())
         HasValidSave = True
-        GoldValue = Word(record, 3)
+        GoldValue = FigureData.Word(record, 3)
         Experience = CInt(record(0)) Or (CInt(record(1)) << 8) Or (CInt(record(2)) << 16)
         For index As Integer = 0 To Levels.Length - 1
             If Experience >= Levels(index) Then LevelValue = index + 1
@@ -149,7 +147,7 @@ Friend NotInheritable Class CrystalSession
         Dim blocks As Integer() = RecordBlocks(1 - activeArea)
         For index As Integer = 0 To blocks.Length - 1
             Dim payload As Byte() = nextRecord.Skip(index * 16).Take(16).ToArray()
-            Array.Copy(Crypt(raw, blocks(index), payload, True), 0, result, blocks(index) * 16, 16)
+            Array.Copy(FigureData.Crypt(raw, blocks(index), payload, True), 0, result, blocks(index) * 16, 16)
         Next
         ValidatePrepared(result)
         Return result
@@ -173,7 +171,7 @@ Friend NotInheritable Class CrystalSession
             If (index <= 4 OrElse index = 9 OrElse (index >= 10 AndAlso index <= 15)) Then Continue For
             If prepared(index) <> record(index) Then Throw New InvalidDataException("The edit would change the Imaginator's character or other progress. Nothing was written.")
         Next
-        Dim gold As Integer = Word(prepared, 3)
+        Dim gold As Integer = FigureData.Word(prepared, 3)
         Dim xp As Integer = CInt(prepared(0)) Or (CInt(prepared(1)) << 8) Or (CInt(prepared(2)) << 16)
         If gold > 65535 OrElse (xp <> Experience AndAlso Not Levels.Contains(xp)) Then Throw New InvalidDataException("The requested crystal values are outside the supported range.")
         Dim check As New CrystalSession(updated)
@@ -187,42 +185,28 @@ Friend NotInheritable Class CrystalSession
         Dim blocks As Integer() = RecordBlocks(area)
         For index As Integer = 0 To blocks.Length - 1
             Dim payload As Byte() = source.Skip(blocks(index) * 16).Take(16).ToArray()
-            If decode AndAlso payload.Any(Function(value) value <> 0) Then payload = Crypt(source, blocks(index), payload, False)
+            If decode AndAlso payload.Any(Function(value) value <> 0) Then payload = FigureData.Crypt(source, blocks(index), payload, False)
             Array.Copy(payload, 0, result, index * 16, 16)
         Next
         Return result
     End Function
 
-    Private Shared Function Crypt(source As Byte(), block As Integer, payload As Byte(), encrypt As Boolean) As Byte()
-        Using hash As MD5 = MD5.Create(), cipher As System.Security.Cryptography.Aes = System.Security.Cryptography.Aes.Create()
-            cipher.Key = hash.ComputeHash(source.Take(32).Concat(New Byte() {CByte(block)}).
-                Concat(Encoding.ASCII.GetBytes(" Copyright (C) 2010 Activision. All Rights Reserved. ")).ToArray())
-            cipher.Mode = CipherMode.ECB
-            cipher.Padding = PaddingMode.None
-            Using transform As ICryptoTransform = If(encrypt, cipher.CreateEncryptor(), cipher.CreateDecryptor())
-                Return transform.TransformFinalBlock(payload, 0, 16)
-            End Using
-        End Using
-    End Function
 
     Private Shared Function ValidRecord(data As Byte()) As Boolean
         Dim header As Byte() = data.Take(16).ToArray()
         header(14) = 5 : header(15) = 0
-        Return Word(data, 10) = Crc(data.Skip(&H40).Take(&H100).ToArray()) AndAlso
-            Word(data, 12) = Crc(data.Skip(&H10).Take(&H30).ToArray()) AndAlso Word(data, 14) = Crc(header)
+        Return FigureData.Word(data, 10) = FigureData.Crc(data.Skip(&H40).Take(&H100).ToArray()) AndAlso
+            FigureData.Word(data, 12) = FigureData.Crc(data.Skip(&H10).Take(&H30).ToArray()) AndAlso FigureData.Word(data, 14) = FigureData.Crc(header)
     End Function
 
     Private Shared Sub UpdateChecksums(data As Byte())
-        Array.Copy(BitConverter.GetBytes(Crc(data.Skip(&H40).Take(&H100).ToArray())), 0, data, 10, 2)
-        Array.Copy(BitConverter.GetBytes(Crc(data.Skip(&H10).Take(&H30).ToArray())), 0, data, 12, 2)
+        Array.Copy(BitConverter.GetBytes(FigureData.Crc(data.Skip(&H40).Take(&H100).ToArray())), 0, data, 10, 2)
+        Array.Copy(BitConverter.GetBytes(FigureData.Crc(data.Skip(&H10).Take(&H30).ToArray())), 0, data, 12, 2)
         Dim header As Byte() = data.Take(16).ToArray()
         header(14) = 5 : header(15) = 0
-        Array.Copy(BitConverter.GetBytes(Crc(header)), 0, data, 14, 2)
+        Array.Copy(BitConverter.GetBytes(FigureData.Crc(header)), 0, data, 14, 2)
     End Sub
 
-    Private Shared Function Word(data As Byte(), offset As Integer) As Integer
-        Return CInt(data(offset)) Or (CInt(data(offset + 1)) << 8)
-    End Function
 
     Private Shared Function Bits(data As Byte(), start As Integer, count As Integer) As Integer
         Dim value As Integer = 0
@@ -232,14 +216,4 @@ Friend NotInheritable Class CrystalSession
         Return value
     End Function
 
-    Private Shared Function Crc(data As Byte()) As UShort
-        Dim value As Integer = &HFFFF
-        For Each item As Byte In data
-            value = value Xor (CInt(item) << 8)
-            For bit As Integer = 0 To 7
-                value = If((value And &H8000) <> 0, (value << 1) Xor &H1021, value << 1) And &HFFFF
-            Next
-        Next
-        Return CUShort(value)
-    End Function
 End Class

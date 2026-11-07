@@ -51,18 +51,6 @@ Friend NotInheritable Class SkyDecor
         Return row
     End Function
 
-    'Replaces a placeholder button with an inert themed button and an in development tooltip. Lol. Update, I gave up on tooltips being useful xD
-    Friend Shared Function Development(button As Button) As Control
-        Dim inactive As New SkyInactiveButton With {.Text = button.Text, .Name = button.Name,
-            .Font = button.Font, .Dock = button.Dock, .Margin = button.Margin,
-            .TabStop = False, .Cursor = Cursors.Default, .AccessibleDescription = "In development."}
-        button.Dispose()
-        Dim tip As New ToolTip With {.ShowAlways = True}
-        tip.SetToolTip(inactive, "In development.")
-        AddHandler inactive.Disposed, Sub(sender, e) tip.Dispose()
-        Return inactive
-    End Function
-
     'Builds a text and icon row with spacing above the associated numeric input.
     Friend Shared Function FieldLabel(caption As String, icon As String) As Control
         Dim label As Label = SimpleUi.Caption(caption)

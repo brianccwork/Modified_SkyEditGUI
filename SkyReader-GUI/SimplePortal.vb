@@ -3,20 +3,12 @@ Option Explicit On
 Imports System.IO
 Imports System.Threading
 
-'Uses the existing portal connection and HID report format. No background worker
-'touches the default Developer form. Requests are bounded and replies checked.
+'Portal protocol over Windows HID. Replies are matched by command, slot and block;
+'reads are bounded and every saved block is read back before committing a record.
 Friend NotInheritable Class SimplePortal
-    'Only the two established vehicle payload regions no identity/access blocks.
-    Friend Shared ReadOnly Property VehicleBlocks As Integer()
+    Friend Shared ReadOnly Property IsConnected As Boolean
         Get
-            Return Enumerable.Range(8, 14).Concat(Enumerable.Range(36, 14)).Where(Function(block) block Mod 4 <> 3).ToArray()
-        End Get
-    End Property
-
-    'All encrypted character payload blocks, excluding every access trailer and header/signature block.
-    Friend Shared ReadOnly Property LegacyPayloadBlocks As Integer()
-        Get
-            Return Enumerable.Range(8, 56).Where(Function(block) block Mod 4 <> 3).ToArray()
+            Return PortalTransport.IsOpen
         End Get
     End Property
 
@@ -26,35 +18,21 @@ Friend NotInheritable Class SimplePortal
 
     'Closes any previous connection and asks the HID layer to find an asynchronous portal handle.
     Friend Shared Function Connect() As Boolean
-        Disconnect()
-        frmMain.EnsureEditorInitialized()
-        Portal.portalHandle = hidControl.FindThePortal(True)
-        Return Portal.blnPortal AndAlso Portal.portalHandle IsNot Nothing AndAlso
-               Not Portal.portalHandle.IsInvalid AndAlso Not Portal.portalHandle.IsClosed
+        Return PortalTransport.Open()
     End Function
 
-    'Closes portal communication and clears the connection flags.
     Friend Shared Sub Disconnect()
-        hidControl.CloseCommunications(Portal.portalHandle)
-        Portal.blnPortal = False
-        Portal.BlnPortalUsed = False
+        PortalTransport.Close()
     End Sub
 
-    'Submits an HID output report and rejects a missing, closed, or failed portal connection.
     Private Shared Sub Send(report As Byte())
-        If Not Portal.blnPortal OrElse Portal.portalHandle Is Nothing OrElse
-           Portal.portalHandle.IsInvalid OrElse Portal.portalHandle.IsClosed Then
-            Throw New IOException("Connect a portal first.")
-        End If
-        If Not Hid.HidD_SetOutputReport(Portal.portalHandle, report(0), report.Length) Then
-            Throw New IOException("The portal did not accept the request. Reconnect it and try again.")
-        End If
+        PortalTransport.Send(report)
     End Sub
 
     'Resets and activates the portal with bounded delays before reading its slots.
     Private Shared Async Function ActivateAsync(token As CancellationToken) As Task
         Dim report(32) As Byte
-        hidControl.flushHid(Portal.portalHandle)
+        PortalTransport.Flush()
         report(1) = &H52
         Send(report)
         Await Task.Delay(50, token)
@@ -69,7 +47,7 @@ Friend NotInheritable Class SimplePortal
         Using timeout As CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token)
             timeout.CancelAfter(2500)
             Do
-                Dim reply As Byte() = Await hidControl.ReadReportAsync(timeout.Token)
+                Dim reply As Byte() = Await PortalTransport.ReadAsync(timeout.Token)
                 If reply Is Nothing OrElse reply.Length < 20 Then Continue Do
                 If reply(1) <> command OrElse reply(3) <> block Then Continue Do
                 If (reply(2) And &HF) <> slot Then Continue Do
@@ -97,14 +75,14 @@ Friend NotInheritable Class SimplePortal
     'S reports contain 16 two-bit presence fields, starting after the report ID
     'and command. Present=01, arriving=11; absent=00, departed=10.
     Private Shared Async Function PresentSlotsAsync(token As CancellationToken) As Task(Of Integer())
-        hidControl.flushHid(Portal.portalHandle)
+        PortalTransport.Flush()
         Dim request(32) As Byte
         request(1) = &H53
         Send(request)
         Using timeout As CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token)
             timeout.CancelAfter(2500)
             Do
-                Dim reply As Byte() = Await hidControl.ReadReportAsync(timeout.Token)
+                Dim reply As Byte() = Await PortalTransport.ReadAsync(timeout.Token)
                 If reply Is Nothing OrElse reply.Length < 6 OrElse reply(1) <> &H53 Then Continue Do
                 Dim slots As New List(Of Integer)
                 For slot As Integer = 0 To 15
@@ -204,126 +182,64 @@ Friend NotInheritable Class SimplePortal
         Return Await ReadSlotAsync(slot, token)
     End Function
 
-    'Rechecks the scanned data, restricts changed blocks, and verifies each portal write and final readback.
-    Friend Shared Async Function SaveAsync(original As Byte(), updated As Byte(), token As CancellationToken, Optional vehicle As Boolean = False, Optional initializeLegacy As Boolean = False) As Task(Of Byte())
-        If original Is Nothing OrElse updated Is Nothing OrElse original.Length <> 1024 OrElse updated.Length <> 1024 Then Throw New InvalidDataException("Invalid figure data.")
+    Friend Shared Async Function SaveAsync(original As Byte(), updated As Byte(), token As CancellationToken,
+                                          Optional vehicle As Boolean = False) As Task(Of Byte())
         If IsSwapBottom(original) Then Throw New InvalidDataException("Gold and Level must be written to the Swap Force top half.")
-        'Resolve the current slot again. Slot numbers may change across activation.
-        'Do not reset or change slots after this preflight, including verification.
-        Await ActivateAsync(token)
-        Dim slot As Integer = Await SelectSlotAsync(token)
-        Dim current As Byte() = Await ReadSlotAsync(slot, token)
-        If Not current.SequenceEqual(original) Then
-            Throw New IOException("The figure or its data changed. Read the figure again before saving.")
-        End If
-
-        'Only these four blocks contain the existing Gold/Level fields and their
-        'mirrored sequence/checksum bytes. Never write identity or signature data.
-        Dim allowed As Integer() = If(vehicle, VehicleBlocks, New Integer() {8, 17, 36, 45})
-        If Not vehicle Then
-            Dim validation As New SimpleFigureSession(original)
-            If Not validation.CanEdit Then Throw New InvalidDataException("This character is not safe to write.")
-            If Not validation.IsSensei AndAlso validation.GameName <> "Imaginators" Then
-                allowed = RegularCharacterData.WriteBlocks(original)
-            ElseIf initializeLegacy Then
-                Throw New InvalidDataException("Imaginators initialization is not supported here.")
-            End If
-        End If
-        'Commit each record's header after its payload, including extended headers.
-        If vehicle Then
-            allowed = allowed.Where(Function(block) block <> 8 AndAlso block <> 36).Concat(New Integer() {8, 36}).ToArray()
-        Else
-            allowed = allowed.Where(Function(block) Not {8, 17, 36, 45}.Contains(block)).Concat(allowed.Where(Function(block) {8, 17, 36, 45}.Contains(block))).ToArray()
-        End If
-        For index As Integer = 0 To 1023
-            If original(index) <> updated(index) AndAlso Not allowed.Contains(index \ 16) Then
-                Throw New InvalidDataException("The edit would affect data outside the permitted editor blocks. Nothing was written.")
-            End If
-        Next
-
-        For Each block As Integer In allowed
-            Dim expected As Byte() = updated.Skip(block * 16).Take(16).ToArray()
-            If expected.SequenceEqual(original.Skip(block * 16).Take(16)) Then Continue For
-            Dim identity As Byte() = Await HeaderAsync(slot, token)
-            If Not identity.SequenceEqual(original.Take(32)) Then Throw New IOException("The figure was removed or changed while saving.")
-            Dim request(32) As Byte
-            request(1) = &H57
-            request(2) = CByte(&H20 Or slot)
-            request(3) = CByte(block)
-            Array.Copy(expected, 0, request, 4, 16)
-            Send(request)
-            Await ReplyAsync(&H57, slot, block, token)
-            Await Task.Delay(100, token)
-            Dim actual As Byte() = Await ReadBlockAsync(slot, block, token)
-            If Not actual.SequenceEqual(expected) Then Throw New IOException("The portal could not verify the saved data. Read the figure again.")
-        Next
-        Dim verified As Byte() = Await ReadSlotAsync(slot, token)
-        If Not verified.SequenceEqual(updated) Then Throw New IOException("The saved figure did not match the requested changes. Read it again.")
-        Return verified
+        Dim session As New SimpleFigureSession(original, vehicle)
+        Dim blocks = session.WriteBlocks(updated)
+        'The payload must land before any sequence/checksum headers commit it.
+        Dim headers As Integer() = {8, 17, 36, 45}
+        blocks = blocks.Where(Function(block) Not headers.Contains(block)).Concat(blocks.Where(Function(block) headers.Contains(block))).ToArray()
+        Return Await WriteVerifiedAsync(original, updated, blocks, token)
     End Function
-    'Writes one alternate CYOS record, committing its checksum/sequence header last.
+
     Friend Shared Async Function SaveCrystalAsync(original As Byte(), updated As Byte(), token As CancellationToken) As Task(Of Byte())
-        Dim crystal As New CrystalSession(original)
-        Dim blocks As Integer() = crystal.WriteBlocks(updated)
-        If original.SequenceEqual(updated) Then Return DirectCast(original.Clone(), Byte())
-        Await ActivateAsync(token)
-        Dim slot As Integer = Await SelectSlotAsync(token)
-        Dim current As Byte() = Await ReadSlotAsync(slot, token)
-        If Not current.SequenceEqual(original) Then Throw New IOException("The crystal or its data changed. Read it again before saving.")
-
-        'The original snapshot remains in memory for comparison; no backup files are created.
-        For Each block As Integer In blocks
-            token.ThrowIfCancellationRequested()
-            Dim expected As Byte() = updated.Skip(block * 16).Take(16).ToArray()
-            If expected.SequenceEqual(original.Skip(block * 16).Take(16)) Then Continue For
-            Dim identity As Byte() = Await HeaderAsync(slot, token)
-            If Not identity.SequenceEqual(original.Take(32)) Then Throw New IOException("The crystal changed while saving. Read it again.")
-            Dim request(32) As Byte
-            request(1) = &H57
-            request(2) = CByte(&H20 Or slot)
-            request(3) = CByte(block)
-            Array.Copy(expected, 0, request, 4, 16)
-            Send(request)
-            Await ReplyAsync(&H57, slot, block, token)
-            Await Task.Delay(100, token)
-            Dim actual As Byte() = Await ReadBlockAsync(slot, block, token)
-            If Not actual.SequenceEqual(expected) Then Throw New IOException("Crystal write verification failed. Read the crystal again.")
-        Next
-        Dim verified As Byte() = Await ReadSlotAsync(slot, token)
-        If Not verified.SequenceEqual(updated) Then Throw New IOException("The saved crystal did not match the requested changes. Read it again.")
-        Dim check As New CrystalSession(verified)
-        If Not check.CanEdit Then Throw New InvalidDataException("The saved crystal failed CYOS validation. Read it again.")
-        Return verified
+        Dim session As New CrystalSession(original)
+        Return Await WriteVerifiedAsync(original, updated, session.WriteBlocks(updated), token)
     End Function
 
-    'Uses the trap specific write set and checks identity and readback throughout the save.
     Friend Shared Async Function SaveTrapAsync(original As Byte(), updated As Byte(), token As CancellationToken) As Task(Of Byte())
-        Dim trap As New TrapSession(original)
-        'niche case
-        If Not trap.CanWrite Then Throw New InvalidDataException("This trap is read-only.")
-        Dim blocks As Integer() = trap.WriteBlocks(updated)
+        Dim session As New TrapSession(original)
+        Return Await WriteVerifiedAsync(original, updated, session.WriteBlocks(updated), token)
+    End Function
+
+    'All writers use this transport: same snapshot, identity before every block,
+    'acknowledged writes, per-block verification and a final complete readback.
+    'The caller owns the figure-specific validation, write surface and commit order.
+    Private Shared Async Function WriteVerifiedAsync(original As Byte(), updated As Byte(), blocks As Integer(), token As CancellationToken) As Task(Of Byte())
+        original = DirectCast(original.Clone(), Byte())
+        updated = DirectCast(updated.Clone(), Byte())
+        token.ThrowIfCancellationRequested()
+        If original.SequenceEqual(updated) Then Return DirectCast(original.Clone(), Byte())
+        For index As Integer = 0 To FigureData.DumpSize - 1
+            If original(index) <> updated(index) AndAlso Not blocks.Contains(index \ 16) Then
+                Throw New InvalidDataException("The edit would change protected data. Nothing was written.")
+            End If
+        Next
         Await ActivateAsync(token)
-        Dim slot As Integer = Await SelectSlotAsync(token)
-        Dim current As Byte() = Await ReadSlotAsync(slot, token)
-        If Not current.SequenceEqual(original) Then Throw New IOException("The trap or its data changed. Read it again before saving.")
-        For Each block As Integer In blocks
-            Dim expected As Byte() = updated.Skip(block * 16).Take(16).ToArray()
+        Dim slot = Await SelectSlotAsync(token)
+        Dim current = Await ReadSlotAsync(slot, token)
+        If Not current.SequenceEqual(original) Then Throw New IOException("The figure or its data changed. Read it again before saving.")
+        For Each block In blocks
+            token.ThrowIfCancellationRequested()
+            Dim expected = updated.Skip(block * 16).Take(16).ToArray()
             If expected.SequenceEqual(original.Skip(block * 16).Take(16)) Then Continue For
-            Dim identity As Byte() = Await HeaderAsync(slot, token)
-            If Not identity.SequenceEqual(original.Take(32)) Then Throw New IOException("The trap changed while saving. Read it again.")
+            Dim identity = Await HeaderAsync(slot, token)
+            If Not identity.SequenceEqual(original.Take(32)) Then Throw New IOException("The figure changed while saving. Read it again.")
             Dim request(32) As Byte
             request(1) = &H57
             request(2) = CByte(&H20 Or slot)
             request(3) = CByte(block)
             Array.Copy(expected, 0, request, 4, 16)
+            token.ThrowIfCancellationRequested()
             Send(request)
             Await ReplyAsync(&H57, slot, block, token)
             Await Task.Delay(100, token)
-            Dim actual As Byte() = Await ReadBlockAsync(slot, block, token)
-            If Not actual.SequenceEqual(expected) Then Throw New IOException("Trap write verification failed. Read the trap again.")
+            Dim actual = Await ReadBlockAsync(slot, block, token)
+            If Not actual.SequenceEqual(expected) Then Throw New IOException("Write verification failed. Read the figure again.")
         Next
-        Dim verified As Byte() = Await ReadSlotAsync(slot, token)
-        If Not verified.SequenceEqual(updated) Then Throw New IOException("The saved trap did not match the requested edit.")
+        Dim verified = Await ReadSlotAsync(slot, token)
+        If Not verified.SequenceEqual(updated) Then Throw New IOException("The saved figure did not match the requested changes. Read it again.")
         Return verified
     End Function
 End Class

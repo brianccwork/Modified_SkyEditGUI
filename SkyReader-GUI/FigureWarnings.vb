@@ -9,18 +9,6 @@ Friend NotInheritable Class FigureWarnings
     Private Sub New()
     End Sub
 
-    'The simplified legacy character editor may bypass payload checks only, the  identity checks remain mandatory.
-    Friend Shared Function HasUnsafeCharacterData(Optional legacyGoldXpOnly As Boolean = False) As Boolean
-        If frmMain.picSerial.BackColor <> Color.Green OrElse frmMain.picHeader.BackColor <> Color.Green Then Return True
-        If legacyGoldXpOnly Then Return False
-        For Each indicator As PictureBox In New PictureBox() {
-            frmMain.picArea0Type1, frmMain.picArea0Type2, frmMain.picArea0Type3, frmMain.picArea0Type4,
-            frmMain.picArea1Type1, frmMain.picArea1Type2, frmMain.picArea1Type3, frmMain.picArea1Type4}
-            If indicator.BackColor <> Color.Green Then Return True
-        Next
-        Return False
-    End Function
-
     'Builds a modal warning with the shared font, warning icon, and acknowledgement button.
     Friend Shared Sub ShowWarning(owner As IWin32Window, heading As String, message As String)
         Using popup As New Form()

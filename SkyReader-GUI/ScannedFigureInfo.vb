@@ -12,7 +12,7 @@ Friend Enum FigureEditorKind
 End Enum
 
 'Header-only display metadata. It never decrypts data, enables a writer, or touches
-'legacy form controls. Matching editors still run their established save validation.
+'legacy form controls. Matching editors independently validate the save data before enabling writes.
 Friend NotInheritable Class ScannedFigureInfo
     Friend ReadOnly Property FigureName As String
     Friend ReadOnly Property GameName As String
@@ -65,10 +65,10 @@ Friend NotInheritable Class ScannedFigureInfo
 
     Friend ReadOnly Property ReadOnlyMessage As String
         Get
-            If IsBottomHalf Then Return "This is the Swap Force bottom half. Attach the top and read it in Skylanders Level and Gold Modifier to edit Gold and Level."
+            If IsBottomHalf Then Return "This is the Swap Force bottom half. Attach the top and read it in Skylanders to edit Gold and Level."
             Dim tab As String = Nothing
             Select Case Editor
-                Case FigureEditorKind.Skylanders : tab = "Skylanders Level and Gold Modifier"
+                Case FigureEditorKind.Skylanders : tab = "Skylanders"
                 Case FigureEditorKind.Vehicles : tab = "Vehicles"
                 Case FigureEditorKind.Crystals : tab = "Imaginators / CYOS"
                 Case FigureEditorKind.Traps : tab = "Traps"
@@ -86,8 +86,8 @@ Friend NotInheritable Class ScannedFigureInfo
         Return (id >= 1000 AndAlso id <= 1015) OrElse id = 1999
     End Function
 
-    'Display names generated from the uploaded Figures.vb catalog and its list-fill
-    'methods. The original parser/writers remain authoritative for edit eligibility.
+    'Identity catalogue retained from the original parser. This is the shared
+    'source of scanned names and editor routing; gallery choices never edit IDs.
     Private Shared ReadOnly catalog As New Dictionary(Of String, String)(StringComparer.Ordinal) From {
         {"0:0", "Spyro's Adventure|Whirlwind"},
         {"1:0", "Spyro's Adventure|Sonic Boom"},
