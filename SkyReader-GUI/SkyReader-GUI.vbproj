@@ -158,7 +158,6 @@
     </None>
     <None Include="App.config" />
     <None Include="Archived\**\*" />
-    <None Include="PATCH_NOTES.md" />
     <None Include="Tests\**\*" Exclude="Tests\bin\**\*;Tests\obj\**\*" />
   </ItemGroup>
   <ItemGroup>

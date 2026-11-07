@@ -3,7 +3,7 @@ Option Explicit On
 
 Friend NotInheritable Class FigureWarnings
     Friend Const UnsafeText As String = "This Skylander may be corrupted or unsafe to write. Keep a backup before attempting recovery. Please reset the figure in a compatible Skylanders game, then collect at least 1 gold so the game saves fresh data. Resetting clears progress. Read the figure again before editing."
-    Friend Const SenseiText As String = "Senseis must first be initialized in-game before editing. Place the Sensei in Skylanders Imaginators, walk around, and collect at least 1 gold so the game saves valid Sensei data to the NFC tag."
+    Friend Const SenseiText As String = "The Sensei is not yet ready. Writing is disabled. If the figure loads in Skylanders Imaginators, please collect 1 gold and try reading the figure again."
 
     'Keeps this shared helper from being instantiated.
     Private Sub New()

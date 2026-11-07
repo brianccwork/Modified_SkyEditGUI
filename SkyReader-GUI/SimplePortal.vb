@@ -184,7 +184,7 @@ Friend NotInheritable Class SimplePortal
 
     Friend Shared Async Function SaveAsync(original As Byte(), updated As Byte(), token As CancellationToken,
                                           Optional vehicle As Boolean = False) As Task(Of Byte())
-        If IsSwapBottom(original) Then Throw New InvalidDataException("Gold and Level must be written to the Swap Force top half.")
+        If IsSwapBottom(original) Then Throw New InvalidDataException("Gold and Level must be written to the Swapper Skylander top half.")
         Dim session As New SimpleFigureSession(original, vehicle)
         Dim blocks = session.WriteBlocks(updated)
         'The payload must land before any sequence/checksum headers commit it.

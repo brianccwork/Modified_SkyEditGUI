@@ -62,6 +62,7 @@ For their assets used in creating a visually appealing UI for the application.
 - Images for Creation Crystals
 - SFX have been added to the application
 - Gold and Level Modification for initialized Imaginators / CYOS
+- Note: After testing, when modifying levels from lower to higher levels, Skylanders sometimes are not immediately full HP in game, but this does not affect the actual editors ability to modify levels and gold, or the skylanders playability in game.
 
 ## MASSIVE REDESEIGN AND UPDATE 9/16/2026
 - NEW Skylanders UI

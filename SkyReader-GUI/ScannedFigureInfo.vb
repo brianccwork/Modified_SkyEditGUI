@@ -65,7 +65,7 @@ Friend NotInheritable Class ScannedFigureInfo
 
     Friend ReadOnly Property ReadOnlyMessage As String
         Get
-            If IsBottomHalf Then Return "This is the Swap Force bottom half. Attach the top and read it in Skylanders to edit Gold and Level."
+            If IsBottomHalf Then Return "This is the Swapper bottom half. Attach the top and read it in Skylanders to edit Gold and Level."
             Dim tab As String = Nothing
             Select Case Editor
                 Case FigureEditorKind.Skylanders : tab = "Skylanders"

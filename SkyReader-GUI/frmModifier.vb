@@ -201,15 +201,14 @@ Public Class frmModifier
         ClearSession()
         loadedName.Text = "Reading figure..."
         status.Text = If(crystalMode, "Keep one Creation Crystal on the portal while its character is read.",
-            "Keep one figure on the portal. Swap Force: place the top half, or the assembled figure on the portal. Gold and Level are read from the top.")
+            "Keep one figure on the portal. Swappers: place the assembled figure, or top half on the portal.")
         RefreshActions()
         Try
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(30))
                 Dim bytes As Byte() = Await SimplePortal.ReadFigureAsync(timeout.Token)
                 DisplaySession(New SimpleFigureSession(bytes, vehicleMode, crystalMode))
                 SkySounds.Play(If(session.IsPreviewOnly AndAlso session.Identity.IsKnown, SkySounds.SuccessfulRead,
-                    If(session.IsUnsafe OrElse session.IsSensei OrElse Not session.CanEdit,
-                       SkySounds.ProblemNoticeRead, SkySounds.SuccessfulRead)))
+                    If(session.CanEdit, SkySounds.SuccessfulRead, SkySounds.ProblemNoticeRead)))
                 ShowFigureWarnings()
             End Using
         Catch ex As Exception
@@ -276,24 +275,23 @@ Public Class frmModifier
                 "Create and save your Imaginator in-game, then read the crystal again.")
         End If
         If value.CanEdit AndAlso SimplePortal.IsSwapTop(value.Original) Then
-            status.Text = "Swap Force top half loaded. Gold, and Level changes save to the top; the bottom stays unchanged."
+            status.Text = "Swapper top half loaded. Gold, and Level changes save to the top; the bottom stays unchanged."
         End If
         If value.CanEdit AndAlso value.NeedsChecksumRepair Then
             status.Text = "Figure loaded. Change Gold or Level, then save."
         End If
     End Sub
 
-    'Displays the relevant unsafe data or Sensei initialization guidance for the loaded session.
+    'Displays the relevant warning for a loaded figure that cannot be edited.
     Private Sub ShowFigureWarnings()
         If session Is Nothing OrElse session.IsPreviewOnly Then Return
         If crystalMode Then
             If Not session.CanEdit Then FigureWarnings.ShowWarning(Me, "Creation Crystal initialization", session.Notice)
             Return
         End If
-        If session.IsSensei Then FigureWarnings.ShowWarning(Me, "Sensei initialization", FigureWarnings.SenseiText)
         If session.IsUnsafe Then
             Dim message As String = If(session.IsVehicle,
-                "This vehicle has uninitialized or unsafe save data. Keep a backup. Initialize it in Skylanders SuperChargers and collect at least 1 Gearbits, then read it again. If recovery requires an in-game reset, remember that resetting clears progress.",
+                "This vehicle has uninitialized or unsafe save data. Keep a backup. Play it in Skylanders SuperChargers and collect at least 1 Gearbits, then read it again. If recovery requires an in-game reset, remember that resetting clears progress.",
                 If(String.IsNullOrEmpty(session.Notice), FigureWarnings.UnsafeText, session.Notice))
             FigureWarnings.ShowWarning(Me, If(session.IsVehicle, "Vehicle unsafe to write", "Skylander corrupted or unsafe to write"), message)
         End If

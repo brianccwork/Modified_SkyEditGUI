@@ -8,6 +8,7 @@ Imports System.IO
 Friend NotInheritable Class CharacterData
     Private Shared ReadOnly MainBlocks As Integer() = {8, 9, 10, 12, 13, 14, 16}
     Private Shared ReadOnly ExtraBlocks As Integer() = {17, 18, 20, 21}
+    Private Shared ReadOnly SenseiSignatureBlocks As Integer() = {4, 34, 62}
     Private Shared ReadOnly Levels As Integer() = {0, 1000, 2200, 3800, 6000, 9000, 13000, 18200, 24800, 33000,
         42700, 53900, 66600, 80800, 96500, 113700, 132400, 152600, 174300, 197500}
 
@@ -71,10 +72,12 @@ Friend NotInheritable Class CharacterData
         Return True
     End Function
 
-    Friend Shared Function Decode(raw As Byte(), ByRef encrypted As Boolean, Optional vehicle As Boolean = False) As Byte()
+    Friend Shared Function Decode(raw As Byte(), ByRef encrypted As Boolean, Optional vehicle As Boolean = False,
+                                  Optional sensei As Boolean = False) As Byte()
         If raw Is Nothing OrElse raw.Length <> FigureData.DumpSize Then Throw New InvalidDataException("Read a complete figure first.")
         Dim decoded = DirectCast(raw.Clone(), Byte())
         For Each block In FigureData.PayloadBlocks
+            If sensei AndAlso SenseiSignatureBlocks.Contains(block) Then Continue For
             Dim payload = raw.Skip(block * 16).Take(16).ToArray()
             If payload.Any(Function(value) value <> 0) Then
                 Array.Copy(FigureData.Crypt(raw, block, payload, False), 0, decoded, block * 16, 16)
@@ -97,11 +100,26 @@ Friend NotInheritable Class CharacterData
         Return main(&H16) <> 0 AndAlso Record(data, True, ActiveBank(data, True)).Any(Function(value) value <> 0)
     End Function
 
-    Friend Shared Function HasBothRecords(data As Byte()) As Boolean
-        Return Enumerable.Range(0, 2).All(Function(bank)
-            Return Record(data, False, bank).Any(Function(value) value <> 0) AndAlso
-                Record(data, True, bank).Any(Function(value) value <> 0)
-        End Function)
+    Friend Shared Function CanEditSensei(data As Byte(), encrypted As Boolean) As Boolean
+        If encrypted Then
+            Return Enumerable.Range(0, 2).All(Function(bank)
+                Return Record(data, False, bank).Any(Function(value) value <> 0) AndAlso
+                    Record(data, True, bank).Any(Function(value) value <> 0)
+            End Function)
+        End If
+        'A fresh retail Sensei has its factory signature and empty save blocks.
+        Dim id = FigureData.Word(data, &H10)
+        Return id >= 601 AndAlso id <= 631 AndAlso
+            SenseiSignatureBlocks.All(Function(block) HasBlockData(data, block)) AndAlso
+            FigureData.PayloadBlocks.All(Function(block) SenseiSignatureBlocks.Contains(block) OrElse Not HasBlockData(data, block))
+    End Function
+
+    Private Shared Function HasBlockData(data As Byte(), block As Integer) As Boolean
+        Return data.Skip(block * 16).Take(16).Any(Function(value) value <> 0)
+    End Function
+
+    Private Shared Function SenseiWriteBlocks(encrypted As Boolean) As Integer()
+        Return If(encrypted, New Integer() {8, 17, 36, 45}, New Integer() {8, 9, 17, 36, 37, 45})
     End Function
 
     Friend Shared Function Gold(data As Byte()) As Decimal
@@ -132,8 +150,8 @@ Friend NotInheritable Class CharacterData
 
     Friend Shared Function WriteBlocks(raw As Byte(), sensei As Boolean, vehicle As Boolean) As Integer()
         Dim encrypted As Boolean
-        Dim data = Decode(raw, encrypted, vehicle)
-        If sensei Then Return New Integer() {8, 17, 36, 45}
+        Dim data = Decode(raw, encrypted, vehicle, sensei)
+        If sensei Then Return SenseiWriteBlocks(encrypted)
         If Not encrypted Then Return FigureData.PayloadBlocks.ToArray()
         If vehicle Then Return Indices(True, 1 - ActiveBank(data, True))
         Return Indices(False, 1 - ActiveBank(data)).Concat(Indices(True, 1 - ActiveBank(data, True))).ToArray()
@@ -171,13 +189,19 @@ Friend NotInheritable Class CharacterData
         If goldValue <> Decimal.Truncate(goldValue) OrElse goldValue < 0 OrElse goldValue > 65000 OrElse
             levelValue <> Decimal.Truncate(levelValue) OrElse levelValue < 1 OrElse levelValue > 20 Then Throw New ArgumentOutOfRangeException("Gold/Level")
         Dim encrypted As Boolean
-        Dim data = Decode(raw, encrypted)
+        Dim data = Decode(raw, encrypted, sensei:=sensei)
         Dim mainSource = ActiveBank(data), extraSource = ActiveBank(data, True)
         Dim changeGold = goldValue <> Gold(data), changeLevel = levelValue <> Level(data, sensei)
         If sensei Then
-            If Not encrypted OrElse Not HasBothRecords(data) Then Throw New InvalidDataException("Initialize the Sensei in-game before editing.")
+            If Not CanEditSensei(data, encrypted) Then Throw New InvalidDataException("The Sensei's save records could not be verified. Writing is disabled.")
             For bank As Integer = 0 To 1
                 Dim main = Record(data, False, bank), extra = Record(data, True, bank)
+                If Not encrypted Then
+                    'Start with two valid copies and make bank A newer in each region.
+                    main(9) = CByte(1 - bank)
+                    extra(2) = CByte(1 - bank)
+                    main(&H16) = 1
+                End If
                 If changeGold Then Array.Copy(BitConverter.GetBytes(CUShort(goldValue)), 0, main, 3, 2)
                 If changeLevel Then PutExperience(main, extra, CInt(levelValue), 63500)
                 'Gold/XP are mirrored in place. Keep each independent sequence and
@@ -202,9 +226,9 @@ Friend NotInheritable Class CharacterData
             RebuildChecksum(main, False) : RebuildChecksum(extra, True)
             PutRecord(data, main, False, 1 - mainSource) : PutRecord(data, extra, True, 1 - extraSource)
         End If
-        Dim targets = If(sensei, New Integer() {8, 17, 36, 45},
+        Dim targets = If(sensei, SenseiWriteBlocks(encrypted),
             Indices(False, 1 - mainSource).Concat(Indices(True, 1 - extraSource)).ToArray())
-        Return Encode(raw, data, targets, encrypted, False)
+        Return Encode(raw, data, targets, encrypted, False, sensei)
     End Function
 
     Friend Shared Function SaveGearbits(raw As Byte(), value As Decimal) As Byte()
@@ -229,11 +253,12 @@ Friend NotInheritable Class CharacterData
         Return Encode(raw, data, targets, encrypted, True)
     End Function
 
-    Private Shared Function Encode(raw As Byte(), data As Byte(), targets As Integer(), wasEncrypted As Boolean, vehicle As Boolean) As Byte()
+    Private Shared Function Encode(raw As Byte(), data As Byte(), targets As Integer(), wasEncrypted As Boolean,
+                                   vehicle As Boolean, Optional sensei As Boolean = False) As Byte()
         Dim result = DirectCast(raw.Clone(), Byte())
-        'A plaintext initialization must encrypt every populated payload block;
-        'ordinary saves touch only their selected writable records.
-        If Not wasEncrypted Then targets = FigureData.PayloadBlocks.Where(Function(block)
+        'Plaintext saves need to encrypt populated payload blocks. Senseis use
+        'an explicit block list so factory signatures are left byte-for-byte intact.
+        If Not wasEncrypted AndAlso Not sensei Then targets = FigureData.PayloadBlocks.Where(Function(block)
             Return targets.Contains(block) OrElse data.Skip(block * 16).Take(16).Any(Function(value) value <> 0)
         End Function).ToArray()
         For Each block In targets
@@ -241,7 +266,7 @@ Friend NotInheritable Class CharacterData
             Array.Copy(FigureData.Crypt(data, block, payload, True), 0, result, block * 16, 16)
         Next
         Dim encrypted As Boolean
-        Dim verified = Decode(result, encrypted, vehicle)
+        Dim verified = Decode(result, encrypted, vehicle, sensei)
         If Not encrypted OrElse Not verified.SequenceEqual(data) Then Throw New InvalidDataException("Prepared figure data failed validation. Nothing was written.")
         Return result
     End Function

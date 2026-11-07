@@ -51,7 +51,7 @@ Friend NotInheritable Class CrystalSession
         Dim id As Integer = FigureData.Word(raw, &H10)
         If raw(&H12) <> 0 OrElse raw(&H13) <> 0 OrElse id < 680 OrElse id > 689 OrElse
            (FigureData.Word(raw, &H1C) >> 12) <> 5 OrElse (FigureData.Word(raw, &H1C) And &H200) = 0 Then
-            Throw New InvalidDataException("This page edits Creation Crystals. Place a Creation Crystal containing an Imaginator on the portal.")
+            Throw New InvalidDataException("This page edits Creation Crystal Imaginators. Place a Creation Crystal containing an Imaginator on the portal.")
         End If
         FigureName = EditorArtworkCatalog.CrystalName(id, FigureData.Word(raw, &H1C), Elements(id - 680) & " Crystal")
         If (raw(0) Xor raw(1) Xor raw(2) Xor raw(3)) <> raw(4) OrElse FigureData.Crc(raw.Take(30).ToArray()) <> FigureData.Word(raw, 30) Then
@@ -78,7 +78,7 @@ Friend NotInheritable Class CrystalSession
         If candidates.Count = 0 Then
             Dim blank As Boolean = ReadRecord(raw, 0, False).All(Function(value) value = 0) AndAlso
                 ReadRecord(raw, 1, False).All(Function(value) value = 0)
-            Notice = If(blank, "Empty Creation Crystal. Create an Imaginator in Skylanders Imaginators, collect at least 1 gold, let the game save, then read it again.",
+            Notice = If(blank, "Empty Creation Crystal. Create an Imaginator in Skylanders Imaginators, let the game save it, then read it again.",
                 "Neither crystal save area passed the CYOS checksums. Keep your backup; initialize/save the character in-game and read it again. Writing is disabled.")
             Return
         End If
@@ -109,7 +109,7 @@ Friend NotInheritable Class CrystalSession
         'Battle class is seven little-endian bits at bit 0x1D8 of the 0x45-byte CYOS struct.
         Dim classId As Integer = Bits(record, &H7C * 8 + &H1D8, 7)
         If classId < 1 OrElse classId > 10 OrElse record.Skip(&H7C).Take(&H45).All(Function(value) value = 0) Then
-            Notice = "No supported, saved Imaginator battle class was found. Create the character in-game, collect at least 1 gold, let the game save, then read it again."
+            Notice = "No supported, saved Imaginator battle class was found. Create the character in-game, let the game save, then read it again."
             Return
         End If
         BattleClass = Classes(classId)

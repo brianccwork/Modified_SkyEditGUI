@@ -58,13 +58,13 @@ Friend NotInheritable Class SimpleFigureSession
         FigureData.ValidateTag(raw)
         Try
             Dim encrypted As Boolean
-            Dim plain = CharacterData.Decode(raw, encrypted, editVehicle)
+            Dim plain = CharacterData.Decode(raw, encrypted, editVehicle, IsSensei)
             If editVehicle Then
                 GoldMaximum = 33000D : LevelMaximum = 1D
                 GoldValue = CharacterData.Gearbits(plain)
                 If GoldValue > GoldMaximum Then Throw New InvalidDataException("Vehicle Gearbits are outside the supported range.")
             Else
-                If IsSensei AndAlso (Not encrypted OrElse Not CharacterData.HasBothRecords(plain)) Then
+                If IsSensei AndAlso Not CharacterData.CanEditSensei(plain, encrypted) Then
                     Throw New InvalidDataException(FigureWarnings.SenseiText)
                 End If
                 GoldValue = CharacterData.Gold(plain)
