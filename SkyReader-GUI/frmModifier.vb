@@ -207,8 +207,9 @@ Public Class frmModifier
             Using timeout As New CancellationTokenSource(TimeSpan.FromSeconds(30))
                 Dim bytes As Byte() = Await SimplePortal.ReadFigureAsync(timeout.Token)
                 DisplaySession(New SimpleFigureSession(bytes, vehicleMode, crystalMode))
-                SkySounds.Play(If(session.IsPreviewOnly AndAlso session.Identity.IsKnown, SkySounds.SuccessfulRead,
-                    If(session.CanEdit, SkySounds.SuccessfulRead, SkySounds.ProblemNoticeRead)))
+                Dim readSucceeded = session.CanEdit OrElse session.NeedsSenseiInitialization OrElse
+                    (session.IsPreviewOnly AndAlso session.Identity.IsKnown)
+                SkySounds.Play(If(readSucceeded, SkySounds.SuccessfulRead, SkySounds.ProblemNoticeRead))
                 ShowFigureWarnings()
             End Using
         Catch ex As Exception
@@ -268,7 +269,7 @@ Public Class frmModifier
         ShowPreview(Me, EventArgs.Empty)
         status.Text = If(value.CanEdit, If(vehicleMode, "Vehicle loaded. Change Gearbits, then save.", "Figure loaded. Change Gold or Level, then save."),
             If(value.IsUnsafe, "Unsafe figure data. Saving is disabled. Please press Connect Portal and try again.", If(vehicleMode, "Read a supported vehicle to edit Gearbits.", "This figure is preview-only here. Use its matching editor if one exists on a different page.")))
-        If value.IsPreviewOnly Then
+        If value.IsPreviewOnly OrElse value.NeedsSenseiInitialization Then
             status.Text = value.Notice
         ElseIf crystalMode Then
             status.Text = If(value.CanEdit, "Imaginator loaded. Change Gold or Level, then save.",
@@ -289,7 +290,9 @@ Public Class frmModifier
             If Not session.CanEdit Then FigureWarnings.ShowWarning(Me, "Creation Crystal initialization", session.Notice)
             Return
         End If
-        If session.IsUnsafe Then
+        If session.NeedsSenseiInitialization Then
+            FigureWarnings.ShowWarning(Me, "Sensei initialization", session.Notice)
+        ElseIf session.IsUnsafe Then
             Dim message As String = If(session.IsVehicle,
                 "This vehicle has uninitialized or unsafe save data. Keep a backup. Play it in Skylanders SuperChargers and collect at least 1 Gearbits, then read it again. If recovery requires an in-game reset, remember that resetting clears progress.",
                 If(String.IsNullOrEmpty(session.Notice), FigureWarnings.UnsafeText, session.Notice))

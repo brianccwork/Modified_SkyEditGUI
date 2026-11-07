@@ -86,7 +86,7 @@ Friend NotInheritable Class CharacterData
         Dim plainValid = Valid(raw, vehicle), encryptedValid = Valid(decoded, vehicle)
         If (Not plainValid AndAlso Not encryptedValid) OrElse
             (plainValid AndAlso encryptedValid AndAlso Not raw.SequenceEqual(decoded)) Then
-            Throw New InvalidDataException("The figure save data is damaged or its encoding cannot be verified. Writing is disabled.")
+            Throw New InvalidDataException("The figure save data is damaged or its encoding cannot be verified. Writing is disabled. Figure may need to be reset.")
         End If
         encrypted = Not plainValid
         Dim result = If(encrypted, decoded, DirectCast(raw.Clone(), Byte()))
@@ -103,9 +103,9 @@ Friend NotInheritable Class CharacterData
     Friend Shared Function CanEditSensei(data As Byte(), encrypted As Boolean) As Boolean
         If encrypted Then
             Return Enumerable.Range(0, 2).All(Function(bank)
-                Return Record(data, False, bank).Any(Function(value) value <> 0) AndAlso
-                    Record(data, True, bank).Any(Function(value) value <> 0)
-            End Function)
+                                                  Return Record(data, False, bank).Any(Function(value) value <> 0) AndAlso
+                                                      Record(data, True, bank).Any(Function(value) value <> 0)
+                                              End Function)
         End If
         'A fresh retail Sensei has its factory signature and empty save blocks.
         Dim id = FigureData.Word(data, &H10)
@@ -259,8 +259,8 @@ Friend NotInheritable Class CharacterData
         'Plaintext saves need to encrypt populated payload blocks. Senseis use
         'an explicit block list so factory signatures are left byte-for-byte intact.
         If Not wasEncrypted AndAlso Not sensei Then targets = FigureData.PayloadBlocks.Where(Function(block)
-            Return targets.Contains(block) OrElse data.Skip(block * 16).Take(16).Any(Function(value) value <> 0)
-        End Function).ToArray()
+                                                                                                 Return targets.Contains(block) OrElse data.Skip(block * 16).Take(16).Any(Function(value) value <> 0)
+                                                                                             End Function).ToArray()
         For Each block In targets
             Dim payload = data.Skip(block * 16).Take(16).ToArray()
             Array.Copy(FigureData.Crypt(data, block, payload, True), 0, result, block * 16, 16)

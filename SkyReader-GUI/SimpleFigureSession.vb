@@ -22,6 +22,7 @@ Friend NotInheritable Class SimpleFigureSession
     Friend ReadOnly Property IsCrystal As Boolean
     Friend ReadOnly Property IsSensei As Boolean
     Friend ReadOnly Property IsUnsafe As Boolean
+    Friend ReadOnly Property NeedsSenseiInitialization As Boolean
     Friend ReadOnly Property CanEdit As Boolean
     Friend ReadOnly Property NeedsChecksumRepair As Boolean
     Friend ReadOnly Property Notice As String
@@ -64,8 +65,16 @@ Friend NotInheritable Class SimpleFigureSession
                 GoldValue = CharacterData.Gearbits(plain)
                 If GoldValue > GoldMaximum Then Throw New InvalidDataException("Vehicle Gearbits are outside the supported range.")
             Else
-                If IsSensei AndAlso Not CharacterData.CanEditSensei(plain, encrypted) Then
-                    Throw New InvalidDataException(FigureWarnings.SenseiText)
+                If IsSensei Then
+                    If Not CharacterData.CanEditSensei(plain, encrypted) Then
+                        Throw New InvalidDataException("The Sensei's save data could not be verified. Saving is disabled.")
+                    End If
+                    'A verified blank Sensei needs its first in-game save before editing.
+                    If Not encrypted Then
+                        NeedsSenseiInitialization = True
+                        Notice = FigureWarnings.SenseiText
+                        Return
+                    End If
                 End If
                 GoldValue = CharacterData.Gold(plain)
                 LevelValue = CharacterData.Level(plain, IsSensei)
