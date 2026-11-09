@@ -8,7 +8,7 @@
   - Trap Masters (Gold/XP)
   - Superchargers (Gold/XP)
   - Chases (Gold/XP)
-  - Senseis (Gold/XP with minor adjustments to process)
+  - Senseis (Gold/XP after Initialized)
   - Imaginators/CYOS/Creation Crystals (Gold/XP after your Imaginator has been created)
   - Vehicles (Gearbits)
   - Traps (Input Villian, Evolved, and Variants!)
@@ -20,14 +20,16 @@ ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
 ALWAYS KEEP A VALID BACKUP OF YOUR SKYLANDER BEFORE MODIFYING DATA
 
 ### Struggling with setting up your Non-Xbox Portal?
-Use Zadig --> WinUSB --> Device Manager --> Update Driver [Tutorial inside Program, or online Youtube video work as well!]
+Use Zadig --> WinUSB --> Device Manager --> Update Driver
+
+[Additional Tutorial in Editor's "Help Portal"] || [Watch YouTube Tutorial (1:27–2:07)](https://www.youtube.com/embed/DIgkSAm9yLk?start=87&end=127)
 
 # Skylander Editor SkyGUI
 Everything in this first section of the README contains changes, additions, and notes for this modified version of the project. Below this section is hegyak's original README.
 
 This program only works with Non-Xbox Skylander Portals
 
-## Resources and Information Used for Development
+## Resources and Information Referenced for Development
 https://github.com/Texthead1/Riches  
 https://github.com/NefariousTechSupport/Runes  
 https://github.com/xMcacutt/SkanderNET  
@@ -52,10 +54,11 @@ For their research, teaching, and documentation regarding Skylanders and communi
 ### Source Credits:
 - [Skylandeer](https://www.youtube.com/@theSkylandeer) - Blue Shattered Trap Team background
 - Motion Vision - Animated Cloud background
-- Activision Skylanders - Icons, and Logo
+- Activision Skylanders - Icons, Logo, and Design Inspiration for UI
 - fruitsnack, Cha0s, SkylanderNFC and Sobersu's for the Skylander Icons displayed on the portal
+- [BoomBringer](https://www.youtube.com/@BoomBringer) - Zadig Portal Tutorial
 
-For their assets used in creating a visually appealing UI for the application.
+For their assets used in creating a visually appealing UI for the application and documentation.
 
 ## Update 11/5/2026
 - Images for Chases in both SSA and SG
@@ -64,7 +67,7 @@ For their assets used in creating a visually appealing UI for the application.
 - Gold and Level Modification for initialized Imaginators / CYOS
 - Note: After testing, when modifying levels from lower to higher levels, Skylanders sometimes are not immediately full HP in game, but this does not affect the actual editors ability to modify levels and gold, or the skylanders playability in game.
 
-## MASSIVE REDESEIGN AND UPDATE 9/16/2026
+## Massive Redesign and Update 9/16/2026
 - NEW Skylanders UI
   - Added a main menu with Skylanders XP and Gold Modifier, Traps, Vehicles, Advanced, and Imaginators. Advanced opens the original Developer editor. The separate Imaginators page is still in development.
     - Note that the Advanced page will no longer be maintained by me, but will be used for testing scenarios. Use at your own risk.
@@ -97,7 +100,7 @@ For their assets used in creating a visually appealing UI for the application.
 #### Future Plans
 - Attempt to get rid of as many placeholder images as possible
 - New UI Features?
-- Further Testing on Crystals/Levels (To see up to 80)
+- Further Testing on Crystals and Levels (Soon)
 
 ### Older Changes
 - Sensei Gold and Level modifier now accepts Heartbreaker Buckshot
